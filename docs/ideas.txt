@@ -1,0 +1,18 @@
+Ideas:
+- Thicker (or somehow visually different) double arrows to make them stand out.
+- Display stats about the project somewhere.
+   * Amount of cycles
+   * Amount of files and packages in total
+   * Amount of files and packages in cycles (followed by per cent of total)
+   * Longest/most complex cycle content counter?
+ - Make it possible to export graphs as images? 
+   * For creating images, see: http://stackoverflow.com/questions/18432160/java-jgraphx-save-as-an-image
+   
+ - Show a number in a filled circle in front of the names in the Package view to indicate how many cycles that package is part of.
+ - Allow the user to "exclude" cycles (i.e. they are not added to the Total Cycles number, the packages are blue instead of red (unless they're part of other, non-excluded cycles), etc.)
+
+Todo:   
+- Buttons for zooming/fitting to screen (on both dep and cycle view, make a general toolbar in GraphPanel?)
+- Add a logger (should log crashes in the UI as well as crashes during analysis!).
+- Update colours for selection (especially the outline in selected items).
+- Improve the UI in general (e.g. more padding).

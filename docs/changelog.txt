@@ -1,0 +1,267 @@
+==========
+2018-10-28
+==========
+- Analyser.findPackageName() now uses SourceUtil.removeComments().
+- Changed Analyser.getPackageList() to use an ExtensionFileFilter to filter out the correct files.
+- Fixed Analyser.getPackageList() discarding file information if a package can be found in several locations (e.g. src/main/java/package and src/test/java/package).
+
+==========
+2018-10-27
+==========
+- Fixed a large number of bugs in SourceUtil.findCommentIndices() and removeComments().
+- Moved source folder to src/main/java.
+- Added a test for SourceUtil.
+
+==========
+2018-10-26
+==========
+- Started reworking SourceUtil.removeComments() and .removeStrings() into a single method to fix some problems.
+- Added SourceUtil.findCommentIndices() and required "sub-methods".
+
+==========
+2018-10-24
+==========
+- PackageAnalyser now removes loops.
+- Added SourceUtil. It currently holds removeStrings() and removeComments().
+- PackageAnalyser now calls SourceUtil.removeStrings() and .removeComments() before looking for references.
+- Backend.setSelectedEdge() now takes an Edge isntead of DependencyEdge as parameter.
+- Removed some old and/or unused code from PackageAnalyser.
+
+==========
+2018-10-15
+==========
+- Updated komposten-utils.jar to the latest version.
+- Added the parameter "resultIfAborted" to GraphCycleFinder.findCycles(PackageData, CircuitListener).
+- Analyser will now display the X found circuits when reaching the limit X while scanning cycles for a single package.
+- Added AnalysisListener.analysisPartiallyComplete().
+- Added a constant CYCLE_LIMIT to Analyser.
+- A dialogue message is now displayed when the Analyser finds more than CYCLE_LIMIT cycles in a project or with a package.
+- Fixed PackageList removing the packages in cycles when pressing "Show only packages in cycles".
+
+==========
+2018-10-04
+==========
+- Renamed AnalysisRunnable to FullAnalysisRunnable.
+- Added an interface called AnalysisRunnable to Analyser.
+- Added PackageAnalysisRunnable to Analyser.
+- Clicking a package that is marked as "in cycles" but has zero cycles will now trigger an analysis of that package.
+- Removed the Cycle list from Analyser.
+- Added an AnalysisType enum, which is passed in analysisBegun(), analysisComplete() and analysisAborted() to differ between different analyses.
+- Added rebuildGraphs() to AnalyserPanel and rebuildGraph() to GraphPanel.
+
+==========
+2018-10-01
+==========
+- ClassPanel now refreshes the graph after laying out the components (fixed an issue where the components appeared in the wrong places).
+- ClassPanel now properly toggles visibility of edges when using the "show edges for ..." buttons.
+- Added refreshGraph(boolean) to GraphPanel.
+- Completely moved setVisibleEdges() and updateVisibleEdges() to GraphPanel.
+- Added setVisibleVertices() and related methods to GraphPanel.
+- All GraphPanels now toggle visibility of vertices and edges instead of completely recreating the graph when visibleEdges or visibleVertices change.
+
+==========
+2018-09-29
+==========
+- Added ClassMenuBar.
+- ClassPanel now has a ClassMenuBar.
+- Added a setVisibleEdges(int) to GraphPanel.
+- Moved the basic XXXDependenciesButtons to komposten.analyser.gui.views.buttons.
+- The basic XXXDependenciesButtons now accept a GraphPanel instead of a CyclePanel.
+- Moved the SHOW_ALL_DEPENDENCIES constants to GraphPanel and renamed them to SHOW_ALL_EDGES.
+
+==========
+2018-09-26
+==========
+- Updated komposten-utils.jar to get Graph.findStronglyConnectedComponents().
+- GraphCycleFinder now uses Graph.findStronglyConnectedComponents() to find all packages involved in cycles.
+
+==========
+2018-09-23
+==========
+- ClassPanel now sorts the class vertices into groups based on which vertices they are connected two.
+- ClassPanel now lays out its vertices based on their groups.
+- ClassPanel now sorts the vertices within each group.
+
+==========
+2018-09-21
+==========
+- ClassPanel now lays out its components manually. Swim lanes, labels and classes are laid out properly. Edges are still WIP.
+- Added two "swim lanes" with labels to ClassPanel.
+- All vertices are now added into their respective swim lanes.
+- Fixed AnalysisProgressDialog clearing the title and text when show() is called. It no clears when setVisible(false) is called instead.
+
+==========
+2018-09-20
+==========
+- Cleaned PackageAnalyser.getPackageDependencies() a bit (mostly re-naming variables).
+- Dependency now stores each source file's class's name and what classes it points to in the other package.
+- ClassPanel now adds vertices for the files that the source package refers to, and edges as appropriate.
+
+==========
+2018-09-19
+==========
+- GraphPanel is now generic in regards to vertex and edge type.
+- Added Vertex and Edge classes to GraphPanel
+- FilePanel now uses its own ClassVertex to represent the classes/files in the graph.
+- Cycle is now serialisable to avoid an exception when moving cycle nodes.
+- It is now possible to double-click on edges to external packages.
+- Double-clicking on edges in the dependency panel or the cycle panel will now populate the FilePanel.
+- Renamed FilePanel to ClassPanel.
+- Made ClassPanel's edges selectable.
+
+==========
+2018-09-16
+==========
+- Analyser now looks for package declarations inside the first .java file in each folder. This means that any folder can be chosen to be analysed.
+- Dependencies are now sorted (affects the dependency and cycle panels).
+- The package list now gains focus after a successful analysis.
+
+==========
+2018-09-15
+==========
+- Added isInCycle to PackageData. It is now set for all packages in cycles during the analysis.
+- Backend.isContainedInCycle(PackageData) now simply returns PackageData.isInCycle instead of doing a linear search through all cycles.
+- Added equals() and hashCode() to DependencyEdge and PackageData.
+- CyclePanel no longer adds duplicate edges to the cycle graph.
+- Added cycles to PackageData. It stores all cycles that a specific package is part of.
+- Replaced usage of Analyser.getCyclesWithPackage(PackageData) with PackageData.cycles.
+- Renamed PackageAnalyser now uses internal and external instead of valid and invalid when referring to packages.
+- Renamed DependecyPanel to DependencyPanel.
+- PackageAnalyser now keeps external dependencies and marks them as such.
+- Added applyExternalStyle() to DependencyGraph.
+- DependencyPanel now calls applyExternalStyle() on all external packages (and edges to them).
+- Double-clicking external packages or edges to them no longer has an effect.
+- Renamed AnalysisListener.analysisFindingPackages() and .analysisAnalysingCycles() to .analysisSearchingFolder() and .analysisCurrentCycleCount().
+
+==========
+2018-09-14
+==========
+- Expanded AnalysisListener by adding analysisStageChanged(), analysisFindingPackages(), analysisAnalysingPackages() and analysisAnalysingCycles().
+- The AnalysisProgressDialog now displays a title, as well as what file/package is currently being looked at.
+- The AnalysisProgressDialog now displays the current cycle count while analysing.
+
+==========
+2018-09-01
+==========
+- Updated the abort analysis function so it actually works, and can abort the new cycle analysis mid-analysis.
+
+==========
+2018-08-31
+==========
+- Replaced the GraphCycleFinder with a new version that utilises komposten.utilities.tools.Graph (i.e. Johnson's algorithm).
+- Analyser now creates and manages its own thread, rather than having the Backend do that.
+
+==========
+2016-05-18
+==========
+- Added a "predecessor map" to GraphCycleMap, and a method to initialise it (getPredecessorIndices()).
+- Renamed GraphNode's getAdjacentNodes() to getSuccessorNodes().
+- Renamed GraphCycleFinder's "adjacencyMap" to "successorMap". (Same change goes for relevant methods/variables.)
+
+==========
+2016-05-17
+==========
+- Analysed GraphCycleFinder to find the problems causing some cycles to not be found.
+- Verified that PackageAnalyser.getPackageDependencies() is working.
+
+==========
+2016-05-16
+==========
+- Finished re-writing PackageAnalyser.getPackageDependencies().
+- Created a constant for the file extension used by Analyser.
+
+==========
+2016-05-15
+==========
+- Started re-writing PackageAnalyser.getPackageDependencies().
+
+==========
+2016-05-14
+==========
+- Added a PropertyChangeListener to AnalyserPanel so that the third tab can be opened when an edge is selected (double-clicked).
+- Added a tab for the FilePanel.
+- CyclePanel and DependencyPanel are now RootedGraphPanels, FilePanel is now an UnrootedGraphPanel.
+- Created 2 sub-classes for GraphPanel: RootedGraphPanel and UnrootedGraphPanel.
+- edgeDoubleClicked() in Cycle- and DependencyPanel now call backend.setSelectedEdge().
+- Added setSelectedEdge() to Backend.
+- Added FilePanel
+
+==========
+2016-05-13
+==========
+- Added hasEdgeBetweenVertices(V, V) to DependencyGraph.
+- GraphComponent's constructor now takes a DependencyGraph instead of an mxGraph (to make it easier to get data about edges).
+- GraphComponent's mouse listener now checks for double-clicks on edges too.
+- Added edgeDoubleClicked() to GraphPanel.
+- Moved updateRecentList() to AnalyserSettings.
+
+==========
+2016-05-11
+==========
+- DependencyPanel now notifies the back-end when a package is double-clicked (so the selection change is transferred via the PropertyChangeListeners).
+- Removed PackageSelectionListener. Selection data is now transferred via the back-end (using PropertyChangeListeners).
+- RecentItem now updates the list of recent items when clicked.
+- FileMenu now listens for changes to the list of recent items.
+- Fixed Settings not notifying global listeners when a setting is changed.
+
+==========
+2016-05-08
+==========
+- Added the "last updated date" to the version number.
+- Added PropertyChangeListener and relevant methods in Backend.
+- Added SettingChangeListener and relevant methods in Settings.
+- Made Settings abstract and created a sub-class for the more project-specific stuff.
+- RecentItems now loads their respective folders when clicked. 
+- Added a Backend class to hold the analyser. A backend is created in AnalyserWindow and passed down to all GUI elements that need it.
+- PackageAnalyser will now log exceptions that occur while reading files.
+- AnalyserWindow now initalizes LogUtils.
+
+==========
+2016-05-02
+==========
+- ExitItem now properly closes the window via events rather than using System.exit(). 
+- Fixed the RememberProjectItem not properly setting its checked state on start-up.
+- Added a list of the recently opened projects to the file menu.
+- Added a "recent list" to settings.
+- Added getArray(String) and set(String, String[]) to Settings.
+
+==========
+2016-05-01
+==========
+- Added a dialog to show file's dependencies when double-clicking a package in the CyclePanel.
+- Added a button to show all edges for all packages.
+- CyclePanel's addVisibleEdges() now removes all edges if no cells are selected and visibleDependencies != SHOW_ALL_DEPENDENCIES.
+- Fixed CyclePanel trying to add edges when the graph was cleared (rootPackage == null).
+- Clearing a GraphPanel now clears "rootPackage" variable as well as its DependencyGraph's selection.
+- Fixed CyclePanel not properly adding edges for items when visibleDependencies == SHOW_ALL_DEPENDENCIES.
+
+==========
+2016-04-22
+==========
+- Disabled selection of edges in CyclePanel.
+- Re-factored GraphPanel (created sub-classes for the JGraphXAdapter and the mxGraphComponent).
+- Added an mxRubberband to enable drag-selection.
+- Toggling "only show cycles" will now remember the selection (even if the selected item is not included in any cycles).
+- Changed PackagePanel's layout to GridBagLayout and moved the filter field up above the list.
+
+==========
+2016-04-21
+==========
+- Added a text field to filter the packages in the list. Un-focusing the text field will show the text "Filter..." in a semi-transparent colour. 
+- Added a minimum size (800x600) to the window.
+- Added a settings menu to the menu bar, with the option to choose whether to load the last project on launch.
+- The last opened project/folder is now opened when launching the program.
+
+==========
+2016-04-20
+==========
+- OpenItem now saves the last directory in Settings.
+- Added Settings.
+- Closing the AnalysisProgressWindow now aborts the analysis.
+- Added the possibility abort an analysis (might need better code design).
+
+==========
+2016-04-18
+==========
+- Created changelog file.
+- Version 0.1 finished.
