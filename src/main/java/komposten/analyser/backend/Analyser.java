@@ -58,6 +58,7 @@ public class Analyser
 
 	public Analyser()
 	{
+		//CURRENT Adding options for analysing comments and strings. Pass booleans, Backend or Settings as parameter?
 		listeners = new ArrayList<AnalysisListener>();
 		createThread();
 	}

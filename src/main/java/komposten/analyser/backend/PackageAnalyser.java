@@ -149,8 +149,6 @@ public class PackageAnalyser
 						System.err.println(msg);
 					break;
 				}
-				//NEXT_TASK 2: After fixing comment and string stuff, create a Git repo. Maybe create a separate branch for multithreading and one for more stats.
-				//NEXT_TASK 3; Add gui options for ignoring references in strings, comments and javadoc (ignore by default).
 				
 				line = builder.toString();
 				String[] dependenciesOnLine = Regex.getMatches("\\b([a-z0-9_]+\\.)+(([A-Z_$][\\w$]*)|\\*)", line);

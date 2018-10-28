@@ -13,6 +13,8 @@ public class AnalyserSettings extends Settings
 	public static final String REMEMBER_LAST_PROJECT = "rememberLastProj";
 	public static final String REMEMBER_LAST_DIRECTORY = "rememberLastDir";
 	public static final String RECENT_PROJECTS = "recent";
+	public static final String ANALYSE_COMMENTS = "analyseComments";
+	public static final String ANALYSE_STRINGS = "analyseStrings";
 	public static final int RECENT_ELEMENTS_COUNT = 5;
 	
 	

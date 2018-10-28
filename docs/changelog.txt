@@ -4,6 +4,7 @@
 - Analyser.findPackageName() now uses SourceUtil.removeComments().
 - Changed Analyser.getPackageList() to use an ExtensionFileFilter to filter out the correct files.
 - Fixed Analyser.getPackageList() discarding file information if a package can be found in several locations (e.g. src/main/java/package and src/test/java/package).
+- Added menu items for setting whether or not to analyse comments and strings. WIP.
 
 ==========
 2018-10-27
