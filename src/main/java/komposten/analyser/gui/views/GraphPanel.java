@@ -98,6 +98,7 @@ public abstract class GraphPanel<V extends Vertex, E extends Edge> extends JPane
 	}
 	
 	
+	//NEXT_TASK All fitGraphTo-methods should move the graph into the frame as well.
 	public void fitGraphToView()
 	{
 		mxGraphView view = graphPanel.getGraph().getView();
@@ -120,6 +121,38 @@ public abstract class GraphPanel<V extends Vertex, E extends Edge> extends JPane
 
 		double widthValue = (double)componentWidth/viewWidth * view.getScale();
 		view.setScale(widthValue);
+	}
+	
+	
+	public void fitGraphToHeight()
+	{
+		mxGraphView view = graphPanel.getGraph().getView();
+		int componentHeight = graphPanel.getHeight() - 50;
+		int viewHeight = (int)view.getGraphBounds().getHeight();
+
+		double heightValue = (double)componentHeight/viewHeight * view.getScale();
+		view.setScale(heightValue);
+	}
+	
+	
+	public void zoomIn()
+	{
+		mxGraphView view = graphPanel.getGraph().getView();
+		view.setScale(view.getScale() * 1.25);
+	}
+	
+	
+	public void zoomOut()
+	{
+		mxGraphView view = graphPanel.getGraph().getView();
+		view.setScale(view.getScale() / 1.25);
+	}
+	
+	
+	public void zoomReset()
+	{
+		mxGraphView view = graphPanel.getGraph().getView();
+		view.setScale(1.25);
 	}
 	
 	

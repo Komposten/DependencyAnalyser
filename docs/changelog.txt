@@ -2,6 +2,9 @@
 2018-10-29
 ==========
 - Connected the menu items for analysing comments and strings to the Analyser.
+- Added buttons for zooming and fitting the graphs to the window width and/or height.
+- Added zoomIn(), zoomOut(), zoomReset() and fitGraphToHeight() to GraphPanel.
+- Added a ZoomMenuBar that acts as parent to all other menu bars.
 
 ==========
 2018-10-28
