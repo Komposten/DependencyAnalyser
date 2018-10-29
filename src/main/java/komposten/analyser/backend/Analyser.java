@@ -58,7 +58,6 @@ public class Analyser
 
 	public Analyser()
 	{
-		//CURRENT Adding options for analysing comments and strings. Pass booleans, Backend or Settings as parameter?
 		listeners = new ArrayList<AnalysisListener>();
 		createThread();
 	}
@@ -89,13 +88,13 @@ public class Analyser
 	}
 	
 	
-	public void analyseSource(String sourceFolder)
+	public void analyseSource(String sourceFolder, boolean analyseComments, boolean analyseStrings)
 	{
-		analyseSource(new File(sourceFolder));
+		analyseSource(new File(sourceFolder), analyseComments, analyseStrings);
 	}
 	
 	
-	public void analyseSource(File sourceFolder)
+	public void analyseSource(File sourceFolder, boolean analyseComments, boolean analyseStrings)
 	{
 		if (!sourceFolder.exists() || !sourceFolder.isDirectory())
 			throw new IllegalArgumentException("\"" + sourceFolder.getPath() + "\" does not exist or is not a folder!");
@@ -103,7 +102,7 @@ public class Analyser
 		if (analysisRunnable != null && !analysisRunnable.hasFinished())
 			abortAnalysis();
 		
-		analysisRunnable = new FullAnalysisRunnable(sourceFolder);
+		analysisRunnable = new FullAnalysisRunnable(sourceFolder, analyseComments, analyseStrings);
 		analysisThread.postRunnable(analysisRunnable);
 	}
 	
@@ -253,6 +252,9 @@ public class Analyser
 	private class FullAnalysisRunnable implements AnalysisRunnable
 	{
 		private File sourceFolder;
+		private boolean analyseComments;
+		private boolean analyseStrings;
+		
 		private GraphCycleFinder cycleFinder;
 		private volatile boolean finished;
 		private volatile boolean abort;
@@ -260,9 +262,11 @@ public class Analyser
 		private List<PackageData> packages;
 
 
-		public FullAnalysisRunnable(File sourceFolder)
+		public FullAnalysisRunnable(File sourceFolder, boolean analyseComments, boolean analyseStrings)
 		{
 			this.sourceFolder = sourceFolder;
+			this.analyseComments = analyseComments;
+			this.analyseStrings = analyseStrings;
 		}
 		
 		
@@ -430,7 +434,7 @@ public class Analyser
 
 		private void analysePackageDependencies(List<PackageData> packages)
 		{
-			PackageAnalyser analyser = new PackageAnalyser();
+			PackageAnalyser analyser = new PackageAnalyser(analyseComments, analyseStrings);
 			
 			int i = 1;
 			for (PackageData data : packages)

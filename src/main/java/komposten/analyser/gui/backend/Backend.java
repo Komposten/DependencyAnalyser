@@ -168,7 +168,7 @@ public class Backend
 		//FIXME Backend; If "folder" is the same as the last analysed folder, ask to analyse again (something might have changed, so it must be possible to re-analyse)?
 		if (folder != null)
 		{
-			analyser.analyseSource(folder);
+			analyser.analyseSource(folder, settings.getBoolean(AnalyserSettings.ANALYSE_COMMENTS), settings.getBoolean(AnalyserSettings.ANALYSE_STRINGS));
 		}
 	}
 	

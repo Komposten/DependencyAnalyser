@@ -20,11 +20,17 @@ import komposten.utilities.tools.Regex;
 
 public class PackageAnalyser
 {
+	private boolean analyseComments;
+	private boolean analyseStrings;
+	
 	private List<PackageData> externalPackages;
 	
-	public PackageAnalyser()
+	
+	public PackageAnalyser(boolean analyseComments, boolean analyseStrings)
 	{
 		externalPackages = new ArrayList<>();
+		this.analyseComments = analyseComments;
+		this.analyseStrings = analyseStrings;
 	}
 	
 	/*
@@ -138,7 +144,7 @@ public class PackageAnalyser
 				StringBuilder builder = new StringBuilder(line);
 				try
 				{
-					lastEndedInComment = SourceUtil.removeComments(builder, lastEndedInComment, false, false);
+					lastEndedInComment = SourceUtil.removeComments(builder, lastEndedInComment, analyseStrings, analyseComments);
 				}
 				catch (IllegalArgumentException e)
 				{
