@@ -13,6 +13,7 @@ import org.jgrapht.graph.ListenableDirectedGraph;
 
 import com.mxgraph.layout.mxGraphLayout;
 import com.mxgraph.model.mxICell;
+import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxGraphView;
 
 import komposten.analyser.backend.Edge;
@@ -98,40 +99,58 @@ public abstract class GraphPanel<V extends Vertex, E extends Edge> extends JPane
 	}
 	
 	
-	//NEXT_TASK All fitGraphTo-methods should move the graph into the frame as well.
+	//CURRENT Calling the same fitGraph function twice moves the graph around! Maybe an error with getGraphBounds() in moveGraphIntoView()?
 	public void fitGraphToView()
 	{
 		mxGraphView view = graphPanel.getGraph().getView();
 		int componentWidth = graphPanel.getWidth();
 		int componentHeight = graphPanel.getHeight();
-		int viewWidth = (int)view.getGraphBounds().getWidth();
-		int viewHeight = (int)view.getGraphBounds().getHeight();
+		double viewWidth = view.getGraphBounds().getWidth() / view.getScale();
+		double viewHeight = view.getGraphBounds().getHeight() / view.getScale();
 
-		double widthValue = (double)componentWidth/viewWidth * view.getScale();
-		double heightValue = (double)componentHeight/viewHeight * view.getScale();
+		double widthValue = componentWidth/viewWidth;
+		double heightValue = componentHeight/viewHeight;
 		view.setScale(Math.min(widthValue, heightValue));
+		
+		moveGraphIntoView();
 	}
 	
 	
 	public void fitGraphToWidth()
 	{
 		mxGraphView view = graphPanel.getGraph().getView();
-		int componentWidth = graphPanel.getWidth() - 50;
-		int viewWidth = (int)view.getGraphBounds().getWidth();
+		int componentWidth = graphPanel.getWidth();
+		double viewWidth = view.getGraphBounds().getWidth() / view.getScale();
 
-		double widthValue = (double)componentWidth/viewWidth * view.getScale();
+		double widthValue = componentWidth/viewWidth;
 		view.setScale(widthValue);
+
+		moveGraphIntoView();
 	}
 	
 	
 	public void fitGraphToHeight()
 	{
 		mxGraphView view = graphPanel.getGraph().getView();
-		int componentHeight = graphPanel.getHeight() - 50;
-		int viewHeight = (int)view.getGraphBounds().getHeight();
+		int componentHeight = graphPanel.getHeight();
+		double viewHeight = view.getGraphBounds().getHeight() / view.getScale();
 
-		double heightValue = (double)componentHeight/viewHeight * view.getScale();
+		double heightValue = componentHeight/viewHeight;
 		view.setScale(heightValue);
+
+		moveGraphIntoView();
+	}
+	
+	
+	public void moveGraphIntoView()
+	{
+		mxGraph graph = graphPanel.getGraph();
+		
+		Object[] oldSelection = graph.getSelectionCells();
+		
+		graph.selectAll();
+		graph.moveCells(graph.getSelectionCells(), -graph.getGraphBounds().getX(), -graph.getGraphBounds().getY());
+		graph.setSelectionCells(oldSelection);
 	}
 	
 	

@@ -5,6 +5,7 @@
 - Added buttons for zooming and fitting the graphs to the window width and/or height.
 - Added zoomIn(), zoomOut(), zoomReset() and fitGraphToHeight() to GraphPanel.
 - Added a ZoomMenuBar that acts as parent to all other menu bars.
+- GraphPanel's fitGraphTo***()-methods now scale the graphs better, and move it into view (note: not fully working).
 
 ==========
 2018-10-28
