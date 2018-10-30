@@ -65,7 +65,7 @@ public class PackageList extends JList<PackageData>
 	}
 	
 	
-	public void setShowOnlyCycles(boolean onlyCycles) //FIXME PackageList; When changing mode, only reset/move the selection if the selected item was removed!
+	public void setShowOnlyCycles(boolean onlyCycles)
 	{
 		onlyShowCycles = onlyCycles;
 		updateList(false);
