@@ -2,6 +2,9 @@
 2018-10-30
 ==========
 - Fixed a weird bug where GraphPanel.fitGraphTo***() would move the graph thousands of pixels off-screen.
+- Fixed GraphPanel.fitGraphTo***() giving slightly different results when pressed repeatedly.
+- Fixed the graph layouts varying depending on zoom level (now layout always happens at default zoom).
+- GraphPanel.fitGraphTo***() now zooms to 90% of the calculated scale to add some padding to the edges.
 
 ==========
 2018-10-29

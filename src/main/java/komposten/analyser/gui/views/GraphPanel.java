@@ -14,6 +14,7 @@ import org.jgrapht.graph.ListenableDirectedGraph;
 import com.mxgraph.layout.mxGraphLayout;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
+import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxGraphView;
 
@@ -65,7 +66,12 @@ public abstract class GraphPanel<V extends Vertex, E extends Edge> extends JPane
 	{
 		refreshVisibleVertices();
 		if (performLayout)
+		{
+			double scale = graphPanel.getGraph().getView().getScale();
+			zoomReset();
 			layoutGraph();
+			graphPanel.getGraph().getView().setScale(scale);;
+		}
 		jGraph.refresh();
 	}
 	
@@ -105,14 +111,16 @@ public abstract class GraphPanel<V extends Vertex, E extends Edge> extends JPane
 		mxGraphView view = graphPanel.getGraph().getView();
 		int componentWidth = graphPanel.getWidth();
 		int componentHeight = graphPanel.getHeight();
-		double viewWidth = view.getGraphBounds().getWidth() / view.getScale();
-		double viewHeight = view.getGraphBounds().getHeight() / view.getScale();
+		
+		mxRectangle graphBounds = getGraphBounds();
+		double viewWidth = graphBounds.getWidth();
+		double viewHeight = graphBounds.getHeight();
 
 		double widthValue = componentWidth/viewWidth;
 		double heightValue = componentHeight/viewHeight;
-		view.setScale(Math.min(widthValue, heightValue));
+		view.setScale(Math.min(widthValue, heightValue) * 0.9);
 		
-		moveGraphIntoView();
+		moveGraphIntoView(graphBounds);
 	}
 	
 	
@@ -120,12 +128,14 @@ public abstract class GraphPanel<V extends Vertex, E extends Edge> extends JPane
 	{
 		mxGraphView view = graphPanel.getGraph().getView();
 		int componentWidth = graphPanel.getWidth();
-		double viewWidth = view.getGraphBounds().getWidth() / view.getScale();
+
+		mxRectangle graphBounds = getGraphBounds();
+		double viewWidth = graphBounds.getWidth();
 
 		double widthValue = componentWidth/viewWidth;
-		view.setScale(widthValue);
+		view.setScale(widthValue * 0.9);
 
-		moveGraphIntoView();
+		moveGraphIntoView(graphBounds);
 	}
 	
 	
@@ -133,16 +143,39 @@ public abstract class GraphPanel<V extends Vertex, E extends Edge> extends JPane
 	{
 		mxGraphView view = graphPanel.getGraph().getView();
 		int componentHeight = graphPanel.getHeight();
-		double viewHeight = view.getGraphBounds().getHeight() / view.getScale();
+
+		mxRectangle graphBounds = getGraphBounds();
+		double viewHeight = graphBounds.getHeight();
 
 		double heightValue = componentHeight/viewHeight;
-		view.setScale(heightValue);
+		view.setScale(heightValue * 0.9);
 
-		moveGraphIntoView();
+		moveGraphIntoView(graphBounds);
 	}
 	
 	
 	public void moveGraphIntoView()
+	{
+		moveGraphIntoView(getGraphBounds());
+	}
+	
+	
+	public void moveGraphIntoView(mxRectangle graphBounds)
+	{
+		mxGraph graph = graphPanel.getGraph();
+		
+		Object[] oldSelection = graph.getSelectionCells();
+		
+		graph.selectAll();
+		graph.moveCells(graph.getSelectionCells(), -graphBounds.getX(), -graphBounds.getY());
+		graph.setSelectionCells(oldSelection);
+	}
+	
+	
+	/**
+	 * @return The bounds of graph independent of the current scale.
+	 */
+	private mxRectangle getGraphBounds()
 	{
 		mxGraph graph = graphPanel.getGraph();
 		
@@ -153,6 +186,8 @@ public abstract class GraphPanel<V extends Vertex, E extends Edge> extends JPane
 		mxCell cell = (mxCell) graph.getSelectionCells()[0];
 		double minX = cell.getGeometry().getX();
 		double minY = cell.getGeometry().getY();
+		double maxX = cell.getGeometry().getX() + cell.getGeometry().getWidth();
+		double maxY = cell.getGeometry().getY() + cell.getGeometry().getHeight();
 		
 		for (Object object : graph.getSelectionCells())
 		{
@@ -160,12 +195,18 @@ public abstract class GraphPanel<V extends Vertex, E extends Edge> extends JPane
 			
 			if (cell.getGeometry().getX() < minX)
 				minX = cell.getGeometry().getX();
+			if (cell.getGeometry().getX() + cell.getGeometry().getWidth() > maxX)
+				maxX = cell.getGeometry().getX() + cell.getGeometry().getWidth();
+			
 			if (cell.getGeometry().getY() < minY)
 				minY = cell.getGeometry().getY();
+			if (cell.getGeometry().getY() + cell.getGeometry().getHeight() > maxY)
+				maxY = cell.getGeometry().getY() + cell.getGeometry().getHeight();
 		}
 		
-		graph.moveCells(graph.getSelectionCells(), -minX, -minY);
 		graph.setSelectionCells(oldSelection);
+		
+		return new mxRectangle(minX, minY, maxX - minX, maxY - minY);
 	}
 	
 	
@@ -281,13 +322,6 @@ public abstract class GraphPanel<V extends Vertex, E extends Edge> extends JPane
 	public void setVisibleVertices(int mode)
 	{
 		this.visibleVertices = mode;
-//
-//		if (mode == SHOW_ALL_VERTICES)
-//			showAllVertices();
-//		else
-//			updateVisibleVertices(mode);
-//		
-//		refreshVisibleEdges();
 	}
 	
 	
@@ -298,7 +332,6 @@ public abstract class GraphPanel<V extends Vertex, E extends Edge> extends JPane
 	 */
 	protected void refreshVisibleVertices()
 	{
-//		setVisibleVertices(visibleVertices);
 		if (visibleVertices == SHOW_ALL_VERTICES)
 			showAllVertices();
 		else
