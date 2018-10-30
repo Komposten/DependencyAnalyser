@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import org.jgrapht.graph.ListenableDirectedGraph;
 
 import com.mxgraph.layout.mxGraphLayout;
+import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxGraphView;
@@ -99,7 +100,6 @@ public abstract class GraphPanel<V extends Vertex, E extends Edge> extends JPane
 	}
 	
 	
-	//CURRENT Calling the same fitGraph function twice moves the graph around! Maybe an error with getGraphBounds() in moveGraphIntoView()?
 	public void fitGraphToView()
 	{
 		mxGraphView view = graphPanel.getGraph().getView();
@@ -149,7 +149,22 @@ public abstract class GraphPanel<V extends Vertex, E extends Edge> extends JPane
 		Object[] oldSelection = graph.getSelectionCells();
 		
 		graph.selectAll();
-		graph.moveCells(graph.getSelectionCells(), -graph.getGraphBounds().getX(), -graph.getGraphBounds().getY());
+		
+		mxCell cell = (mxCell) graph.getSelectionCells()[0];
+		double minX = cell.getGeometry().getX();
+		double minY = cell.getGeometry().getY();
+		
+		for (Object object : graph.getSelectionCells())
+		{
+			cell = (mxCell)object;
+			
+			if (cell.getGeometry().getX() < minX)
+				minX = cell.getGeometry().getX();
+			if (cell.getGeometry().getY() < minY)
+				minY = cell.getGeometry().getY();
+		}
+		
+		graph.moveCells(graph.getSelectionCells(), -minX, -minY);
 		graph.setSelectionCells(oldSelection);
 	}
 	

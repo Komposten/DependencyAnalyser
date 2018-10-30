@@ -1,4 +1,9 @@
 ==========
+2018-10-30
+==========
+- Fixed a weird bug where GraphPanel.fitGraphTo***() would move the graph thousands of pixels off-screen.
+
+==========
 2018-10-29
 ==========
 - Connected the menu items for analysing comments and strings to the Analyser.
