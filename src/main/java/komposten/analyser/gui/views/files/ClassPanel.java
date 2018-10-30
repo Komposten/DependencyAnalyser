@@ -56,12 +56,12 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 			//				Either make cells immovable, or find another way ("cell moved listeners"?).
 			//				Listeners can be added using jGraph.addListener(). Event types can be found in mxEvent (e.g. REMOVE_CELLS_FROM_PARENT and CELLS_MOVED might be of interest).
 			String laneStyle = "shape=rectangle;autosize=0;foldable=false;fillOpacity=0.0;movable=false;";
-			String poolStyle = "shape=pool;fontSize=9;fontStyle=1;startSize=20;horizontal=true;autosize=1;foldable=false;movable=false;";
+			String poolStyle = "shape=pool;fontSize=9;fontStyle=1;startSize=20;horizontal=true;autosize=0;foldable=false;movable=false;";
 			pool = (mxCell) jGraph.insertVertex(jGraph.getDefaultParent(), null, "", 10, 10, 0, 0, poolStyle);
 			lane1 = (mxCell) jGraph.insertVertex(pool, null, "", 0, 0, 0, 0, laneStyle);
 			lane2 = (mxCell) jGraph.insertVertex(pool, null, "", 0, 0, 0, 0, laneStyle);
-			lane1Label = (mxCell) jGraph.insertVertex(lane1, null, "", 0, 0, 0, 0, "style=label;");
-			lane2Label = (mxCell) jGraph.insertVertex(lane2, null, "", 0, 0, 0, 0, "style=label;");
+			lane1Label = (mxCell) jGraph.insertVertex(lane1, null, "", 0, 0, 0, 0, "style=label;movable=false;");
+			lane2Label = (mxCell) jGraph.insertVertex(lane2, null, "", 0, 0, 0, 0, "style=label;movable=false;");
 			pool.setVisible(false);
 		}
 		finally
@@ -318,6 +318,8 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 			
 			pool.getGeometry().setX(10);
 			pool.getGeometry().setY(10);
+			pool.getGeometry().setWidth(lane2.getGeometry().getRectangle().getMaxX());
+			pool.getGeometry().setHeight(lane2.getGeometry().getRectangle().getMaxY());
 		}
 		finally
 		{
@@ -326,7 +328,6 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 		
 		layoutEdges();
 
-		jGraph.updateCellSize(pool);
 		jGraph.refresh();
 	}
 	
