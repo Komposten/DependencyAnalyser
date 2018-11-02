@@ -2,6 +2,10 @@
 2018-11-02
 ==========
 - Added GraphCycleFinderTest, AnalysisThreadTest and PackageDataTest.
+- Re-factored PackageAnalyser.
+   * Added analysePackage(PackageData, List<PackageData).
+   * PackageAnalyser now delegates all data parsing to a list of SourceParsers.
+- Added SourceParser and its first implementing class: DependencyParser.
 
 ==========
 2018-10-31

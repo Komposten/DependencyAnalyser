@@ -441,7 +441,7 @@ public class Analyser
 			{
 				if (abort) return;
 				notifyAnalysisAnalysingPackage(data, i++, packages.size());
-				data.dependencies = analyser.getPackageDependencies(data, packages);
+				analyser.analysePackage(data, packages);
 			}
 		}
 		

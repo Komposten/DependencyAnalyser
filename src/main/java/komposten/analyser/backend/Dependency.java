@@ -31,7 +31,7 @@ public class Dependency implements Serializable
 	}
 	
 	
-	void addClass(File classFile, String[] classesReferenced)
+	public void addClass(File classFile, String[] classesReferenced)
 	{
 		int newLength = filesWithDependency.length + 1;
 
