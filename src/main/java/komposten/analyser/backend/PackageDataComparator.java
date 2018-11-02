@@ -18,6 +18,14 @@ public class PackageDataComparator implements Comparator<PackageData>
 			return 1;
 		else if (o2.fullName.startsWith(o1.fullName))
 			return -1;
-		return o1.fullName.compareTo(o2.fullName);
+		
+		int stringComp = o1.fullName.compareTo(o2.fullName);
+		
+		if (stringComp < 0)
+			return -1;
+		else if (stringComp > 0)
+			return 1;
+		else
+			return 0;
 	}
 }

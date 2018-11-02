@@ -1,4 +1,16 @@
 ==========
+2018-11-02
+==========
+- Added GraphCycleFinderTest, AnalysisThreadTest and PackageDataTest.
+
+==========
+2018-10-31
+==========
+- Added DependencyTest, CycleTest and PackageDataComparatorTest.
+- Fixed Cycle.contains() not using .equals() comparison.
+- Changed PackageDataComparator.compareTo() to always return one of -1, 0 or 1.
+
+==========
 2018-10-30
 ==========
 - Fixed a weird bug where GraphPanel.fitGraphTo***() would move the graph thousands of pixels off-screen.
@@ -43,7 +55,7 @@
 - PackageAnalyser now removes loops.
 - Added SourceUtil. It currently holds removeStrings() and removeComments().
 - PackageAnalyser now calls SourceUtil.removeStrings() and .removeComments() before looking for references.
-- Backend.setSelectedEdge() now takes an Edge isntead of DependencyEdge as parameter.
+- Backend.setSelectedEdge() now takes an Edge instead of DependencyEdge as parameter.
 - Removed some old and/or unused code from PackageAnalyser.
 
 ==========

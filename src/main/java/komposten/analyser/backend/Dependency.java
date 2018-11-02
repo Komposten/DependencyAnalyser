@@ -22,19 +22,10 @@ public class Dependency implements Serializable
 	public Map<String, String[]> classDependencies;
 	
 
-//	public Dependency(PackageData dependency, PackageData owner, File[] filesWithDependency)
-//	{
-//		this.target = dependency;
-//		this.source = owner;
-//		this.filesWithDependency = filesWithDependency;
-//		this.classDependencies = new HashMap<>();
-//	}
-	
-
-	public Dependency(PackageData dependency, PackageData owner)
+	public Dependency(PackageData target, PackageData source)
 	{
-		this.target = dependency;
-		this.source = owner;
+		this.target = target;
+		this.source = source;
 		this.filesWithDependency = new File[0];
 		this.classDependencies = new HashMap<>();
 	}
@@ -43,7 +34,7 @@ public class Dependency implements Serializable
 	void addClass(File classFile, String[] classesReferenced)
 	{
 		int newLength = filesWithDependency.length + 1;
-		
+
 		File[] newArray = Arrays.copyOf(filesWithDependency, newLength);
 		newArray[newLength-1] = classFile;
 		
@@ -54,6 +45,10 @@ public class Dependency implements Serializable
 	}
 	
 	
+	/**
+	 * Returns a string representation of this Dependency in the following format:
+	 * <pre>target[dependingFiles]</pre>.
+	 */
 	@Override
 	public String toString()
 	{
@@ -61,7 +56,15 @@ public class Dependency implements Serializable
 	}
 	
 	
-	public String toString(boolean includeSource, boolean includeTarget, boolean includeDependendingFiles)
+	/**
+	 * Returns a string representation of this Dependency in the following format:
+	 * <pre>source-->target[dependingFiles]</pre>
+	 * @param includeSource If the source should be included in the string.
+	 * @param includeTarget If the target should be included in the string.
+	 * @param includeDependingFiles If the files in source that depend on target should be included.
+	 * @return
+	 */
+	public String toString(boolean includeSource, boolean includeTarget, boolean includeDependingFiles)
 	{
 		StringBuilder builder = new StringBuilder();
 		
@@ -74,7 +77,7 @@ public class Dependency implements Serializable
 		if (includeTarget)
 			builder.append(target);
 		
-		if (includeDependendingFiles)
+		if (includeDependingFiles)
 		{
 			builder.append("[");
 			for (int i = 0; i < filesWithDependency.length; i++)

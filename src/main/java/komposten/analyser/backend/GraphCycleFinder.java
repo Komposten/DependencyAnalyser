@@ -119,18 +119,18 @@ public class GraphCycleFinder
 	
 	
 	/**
-	 * Finds all cycles containing <code>packageData</code> in the graph.
-	 * @param packageData
+	 * Finds all cycles containing <code>node</code> in the graph.
+	 * @param node
 	 * @param circuitListener
 	 * @param resultIfAborted <code>true</code> if the found cycles should be returned even if the analysis was aborted.
 	 * @return <code>true</code> if the analysis completed successfully,
 	 *         <code>false</code> if it was aborted.
 	 */
-	public boolean findCycles(PackageData packageData, CircuitListener circuitListener, boolean resultIfAborted)
+	public boolean findCycles(GraphNode node, CircuitListener circuitListener, boolean resultIfAborted)
 	{
 		if (!hasRun)
 		{
-			int index = nodeList.indexOf(packageData);
+			int index = nodeList.indexOf(node);
 			Result cycleResult = Graph.findElementaryCircuits(index, adjacencyLists, circuitListener);
 			
 			if (!cycleResult.wasAborted || resultIfAborted)

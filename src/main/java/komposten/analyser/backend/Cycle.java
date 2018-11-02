@@ -22,7 +22,7 @@ public class Cycle implements Serializable
 	{
 		for (PackageData packageData : packages)
 		{
-			if (packageData == data)
+			if (packageData.equals(data))
 				return true;
 		}
 		

@@ -45,26 +45,6 @@ public class PackageData implements GraphCycleFinder.GraphNode, Serializable, Ve
 	}
 	
 	
-//	public PackageData(File rootFolder, File folder, File[] sourceFiles)
-//	{
-//		this.folder = folder;
-//		this.sourceFiles = sourceFiles;
-//		this.fullName = getFullName(rootFolder, folder);
-//	}
-	
-	
-//	private String getFullName(File rootFolder, File folder)
-//	{
-//		String folderPath = folder.getAbsolutePath();
-//		String rootPath = rootFolder.getAbsolutePath();
-//		
-//		String result = folderPath.replace(rootPath, ""); //Make the path relative to the root folder.
-//		result = result.replaceAll("(\\\\|/)", "."); //Replace all '/' or '\' with '.'.
-//		result = result.replaceAll("^\\.|\\.$", ""); //Trim away start/end periods.
-//		return result;
-//	}
-	
-	
 	@Override
 	public GraphNode[] getSuccessorNodes()
 	{
@@ -91,13 +71,6 @@ public class PackageData implements GraphCycleFinder.GraphNode, Serializable, Ve
 	@Override
 	public int hashCode()
 	{
-//		Object[] values = new Object[3 + sourceFiles.length + dependencies.length];
-//		values[0] = folder;
-//		values[1] = fullName;
-//		values[2] = isInCycle;
-//		System.arraycopy(sourceFiles, 0, values, 3, sourceFiles.length);
-//		System.arraycopy(dependencies, 0, values, 3+sourceFiles.length, dependencies.length);
-//		return Objects.hash(values);
 		return fullName.hashCode();
 	}
 	
@@ -126,42 +99,6 @@ public class PackageData implements GraphCycleFinder.GraphNode, Serializable, Ve
 			if (!fullName.equals(object.fullName))
 				return false;
 		}
-		
-//		if (folder == null)
-//		{
-//			if (object.folder != null)
-//				return false;
-//		}
-//		else
-//		{
-//			if (!folder.equals(object.folder))
-//				return false;
-//		}
-//
-//		if (sourceFiles == null)
-//		{
-//			if (object.sourceFiles != null)
-//				return false;
-//		}
-//		else
-//		{
-//			if (!Arrays.equals(sourceFiles, object.sourceFiles))
-//				return false;
-//		}
-//
-//		if (dependencies == null)
-//		{
-//			if (object.dependencies != null)
-//				return false;
-//		}
-//		else
-//		{
-//			if (!Arrays.equals(dependencies, object.dependencies))
-//				return false;
-//		}
-//		
-//		if (isInCycle != object.isInCycle)
-//			return false;
 		
 		return true;
 	}
