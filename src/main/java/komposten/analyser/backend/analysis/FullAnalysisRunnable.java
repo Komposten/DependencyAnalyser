@@ -2,7 +2,6 @@ package komposten.analyser.backend.analysis;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -14,7 +13,6 @@ import komposten.analyser.backend.PackageData;
 import komposten.analyser.backend.analysis.AnalysisListener.AnalysisStage;
 import komposten.analyser.backend.analysis.AnalysisListener.AnalysisType;
 import komposten.analyser.backend.util.Constants;
-import komposten.utilities.tools.ExtensionFileFilter;
 import komposten.utilities.tools.Graph.CircuitListener;
 
 public class FullAnalysisRunnable extends AnalysisRunnable
@@ -82,16 +80,19 @@ public class FullAnalysisRunnable extends AnalysisRunnable
 	{
 		analysisListener.analysisBegun(AnalysisType.Full, sourceFolder);
 		analysisListener.analysisStageChanged(AnalysisStage.FindingPackages);
+		
 		packages = new ArrayList<>(getPackageList(sourceFolder));
+		
 		analysisListener.analysisStageChanged(AnalysisStage.AnalysingFiles);
+		
 		analysePackageDependencies(packages);
+		
 		analysisListener.analysisStageChanged(AnalysisStage.FindingCycles);
 		List<Cycle> cycles = findAllCyclicDependencies(packages);
 		
 		if (cycles != null)
 		{
 			System.out.println("Cycle count: " + cycles.size());
-			//NEXT_TASK Analyser's AnalysisListener should retrieve the package data from this runnable when analysisComplete() is called, before propagating the event.
 			analysisListener.analysisComplete(AnalysisType.Full);
 		}
 		else if (!abort)
