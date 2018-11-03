@@ -1,12 +1,10 @@
 package komposten.analyser.backend.analysis;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import komposten.analyser.backend.Cycle;
 import komposten.analyser.backend.GraphCycleFinder;
@@ -16,12 +14,13 @@ import komposten.analyser.backend.PackageData;
 import komposten.analyser.backend.analysis.AnalysisListener.AnalysisStage;
 import komposten.analyser.backend.analysis.AnalysisListener.AnalysisType;
 import komposten.analyser.backend.util.Constants;
-import komposten.analyser.backend.util.SourceUtil;
 import komposten.utilities.tools.ExtensionFileFilter;
 import komposten.utilities.tools.Graph.CircuitListener;
 
 public class FullAnalysisRunnable extends AnalysisRunnable
 {
+	private ThreadPoolExecutor threadPool;
+	
 	private File sourceFolder;
 	private boolean analyseComments;
 	private boolean analyseStrings;
@@ -33,12 +32,13 @@ public class FullAnalysisRunnable extends AnalysisRunnable
 	private List<PackageData> packages;
 
 
-	public FullAnalysisRunnable(File sourceFolder, boolean analyseComments, boolean analyseStrings, AnalysisListener analysisListener)
+	public FullAnalysisRunnable(File sourceFolder, boolean analyseComments, boolean analyseStrings, ThreadPoolExecutor threadPool, AnalysisListener analysisListener)
 	{
 		super(analysisListener);
 		this.sourceFolder = sourceFolder;
 		this.analyseComments = analyseComments;
 		this.analyseStrings = analyseStrings;
+		this.threadPool = threadPool;
 	}
 	
 	
@@ -80,11 +80,9 @@ public class FullAnalysisRunnable extends AnalysisRunnable
 
 	public void analyseSource(File sourceFolder)
 	{
-		packages = new ArrayList<>();
-		
 		analysisListener.analysisBegun(AnalysisType.Full, sourceFolder);
 		analysisListener.analysisStageChanged(AnalysisStage.FindingPackages);
-		getPackageList(sourceFolder, sourceFolder, packages);
+		packages = new ArrayList<>(getPackageList(sourceFolder));
 		analysisListener.analysisStageChanged(AnalysisStage.AnalysingFiles);
 		analysePackageDependencies(packages);
 		analysisListener.analysisStageChanged(AnalysisStage.FindingCycles);
@@ -118,89 +116,30 @@ public class FullAnalysisRunnable extends AnalysisRunnable
 		System.gc();
 		finished = true;
 	}
-
-
-	private void getPackageList(File folder, File sourceFolder, List<PackageData> outputList)
+	
+	
+	private List<PackageData> getPackageList(File sourceFolder)
 	{
-		analysisListener.analysisSearchingFolder(folder);
+		//NEXT_TASK Figure out a better way to do this since we search multiple folders!
+		analysisListener.analysisSearchingFolder(sourceFolder);
 		
-		List<File> fileList = new ArrayList<File>();
+		PackageFinderTask packageFinder = new PackageFinderTask(sourceFolder, threadPool);
+		threadPool.submit(packageFinder);
 		
-		for (File file : folder.listFiles(new ExtensionFileFilter(true, Constants.FILE_EXTENSION)))
+		while (!packageFinder.hasFinished())
 		{
-			if (abort)
-				return;
-			
-			if (file.isDirectory())
-				getPackageList(file, sourceFolder, outputList);
-			else
-				fileList.add(file);
-		}
-		
-		if (!fileList.isEmpty())
-		{
-			File first = fileList.get(0);
-			String packageName = findPackageName(first);
-			
-			if (packageName.isEmpty())
-				packageName = "<default package>";
-			
-			PackageData data = new PackageData(packageName, folder, fileList.toArray(new File[fileList.size()]));
-			
-			if (!outputList.contains(data))
+			try
 			{
-				outputList.add(data);
+				Thread.sleep(250);
 			}
-			else
+			catch (InterruptedException e)
 			{
-				PackageData original = outputList.get(outputList.indexOf(data));
-				
-				File[] files = Arrays.copyOf(original.sourceFiles, original.sourceFiles.length + data.sourceFiles.length);
-				System.arraycopy(data.sourceFiles, 0, files, original.sourceFiles.length, data.sourceFiles.length);
-				original.sourceFiles = files;
+				Thread.currentThread().interrupt();
+				return null;
 			}
 		}
-	}
-
-
-	private String findPackageName(File sourceFile)
-	{
-		String packageName = "";
 		
-		try (BufferedReader reader = new BufferedReader(new FileReader(sourceFile)))
-		{
-			boolean lastEndedInComment = false;
-			String line = "";
-			
-			while ((line = reader.readLine()) != null)
-			{
-				line = line.trim();
-				if (line.isEmpty())
-					continue;
-				
-				StringBuilder builder = new StringBuilder(line);
-				lastEndedInComment = SourceUtil.removeComments(builder, lastEndedInComment);
-				
-				line = builder.toString().trim();
-				
-				if (line.startsWith("package"))
-				{
-					int indexOfPackage = line.indexOf("package");
-					packageName = line.substring(indexOfPackage+7, line.indexOf(";", indexOfPackage)).trim();
-					break;
-				}
-				else if (line.startsWith("import") || line.matches("^(public)?\\s+(abstract|final)?\\s+(class|interface|enum).*$"))
-				{
-					break;
-				}
-			}
-		}
-		catch (IOException e)
-		{
-			//NEXT_TASK Fix exception handling.
-		}
-		
-		return packageName;
+		return packageFinder.getPackageList();
 	}
 
 

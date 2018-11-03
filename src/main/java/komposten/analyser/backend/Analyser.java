@@ -3,6 +3,8 @@ package komposten.analyser.backend;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import komposten.analyser.backend.analysis.AnalysisListener;
 import komposten.analyser.backend.analysis.AnalysisRunnable;
@@ -31,11 +33,21 @@ public class Analyser
 	private AnalysisThread analysisThread;
 	private AnalysisRunnable analysisRunnable;
 	
+	private ThreadPoolExecutor threadPool;
+	
 
 	public Analyser()
 	{
 		listeners = new ArrayList<AnalysisListener>();
+		createThreadPool();
 		createThread();
+	}
+
+
+	private void createThreadPool()
+	{
+		//NEXT_TASK 1; Add an option for the thread count! Check for changes to this option before starting an analysis (maybe pass the option as parameter to analyseSource()?).
+		threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(4);
 	}
 
 
@@ -72,7 +84,7 @@ public class Analyser
 		if (analysisRunnable != null && !analysisRunnable.hasFinished())
 			abortAnalysis();
 		
-		analysisRunnable = new FullAnalysisRunnable(sourceFolder, analyseComments, analyseStrings, analysisListener);
+		analysisRunnable = new FullAnalysisRunnable(sourceFolder, analyseComments, analyseStrings, threadPool, analysisListener);
 		analysisThread.postRunnable(analysisRunnable);
 	}
 	
@@ -91,6 +103,9 @@ public class Analyser
 	{
 		analysisRunnable.abort();
 		analysisRunnable = null;
+		
+		threadPool.shutdownNow();
+		createThreadPool();
 	}
 	
 	

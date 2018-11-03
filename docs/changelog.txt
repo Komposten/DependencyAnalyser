@@ -7,6 +7,10 @@
 - Moved FILE_EXTENSION and CYCLE_LIMIT to a Constants class.
 - Moved AnalysisType and AnalysisStage to AnalysisListener.
 - Moved AnalysisListener to the new komposten.analyser.backend.analysis package.
+- Analyser now contains a ThreadPoolExecutor to provide worker threads for the analysis.
+- Added PackageFinderTask from the functionality in FullAnalysisRunnable.getPackageList().
+- FullAnalysisRunnable now creates a PackageFinderTask and executes it using the ThreadPoolExecutor.
+- SourceUtils.removeComments() is now synchronised since it uses a static Matcher instance.
 
 ==========
 2018-11-02

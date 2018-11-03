@@ -79,7 +79,7 @@ public class SourceUtil
 	 * @return <code>true</code> if the line ends with an un-closed comment,
 	 *         <code>false</code> otherwise.
 	 */
-	public static boolean removeComments(StringBuilder line, boolean startsInComment, boolean keepStrings, boolean keepComments)
+	public static synchronized boolean removeComments(StringBuilder line, boolean startsInComment, boolean keepStrings, boolean keepComments)
 	{
 		if (line.indexOf("\n") != -1 || line.indexOf("\r") != -1)
 			throw new IllegalArgumentException("line may not contain line breaks!");
