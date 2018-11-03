@@ -121,6 +121,7 @@ public class Backend
 		return analyser;
 	}
 	
+	
 	public AnalyserSettings getSettings()
 	{
 		return settings;
@@ -168,7 +169,11 @@ public class Backend
 		//FIXME Backend; If "folder" is the same as the last analysed folder, ask to analyse again (something might have changed, so it must be possible to re-analyse)?
 		if (folder != null)
 		{
-			analyser.analyseSource(folder, settings.getBoolean(AnalyserSettings.ANALYSE_COMMENTS), settings.getBoolean(AnalyserSettings.ANALYSE_STRINGS));
+			boolean analyseComments = settings.getBoolean(AnalyserSettings.ANALYSE_COMMENTS);
+			boolean analyseStrings = settings.getBoolean(AnalyserSettings.ANALYSE_STRINGS);
+			String threadCountString = settings.get(AnalyserSettings.THREAD_COUNT);
+			int threadCount = (threadCountString == null ? settings.getDefaultThreadCount() : Integer.parseInt(threadCountString));
+			analyser.analyseSource(folder, analyseComments, analyseStrings, threadCount);
 		}
 	}
 	

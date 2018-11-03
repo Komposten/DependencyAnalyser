@@ -46,7 +46,6 @@ public class Analyser
 
 	private void createThreadPool()
 	{
-		//NEXT_TASK 1; Add an option for the thread count! Check for changes to this option before starting an analysis (maybe pass the option as parameter to analyseSource()?).
 		threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(4);
 	}
 
@@ -70,13 +69,13 @@ public class Analyser
 	}
 	
 	
-	public void analyseSource(String sourceFolder, boolean analyseComments, boolean analyseStrings)
+	public void analyseSource(String sourceFolder, boolean analyseComments, boolean analyseStrings, int threadCount)
 	{
-		analyseSource(new File(sourceFolder), analyseComments, analyseStrings);
+		analyseSource(new File(sourceFolder), analyseComments, analyseStrings, threadCount);
 	}
 	
 	
-	public void analyseSource(File sourceFolder, boolean analyseComments, boolean analyseStrings)
+	public void analyseSource(File sourceFolder, boolean analyseComments, boolean analyseStrings, int threadCount)
 	{
 		if (!sourceFolder.exists() || !sourceFolder.isDirectory())
 			throw new IllegalArgumentException("\"" + sourceFolder.getPath() + "\" does not exist or is not a folder!");
@@ -84,6 +83,8 @@ public class Analyser
 		if (analysisRunnable != null && !analysisRunnable.hasFinished())
 			abortAnalysis();
 		
+		threadPool.setCorePoolSize(threadCount);
+		threadPool.setMaximumPoolSize(threadCount);
 		analysisRunnable = new FullAnalysisRunnable(sourceFolder, analyseComments, analyseStrings, threadPool, analysisListener);
 		analysisThread.postRunnable(analysisRunnable);
 	}

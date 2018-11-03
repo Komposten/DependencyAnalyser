@@ -11,6 +11,9 @@
 - Added PackageFinderTask from the functionality in FullAnalysisRunnable.getPackageList().
 - FullAnalysisRunnable now creates a PackageFinderTask and executes it using the ThreadPoolExecutor.
 - SourceUtils.removeComments() is now synchronised since it uses a static Matcher instance.
+- Added a menu item for setting thread count in the menu bar.
+- Added getDefaultThreadCount() and getMaxThreadCount() to AnalyserSettings.
+- The set thread count is now passed to Analyser, which tweaks its pool size.
 
 ==========
 2018-11-02

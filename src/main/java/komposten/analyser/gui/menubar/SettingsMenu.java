@@ -10,6 +10,7 @@ public class SettingsMenu extends JMenu
 	private JMenuItem itemRememberProject;
 	private JMenuItem itemAnalyseComments;
 	private JMenuItem itemAnalyseStrings;
+	private JMenuItem itemThreadCount;
 	
 	public SettingsMenu(Backend backend)
 	{
@@ -20,9 +21,11 @@ public class SettingsMenu extends JMenu
 		itemRememberProject = new RememberProjectItem(backend);
 		itemAnalyseComments = new AnalyseCommentsItem(backend);
 		itemAnalyseStrings = new AnalyseStringsItem(backend);
+		itemThreadCount = new ThreadCountItem(backend);
 		
 		add(itemRememberProject);
 		add(itemAnalyseComments);
 		add(itemAnalyseStrings);
+		add(itemThreadCount);
 	}
 }

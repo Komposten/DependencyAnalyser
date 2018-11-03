@@ -10,7 +10,7 @@ import java.util.Map.Entry;
 
 import komposten.utilities.tools.FileOperations;
 
-public abstract class Settings //TODO Settings; Replace with the updated version in komposten utils.
+public abstract class Settings //TODO Settings; Replace with the updated version in komposten utils. When doing this, see if calls to get() can be replaced by any get***().
 {
 	private File file;
 	private Map<String, String> data;

@@ -15,6 +15,7 @@ public class AnalyserSettings extends Settings
 	public static final String RECENT_PROJECTS = "recent";
 	public static final String ANALYSE_COMMENTS = "analyseComments";
 	public static final String ANALYSE_STRINGS = "analyseStrings";
+	public static final String THREAD_COUNT = "threadCount";
 	public static final int RECENT_ELEMENTS_COUNT = 5;
 	
 	
@@ -49,5 +50,17 @@ public class AnalyserSettings extends Settings
 		recent = list.subList(0, elementCount).toArray(new String[0]);
 		
 		set(RECENT_PROJECTS, recent);
+	}
+	
+	
+	public int getMaxThreadCount()
+	{
+		return Runtime.getRuntime().availableProcessors();
+	}
+	
+	
+	public int getDefaultThreadCount()
+	{
+		return Runtime.getRuntime().availableProcessors() / 2;
 	}
 }
