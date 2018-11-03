@@ -19,7 +19,8 @@ import komposten.analyser.backend.PackageData;
 
 public class DependencyParser implements SourceParser
 {
-	private static final Matcher MATCHER;
+	private static final Pattern PATTERN;
+	private final Matcher matcher;
 	
 	private PackageData sourcePackage;
 	private List<PackageData> internalPackages;
@@ -31,8 +32,7 @@ public class DependencyParser implements SourceParser
 	
 	static
 	{
-		 Pattern pattern = Pattern.compile("\\b([a-z0-9_]+\\.)+(([A-Z_$][\\w$]*)|\\*)");
-		 MATCHER = pattern.matcher("");
+		 PATTERN = Pattern.compile("\\b([a-z0-9_]+\\.)+(([A-Z_$][\\w$]*)|\\*)");
 	}
 	
 
@@ -43,6 +43,8 @@ public class DependencyParser implements SourceParser
 		this.externalPackages = new LinkedList<>();
 		this.dependenciesInFile = new LinkedList<>();
 		this.allDependenciesByTarget = new HashMap<>();
+
+		this.matcher = PATTERN.matcher("");
 	}
 	
 	
@@ -70,10 +72,10 @@ public class DependencyParser implements SourceParser
 	private List<String> getReferencesOnLine(String line)
 	{
 		List<String> matches = new LinkedList<>();
-		MATCHER.reset(line);
+		matcher.reset(line);
 		
-		while (MATCHER.find())
-	    matches.add(MATCHER.group());
+		while (matcher.find())
+	    matches.add(matcher.group());
 	  
 	  return matches;
 	}

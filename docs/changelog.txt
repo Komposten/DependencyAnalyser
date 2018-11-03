@@ -14,6 +14,9 @@
 - Added a menu item for setting thread count in the menu bar.
 - Added getDefaultThreadCount() and getMaxThreadCount() to AnalyserSettings.
 - The set thread count is now passed to Analyser, which tweaks its pool size.
+- Added PackageAnalysisRunnable.
+- FullAnalysisRunnable now creates PackageAnalysisTasks to spread package analysis over several threads.
+- DependencyParser is now thread safe.
 
 ==========
 2018-11-02

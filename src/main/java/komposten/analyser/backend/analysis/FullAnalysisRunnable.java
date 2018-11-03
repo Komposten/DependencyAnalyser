@@ -2,13 +2,14 @@ package komposten.analyser.backend.analysis;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import komposten.analyser.backend.Cycle;
 import komposten.analyser.backend.GraphCycleFinder;
 import komposten.analyser.backend.GraphCycleFinder.GraphNode;
-import komposten.analyser.backend.PackageAnalyser;
 import komposten.analyser.backend.PackageData;
 import komposten.analyser.backend.analysis.AnalysisListener.AnalysisStage;
 import komposten.analyser.backend.analysis.AnalysisListener.AnalysisType;
@@ -85,7 +86,7 @@ public class FullAnalysisRunnable extends AnalysisRunnable
 		
 		analysisListener.analysisStageChanged(AnalysisStage.AnalysingFiles);
 		
-		analysePackageDependencies(packages);
+		analysePackages(packages);
 		
 		analysisListener.analysisStageChanged(AnalysisStage.FindingCycles);
 		List<Cycle> cycles = findAllCyclicDependencies(packages);
@@ -124,11 +125,17 @@ public class FullAnalysisRunnable extends AnalysisRunnable
 		//NEXT_TASK Figure out a better way to do this since we search multiple folders!
 		analysisListener.analysisSearchingFolder(sourceFolder);
 		
+		if (abort)
+			return null;
+		
 		PackageFinderTask packageFinder = new PackageFinderTask(sourceFolder, threadPool);
 		threadPool.submit(packageFinder);
 		
 		while (!packageFinder.hasFinished())
 		{
+			if (abort)
+				break;
+			
 			try
 			{
 				Thread.sleep(250);
@@ -142,18 +149,47 @@ public class FullAnalysisRunnable extends AnalysisRunnable
 		
 		return packageFinder.getPackageList();
 	}
-
-
-	private void analysePackageDependencies(List<PackageData> packages)
+	
+	
+	private void analysePackages(List<PackageData> packages)
 	{
-		PackageAnalyser analyser = new PackageAnalyser(analyseComments, analyseStrings);
+		List<PackageData> syncList = Collections.synchronizedList(new LinkedList<>(packages));
+		List<StateRunnable> runnables = new ArrayList<>();
 		
-		int i = 1;
-		for (PackageData data : packages)
+		for (int i = 0; i < threadPool.getCorePoolSize(); i++)
 		{
-			if (abort) return;
-			analysisListener.analysisAnalysingPackage(data, i++, packages.size());
-			analyser.analysePackage(data, packages);
+			if (abort) break;
+			PackageAnalysisTask task = new PackageAnalysisTask(syncList, analyseComments, analyseStrings, analysisListener);
+			runnables.add(task);
+		}
+		
+		for (StateRunnable task : runnables)
+		{
+			threadPool.submit(task);
+		}
+		
+		boolean hasFinished = false;
+		while (!hasFinished)
+		{
+			if (abort)
+				break;
+			
+			try
+			{
+				Thread.sleep(250);
+			}
+			catch (InterruptedException e)
+			{
+				Thread.currentThread().interrupt();
+				return;
+			}
+			
+			hasFinished = true;
+			for (StateRunnable runnable : runnables)
+			{
+				if (!runnable.hasFinished())
+					hasFinished = false;
+			}
 		}
 	}
 	
