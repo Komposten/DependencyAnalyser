@@ -255,7 +255,7 @@ public class PackageList extends JList<PackageData>
 				renderer.setBorder(compundBorder);
 			}
 			
-			if (backend.getAnalyser().isContainedInCycle(value))
+			if (value.isInCycle)
 				renderer.setForeground(getCycleTextColor(renderer));
 			
 			return renderer;

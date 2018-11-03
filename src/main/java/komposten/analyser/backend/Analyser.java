@@ -82,12 +82,6 @@ public class Analyser
 	}
 	
 	
-	public boolean isContainedInCycle(PackageData data)
-	{
-		return data.isInCycle;
-	}
-	
-	
 	public void analyseSource(String sourceFolder, boolean analyseComments, boolean analyseStrings)
 	{
 		analyseSource(new File(sourceFolder), analyseComments, analyseStrings);
@@ -156,33 +150,6 @@ public class Analyser
 
 		System.out.println("\nDone!");
 	}
-	
-	
-//	public void printCycles()
-//	{
-//		System.out.println("\nFound " + cycles.size() + " cycles:\n");
-//		for (Cycle cycle : cycles)
-//		{
-//			PackageData[] cyclePackages = cycle.getPackages();
-//			for (int i = 0; i < cyclePackages.length; i++)
-//			{
-//				PackageData data = cyclePackages[i];
-//				
-//				if (i < cyclePackages.length-1)
-//				{
-//					PackageData next = cyclePackages[i+1];
-//					Dependency dependency = data.getDependencyForPackage(next);
-//					
-//					System.out.println(dependency.toString(true, false, true));
-//				}
-//				else
-//				{
-//					System.out.println(data.fullName);
-//				}
-//			}
-//			System.out.println();
-//		}
-//	}
 	
 	
 	private void notifyAnalysisBegun(AnalysisType analysisType, File sourceFolder)

@@ -58,14 +58,14 @@ public class DependencyPanel extends RootedGraphPanel
 			{
 				graph.addVertex(dependency.target);
 				
-				if (backend.getAnalyser().isContainedInCycle(dependency.target))
+				if (dependency.target.isInCycle)
 					verticesInCycles.add(jGraph.getCellForVertex(dependency.target));
 				if (isExternal)
 					verticesExternal.add(jGraph.getCellForVertex(dependency.target));
 			}
 		}
 		
-		if (backend.getAnalyser().isContainedInCycle(rootPackage))
+		if (rootPackage.isInCycle)
 			verticesInCycles.add(jGraph.getCellForVertex(rootPackage));
 		
 		jGraph.applyCycleStyle(verticesInCycles.toArray());
@@ -76,7 +76,7 @@ public class DependencyPanel extends RootedGraphPanel
 	@Override
 	protected void addEdges(PackageData rootPackage)
 	{
-		boolean isRootInCycle = backend.getAnalyser().isContainedInCycle(rootPackage);
+		boolean isRootInCycle = rootPackage.isInCycle;
 		List<Object> edgesInCycles = new ArrayList<Object>();
 		List<Object> edgesToExternal = new ArrayList<>();
 
