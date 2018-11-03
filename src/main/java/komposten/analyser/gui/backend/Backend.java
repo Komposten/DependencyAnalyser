@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import komposten.analyser.backend.Analyser;
-import komposten.analyser.backend.AnalysisListener;
 import komposten.analyser.backend.Edge;
 import komposten.analyser.backend.PackageData;
+import komposten.analyser.backend.analysis.AnalysisListener;
 import komposten.analyser.tools.Settings;
 import komposten.analyser.tools.Settings.SettingChangeListener;
 import komposten.utilities.logging.Level;

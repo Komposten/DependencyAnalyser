@@ -3,6 +3,10 @@
 ==========
 - Removed Analyser.isContainedInCycle().
 - GraphCycleFinder.abort() now also calls Graph.abortCurrentOperations().
+- Moved the AnalysisRunnables out of Analyser to their own files in a separate package.
+- Moved FILE_EXTENSION and CYCLE_LIMIT to a Constants class.
+- Moved AnalysisType and AnalysisStage to AnalysisListener.
+- Moved AnalysisListener to the new komposten.analyser.backend.analysis package.
 
 ==========
 2018-11-02

@@ -18,11 +18,9 @@ import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import komposten.analyser.backend.AnalysisListener;
 import komposten.analyser.backend.PackageData;
 import komposten.analyser.backend.PackageDataComparator;
-import komposten.analyser.backend.Analyser.AnalysisStage;
-import komposten.analyser.backend.Analyser.AnalysisType;
+import komposten.analyser.backend.analysis.AnalysisListener;
 import komposten.analyser.gui.backend.Backend;
 import komposten.analyser.gui.backend.Backend.PropertyChangeListener;
 

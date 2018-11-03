@@ -1,17 +1,13 @@
 package komposten.analyser.backend;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import komposten.analyser.backend.GraphCycleFinder.GraphNode;
-import komposten.analyser.backend.util.SourceUtil;
-import komposten.utilities.tools.ExtensionFileFilter;
-import komposten.utilities.tools.Graph.CircuitListener;
+import komposten.analyser.backend.analysis.AnalysisListener;
+import komposten.analyser.backend.analysis.AnalysisRunnable;
+import komposten.analyser.backend.analysis.FullAnalysisRunnable;
+import komposten.analyser.backend.analysis.PackageAnalysisRunnable;
 
 
 /**
@@ -28,25 +24,6 @@ import komposten.utilities.tools.Graph.CircuitListener;
  */
 public class Analyser
 {
-	public static final int CYCLE_LIMIT = 100000;
-	
-	public enum AnalysisType
-	{
-		Full,
-		Package
-	}
-	
-	public enum AnalysisStage
-	{
-		FindingPackages,
-		AnalysingFiles,
-		FindingCycles,
-		FindingPackagesInCycles
-	}
-	
-	
-	private static final String FILE_EXTENSION = ".java";
-	
 	private List<PackageData> packages;
 	
 	private List<AnalysisListener> listeners;
@@ -95,7 +72,7 @@ public class Analyser
 		if (analysisRunnable != null && !analysisRunnable.hasFinished())
 			abortAnalysis();
 		
-		analysisRunnable = new FullAnalysisRunnable(sourceFolder, analyseComments, analyseStrings);
+		analysisRunnable = new FullAnalysisRunnable(sourceFolder, analyseComments, analyseStrings, analysisListener);
 		analysisThread.postRunnable(analysisRunnable);
 	}
 	
@@ -105,7 +82,7 @@ public class Analyser
 		if (analysisRunnable != null && !analysisRunnable.hasFinished())
 			abortAnalysis();
 		
-		analysisRunnable = new PackageAnalysisRunnable(packageData);
+		analysisRunnable = new PackageAnalysisRunnable(packageData, packages, analysisListener);
 		analysisThread.postRunnable(analysisRunnable);
 	}
 	
@@ -151,449 +128,75 @@ public class Analyser
 	}
 	
 	
-	private void notifyAnalysisBegun(AnalysisType analysisType, File sourceFolder)
+	private AnalysisListener analysisListener = new AnalysisListener()
 	{
-		for (AnalysisListener analysisListener : listeners)
-			analysisListener.analysisBegun(analysisType, sourceFolder);
-	}
-	
-	
-	private void notifyAnalysisStageChanged(AnalysisStage newStage)
-	{
-		for (AnalysisListener analysisListener : listeners)
-			analysisListener.analysisStageChanged(newStage);
-	}
-	
-	
-	private void notifyAnalysisSearchingFolder(File folder)
-	{
-		for (AnalysisListener analysisListener : listeners)
-			analysisListener.analysisSearchingFolder(folder);;
-	}
-	
-	
-	private void notifyAnalysisAnalysingPackage(PackageData currentPackage, int packageIndex, int packageCount)
-	{
-		for (AnalysisListener analysisListener : listeners)
-			analysisListener.analysisAnalysingPackage(currentPackage, packageIndex, packageCount);
-	}
-	
-	
-	private void notifyAnalysisCurrentCycleCount(int currentCycleCount)
-	{
-		for (AnalysisListener analysisListener : listeners)
-			analysisListener.analysisCurrentCycleCount(currentCycleCount);
-	}
-	
-	
-	private void notifyAnalysisPartiallyComplete(AnalysisType analysisType)
-	{
-		for (AnalysisListener analysisListener : listeners)
-			analysisListener.analysisPartiallyComplete(analysisType);
-	}
-	
-	
-	private void notifyAnalysisComplete(AnalysisType analysisType)
-	{
-		for (AnalysisListener analysisListener : listeners)
-			analysisListener.analysisComplete(analysisType);
-	}
-	
-	
-	private void notifyAnalysisAborted(AnalysisType analysisType)
-	{
-		for (AnalysisListener analysisListener : listeners)
-			analysisListener.analysisAborted(analysisType);
-	}
-	
-	
-	private interface AnalysisRunnable extends Runnable
-	{
-		void cycleLimitReached();
-		void abort();
-		boolean hasFinished();
-	}
-	
-	
-	private class FullAnalysisRunnable implements AnalysisRunnable
-	{
-		private File sourceFolder;
-		private boolean analyseComments;
-		private boolean analyseStrings;
-		
-		private GraphCycleFinder cycleFinder;
-		private volatile boolean finished;
-		private volatile boolean abort;
-		
-		private List<PackageData> packages;
-
-
-		public FullAnalysisRunnable(File sourceFolder, boolean analyseComments, boolean analyseStrings)
+		@Override
+		public void analysisBegun(AnalysisType analysisType, File sourceFolder)
 		{
-			this.sourceFolder = sourceFolder;
-			this.analyseComments = analyseComments;
-			this.analyseStrings = analyseStrings;
+			for (AnalysisListener analysisListener : listeners)
+				analysisListener.analysisBegun(analysisType, sourceFolder);
 		}
 		
 		
 		@Override
-		public boolean hasFinished()
+		public void analysisStageChanged(AnalysisStage newStage)
 		{
-			return finished;
+			for (AnalysisListener analysisListener : listeners)
+				analysisListener.analysisStageChanged(newStage);
 		}
 		
 		
 		@Override
-		public void abort()
+		public void analysisSearchingFolder(File folder)
 		{
-			abort = true;
-			if (cycleFinder != null) cycleFinder.abort();
+			for (AnalysisListener analysisListener : listeners)
+				analysisListener.analysisSearchingFolder(folder);;
 		}
 		
 		
 		@Override
-		public void cycleLimitReached()
+		public void analysisAnalysingPackage(PackageData currentPackage,
+				int packageIndex, int packageCount)
 		{
-			notifyAnalysisStageChanged(AnalysisStage.FindingPackagesInCycles);
-			if (cycleFinder != null) cycleFinder.abort();
+			for (AnalysisListener analysisListener : listeners)
+				analysisListener.analysisAnalysingPackage(currentPackage, packageIndex, packageCount);
 		}
 		
 		
 		@Override
-		public void run()
+		public void analysisCurrentCycleCount(int currentCycleCount)
 		{
-			analyseSource(sourceFolder);
+			for (AnalysisListener analysisListener : listeners)
+				analysisListener.analysisCurrentCycleCount(currentCycleCount);
 		}
 		
-
-		public void analyseSource(File sourceFolder)
-		{
-			packages = new ArrayList<>();
-			
-			notifyAnalysisBegun(AnalysisType.Full, sourceFolder);
-			notifyAnalysisStageChanged(AnalysisStage.FindingPackages);
-			getPackageList(sourceFolder, sourceFolder, packages);
-			notifyAnalysisStageChanged(AnalysisStage.AnalysingFiles);
-			analysePackageDependencies(packages);
-			notifyAnalysisStageChanged(AnalysisStage.FindingCycles);
-			List<Cycle> cycles = findAllCyclicDependencies(packages);
-			
-			if (cycles != null)
-			{
-				System.out.println("Cycle count: " + cycles.size());
-				Analyser.this.packages = packages;
-//				Analyser.this.cycles = cycles;
-				
-				notifyAnalysisComplete(AnalysisType.Full);
-			}
-			else if (!abort)
-			{
-				System.gc();
-				findAllPackagesInCycles(packages);
-				
-				if (!abort)
-				{
-					Analyser.this.packages = packages;
-//					Analyser.this.cycles = null;
-					notifyAnalysisComplete(AnalysisType.Full);
-				}
-				else
-				{
-					notifyAnalysisAborted(AnalysisType.Full);
-				}
-			}
-			else if (abort)
-			{
-				notifyAnalysisAborted(AnalysisType.Full);
-			}
-			
-			System.gc();
-			finished = true;
-		}
-
-
-		private void getPackageList(File folder, File sourceFolder, List<PackageData> outputList)
-		{
-			notifyAnalysisSearchingFolder(folder);
-			
-			List<File> fileList = new ArrayList<File>();
-			
-			for (File file : folder.listFiles(new ExtensionFileFilter(true, FILE_EXTENSION)))
-			{
-				if (abort)
-					return;
-				
-				if (file.isDirectory())
-					getPackageList(file, sourceFolder, outputList);
-				else
-					fileList.add(file);
-			}
-			
-			if (!fileList.isEmpty())
-			{
-				File first = fileList.get(0);
-				String packageName = findPackageName(first);
-				
-				if (packageName.isEmpty())
-					packageName = "<default package>";
-				
-				PackageData data = new PackageData(packageName, folder, fileList.toArray(new File[fileList.size()]));
-				
-				if (!outputList.contains(data))
-				{
-					outputList.add(data);
-				}
-				else
-				{
-					PackageData original = outputList.get(outputList.indexOf(data));
-					
-					File[] files = Arrays.copyOf(original.sourceFiles, original.sourceFiles.length + data.sourceFiles.length);
-					System.arraycopy(data.sourceFiles, 0, files, original.sourceFiles.length, data.sourceFiles.length);
-					original.sourceFiles = files;
-				}
-			}
-		}
-
-
-		private String findPackageName(File sourceFile)
-		{
-			String packageName = "";
-			
-			try (BufferedReader reader = new BufferedReader(new FileReader(sourceFile)))
-			{
-				boolean lastEndedInComment = false;
-				String line = "";
-				
-				while ((line = reader.readLine()) != null)
-				{
-					line = line.trim();
-					if (line.isEmpty())
-						continue;
-					
-					StringBuilder builder = new StringBuilder(line);
-					lastEndedInComment = SourceUtil.removeComments(builder, lastEndedInComment);
-					
-					line = builder.toString().trim();
-					
-					if (line.startsWith("package"))
-					{
-						int indexOfPackage = line.indexOf("package");
-						packageName = line.substring(indexOfPackage+7, line.indexOf(";", indexOfPackage)).trim();
-						break;
-					}
-					else if (line.startsWith("import") || line.matches("^(public)?\\s+(abstract|final)?\\s+(class|interface|enum).*$"))
-					{
-						break;
-					}
-				}
-			}
-			catch (IOException e)
-			{
-				//NEXT_TASK Fix exception handling.
-			}
-			
-			return packageName;
-		}
-
-
-		private void analysePackageDependencies(List<PackageData> packages)
-		{
-			PackageAnalyser analyser = new PackageAnalyser(analyseComments, analyseStrings);
-			
-			int i = 1;
-			for (PackageData data : packages)
-			{
-				if (abort) return;
-				notifyAnalysisAnalysingPackage(data, i++, packages.size());
-				analyser.analysePackage(data, packages);
-			}
-		}
-		
-		
-		private List<Cycle> findAllCyclicDependencies(List<PackageData> packages)
-		{
-			if (abort)
-				return null;
-			
-			cycleFinder = new GraphCycleFinder(packages);
-			boolean success = cycleFinder.findCycles(circuitListener);
-			
-			if (success)
-			{
-				List<GraphNode[]> cyclesFromFinder = cycleFinder.getCycles();
-				List<Cycle> cycles = new ArrayList<>(cyclesFromFinder.size());
-
-				for (GraphNode[] nodeArray : cyclesFromFinder)
-				{
-					if (abort)
-						return null;
-					PackageData[] dataArray = new PackageData[nodeArray.length];
-
-					for (int i = 0; i < nodeArray.length; i++)
-					{
-						PackageData packageData = (PackageData)nodeArray[i];
-						packageData.isInCycle = true;
-						dataArray[i] = packageData;
-					}
-
-					Cycle cycle = new Cycle(dataArray);
-					cycles.add(cycle);
-					
-					for (PackageData packageData : cycle.getPackages())
-					{
-						packageData.cycles.add(cycle);
-					}
-				}
-				
-				return cycles;
-			}
-			else
-			{
-				return null;
-			}
-		}
-		
-		
-		private void findAllPackagesInCycles(List<PackageData> packages)
-		{
-			if (abort)
-				return;
-			
-			cycleFinder = new GraphCycleFinder(packages);
-			List<GraphNode> nodesInCycles = cycleFinder.findNodesInCycles(circuitListener);
-			
-			if (nodesInCycles != null)
-			{
-				for (GraphNode node : nodesInCycles)
-				{
-					if (abort)
-						return;
-					PackageData packageData = (PackageData)node;
-					packageData.isInCycle = true;
-				}
-			}
-		}
-	}
-	
-	
-	private class PackageAnalysisRunnable implements AnalysisRunnable
-	{
-		private PackageData packageData;
-		private GraphCycleFinder cycleFinder;
-		private volatile boolean finished;
-		private volatile boolean abort;
-		
-		public PackageAnalysisRunnable(PackageData packageData)
-		{
-			this.packageData = packageData;
-		}
-
 		
 		@Override
-		public boolean hasFinished()
+		public void analysisPartiallyComplete(AnalysisType analysisType)
 		{
-			return finished;
+			for (AnalysisListener analysisListener : listeners)
+				analysisListener.analysisPartiallyComplete(analysisType);
 		}
 		
-
-		@Override
-		public void cycleLimitReached()
-		{
-			notifyAnalysisStageChanged(AnalysisStage.FindingCycles);
-			if (cycleFinder != null) cycleFinder.abort();
-		}
-
 		
 		@Override
-		public void abort()
+		public void analysisComplete(AnalysisType analysisType)
 		{
-			abort = true;
-			if (cycleFinder != null) cycleFinder.abort();
-		}
-		
-
-		@Override
-		public void run()
-		{
-			analysePackage(packageData);
-		}
-		
-		
-		private void analysePackage(PackageData packageData)
-		{
-			notifyAnalysisBegun(AnalysisType.Package, packageData.folder);
-			
-			List<Cycle> cycles = findCyclicDependencies(packageData);
-			
-			if (cycles != null)
+			if (analysisType == AnalysisType.Full)
 			{
-				System.out.println("Cycle count in " + packageData + ": " + cycles.size());
-				
-				packageData.cycles.addAll(cycles);
-				
-				if (cycles.size() >= CYCLE_LIMIT)
-					notifyAnalysisPartiallyComplete(AnalysisType.Package);
-				else
-					notifyAnalysisComplete(AnalysisType.Package);
-			}
-			else
-			{
-				notifyAnalysisAborted(AnalysisType.Package);
-			}
-		}
-
-
-		private List<Cycle> findCyclicDependencies(PackageData packageData)
-		{
-			if (abort)
-				return null;
-			
-			cycleFinder = new GraphCycleFinder(Analyser.this.packages);
-			cycleFinder.findCycles(packageData, circuitListener, true);
-			
-			List<GraphNode[]> cyclesFromFinder = cycleFinder.getCycles();
-			List<Cycle> cycles = new ArrayList<>(cyclesFromFinder.size());
-			
-			for (GraphNode[] nodeArray : cyclesFromFinder)
-			{
-				if (abort)
-					return null;
-				PackageData[] dataArray = new PackageData[nodeArray.length];
-				
-				for (int i = 0; i < nodeArray.length; i++)
-				{
-					PackageData nodePackage = (PackageData)nodeArray[i];
-					dataArray[i] = nodePackage;
-				}
-				
-				Cycle cycle = new Cycle(dataArray);
-				cycles.add(cycle);
+				packages = ((FullAnalysisRunnable)analysisRunnable).getPackages();
 			}
 			
-			return cycles;
+			for (AnalysisListener analysisListener : listeners)
+				analysisListener.analysisComplete(analysisType);
 		}
-	}
-	
-	
-	private CircuitListener circuitListener = new CircuitListener()
-	{
+		
+		
 		@Override
-		public void onNewCircuitCount(int newCount)
+		public void analysisAborted(AnalysisType analysisType)
 		{
-			if (newCount <= CYCLE_LIMIT)
-				notifyAnalysisCurrentCycleCount(newCount);
-			else
-				analysisRunnable.cycleLimitReached();
-		}
-
-		@Override
-		public void onNextVertex(int vertex, int processedCount, int vertexCount)
-		{
-			if (analysisRunnable instanceof FullAnalysisRunnable)
-			{
-				FullAnalysisRunnable full = (FullAnalysisRunnable)analysisRunnable;
-				notifyAnalysisAnalysingPackage(full.packages.get(vertex), processedCount, vertexCount);
-			}
+			for (AnalysisListener analysisListener : listeners)
+				analysisListener.analysisAborted(analysisType);
 		}
 	};
 }

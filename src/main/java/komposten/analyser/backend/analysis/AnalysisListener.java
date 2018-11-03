@@ -1,12 +1,26 @@
-package komposten.analyser.backend;
+package komposten.analyser.backend.analysis;
 
 import java.io.File;
 
-import komposten.analyser.backend.Analyser.AnalysisStage;
-import komposten.analyser.backend.Analyser.AnalysisType;
+import komposten.analyser.backend.PackageData;
 
 public interface AnalysisListener
 {
+	public enum AnalysisType
+	{
+		Full,
+		Package
+	}
+	
+	public enum AnalysisStage
+	{
+		FindingPackages,
+		AnalysingFiles,
+		FindingCycles,
+		FindingPackagesInCycles
+	}
+	
+	
 	public void analysisBegun(AnalysisType analysisType, File sourceFolder);
 	public void analysisStageChanged(AnalysisStage newStage);
 	public void analysisSearchingFolder(File folder);

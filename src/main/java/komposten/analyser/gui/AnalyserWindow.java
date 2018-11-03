@@ -13,11 +13,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import komposten.analyser.backend.Analyser;
-import komposten.analyser.backend.Analyser.AnalysisStage;
-import komposten.analyser.backend.Analyser.AnalysisType;
-import komposten.analyser.backend.AnalysisListener;
 import komposten.analyser.backend.PackageData;
+import komposten.analyser.backend.analysis.AnalysisListener;
+import komposten.analyser.backend.util.Constants;
 import komposten.analyser.gui.backend.AnalyserSettings;
 import komposten.analyser.gui.backend.Backend;
 import komposten.analyser.gui.menubar.AnalyserMenuBar;
@@ -141,7 +139,7 @@ public class AnalyserWindow extends JFrame
 					break;
 				case FindingPackagesInCycles :
 					String title = "Cycle limit reached!";
-					String message = String.format("More than %d cycles found!\nCycles will be analysed when packages are selected instead!", Analyser.CYCLE_LIMIT);
+					String message = String.format("More than %d cycles found!\nCycles will be analysed when packages are selected instead!", Constants.CYCLE_LIMIT);
 					JOptionPane.showMessageDialog(AnalyserWindow.this, message, title, JOptionPane.INFORMATION_MESSAGE);
 					progressDialog.setText("Too many cycles, listing packages in cycles instead...", "");
 					break;
@@ -158,7 +156,7 @@ public class AnalyserWindow extends JFrame
 			{
 				analysisComplete(analysisType);
 				String title = "Showing a limited cycle count!";
-				String message = String.format("Cycle limit reached! Only the first %d will be shown!", Analyser.CYCLE_LIMIT);
+				String message = String.format("Cycle limit reached! Only the first %d will be shown!", Constants.CYCLE_LIMIT);
 				JOptionPane.showMessageDialog(AnalyserWindow.this, message, title, JOptionPane.INFORMATION_MESSAGE);
 			}
 		}
