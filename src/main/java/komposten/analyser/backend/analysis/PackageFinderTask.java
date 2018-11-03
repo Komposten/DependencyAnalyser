@@ -88,7 +88,7 @@ public class PackageFinderTask implements StateRunnable
 		catch (Exception e)
 		{
 			//NEXT_TASK PackageFinderTask; Exception handling.
-			System.out.println("Exception in " + Thread.currentThread());
+			System.err.println("Exception in " + Thread.currentThread());
 			e.printStackTrace();
 		}
 	}
@@ -97,7 +97,12 @@ public class PackageFinderTask implements StateRunnable
 	private void checkFolder(File folder)
 	{
 		List<File> fileList = new LinkedList<>();
-		for (File file : folder.listFiles(FILE_FILTER))
+		File[] filesInFolder = folder.listFiles(FILE_FILTER);
+		
+		if (filesInFolder == null)
+			return;
+		
+		for (File file : filesInFolder)
 		{
 			if (Thread.currentThread().isInterrupted())
 				return;
