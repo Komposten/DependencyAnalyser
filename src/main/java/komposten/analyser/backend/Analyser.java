@@ -11,7 +11,6 @@ import java.util.List;
 import komposten.analyser.backend.GraphCycleFinder.GraphNode;
 import komposten.analyser.backend.util.SourceUtil;
 import komposten.utilities.tools.ExtensionFileFilter;
-import komposten.utilities.tools.Graph;
 import komposten.utilities.tools.Graph.CircuitListener;
 
 
@@ -269,9 +268,9 @@ public class Analyser
 
 		public void analyseSource(File sourceFolder)
 		{
-			notifyAnalysisBegun(AnalysisType.Full, sourceFolder);
-
 			packages = new ArrayList<>();
+			
+			notifyAnalysisBegun(AnalysisType.Full, sourceFolder);
 			notifyAnalysisStageChanged(AnalysisStage.FindingPackages);
 			getPackageList(sourceFolder, sourceFolder, packages);
 			notifyAnalysisStageChanged(AnalysisStage.AnalysingFiles);

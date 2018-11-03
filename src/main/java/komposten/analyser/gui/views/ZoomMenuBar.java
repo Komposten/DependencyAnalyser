@@ -15,7 +15,7 @@ import komposten.analyser.gui.views.buttons.ZoomResetButton;
 
 public class ZoomMenuBar extends JPanel
 {
-
+	//FIXME Move ZoomMenuBar to gui.menubar, and the stuff in gui.menubar to gui.menubar.components?
 	public ZoomMenuBar(GraphPanel<?, ?> panel)
 	{
 		setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
