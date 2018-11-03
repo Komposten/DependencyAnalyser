@@ -249,7 +249,6 @@ public class Analyser
 		{
 			abort = true;
 			if (cycleFinder != null) cycleFinder.abort();
-			Graph.abortCurrentOperations();
 		}
 		
 		
@@ -258,7 +257,6 @@ public class Analyser
 		{
 			notifyAnalysisStageChanged(AnalysisStage.FindingPackagesInCycles);
 			if (cycleFinder != null) cycleFinder.abort();
-			Graph.abortCurrentOperations();
 		}
 		
 		
@@ -504,7 +502,6 @@ public class Analyser
 		{
 			notifyAnalysisStageChanged(AnalysisStage.FindingCycles);
 			if (cycleFinder != null) cycleFinder.abort();
-			Graph.abortCurrentOperations();
 		}
 
 		
@@ -513,7 +510,6 @@ public class Analyser
 		{
 			abort = true;
 			if (cycleFinder != null) cycleFinder.abort();
-			Graph.abortCurrentOperations();
 		}
 		
 

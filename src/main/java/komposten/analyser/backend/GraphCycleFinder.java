@@ -233,6 +233,7 @@ public class GraphCycleFinder
 	public void abort()
 	{
 		abort = true;
+		Graph.abortCurrentOperations();
 	}
 	
 	
