@@ -22,6 +22,7 @@ public class PackageAnalyser
 	private List<PackageData> internalPackages;
 	
 	private List<SourceParser> parsers;
+	private SourceUtil sourceUtil;
 	
 	
 	public PackageAnalyser(boolean analyseComments, boolean analyseStrings)
@@ -30,6 +31,7 @@ public class PackageAnalyser
 		this.analyseStrings = analyseStrings;
 		
 		parsers = new ArrayList<>();
+		sourceUtil = new SourceUtil();
 	}
 	
 	
@@ -91,7 +93,7 @@ public class PackageAnalyser
 					continue;
 				
 				StringBuilder builder = new StringBuilder(line);
-				lastEndedInComment = SourceUtil.removeComments(builder, lastEndedInComment, analyseStrings, analyseComments);
+				lastEndedInComment = sourceUtil.removeComments(builder, lastEndedInComment, analyseStrings, analyseComments);
 				
 				line = builder.toString();
 				

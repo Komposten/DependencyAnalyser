@@ -1,4 +1,10 @@
 ==========
+2018-11-04
+==========
+- SourceUtil's methods are no longer static.
+- Each PackageAnalyser and PackageFinderTask now uses its own SourceUtil instance so all threads can work with them simultaneously.
+
+==========
 2018-11-03
 ==========
 - Removed Analyser.isContainedInCycle().

@@ -9,7 +9,6 @@ import komposten.utilities.exceptions.InvalidStateException;
 
 public class SourceUtil
 {
-	private static final String STRING_REGEX = "\".+?(?<!\\\\)\"";
 	/**
 	 * Matches:
 	 * <li><code>/*</code> not followed by * (i.e. /**)
@@ -19,37 +18,27 @@ public class SourceUtil
 	 * <li><code>"</code>
 	 */
 	private static final String COMMENT_REGEX = "/\\*\\*|/\\*(?!\\*)|//|\\*/|\"";
-	private static final Matcher STRING_MATCHER;
-	private static final Matcher COMMENT_MATCHER;
+	private static final Pattern COMMENT_PATTERN;
+	
+	private final Matcher commentMatcher;
 	
 	
 	static
 	{
-		STRING_MATCHER = Pattern.compile(STRING_REGEX).matcher("");
-		COMMENT_MATCHER = Pattern.compile(COMMENT_REGEX).matcher("");
+		COMMENT_PATTERN = Pattern.compile(COMMENT_REGEX);
 	}
 	
-
-	/**
-	 * Replaces all Java strings in the provided string with "".
-	 * @param line The string to remove Java strings from. This object is changed directly.
-	 * @return <code>line</code>
-	 */
-	public static StringBuilder removeStrings(StringBuilder line)
+	
+	public SourceUtil()
 	{
-		STRING_MATCHER.reset(line.toString());
-		
-		line.setLength(0);
-		line.append(STRING_MATCHER.replaceAll("\"\""));
-		
-		return line;
+		commentMatcher = COMMENT_PATTERN.matcher("");
 	}
 	
 
 	/**
 	 * Shorthand for {@link #removeComments(StringBuilder, boolean, boolean, boolean) removeComments(line, startsInComment, false, true)}.
 	 */
-	public static boolean removeStrings(StringBuilder line, boolean startsInComment)
+	public boolean removeStrings(StringBuilder line, boolean startsInComment)
 	{
 		return removeComments(line, startsInComment, false, true);
 	}
@@ -58,7 +47,7 @@ public class SourceUtil
 	/**
 	 * Shorthand for {@link #removeComments(StringBuilder, boolean, boolean, boolean) removeComments(line, startsInComment, false, false)}.
 	 */
-	public static boolean removeComments(StringBuilder line, boolean startsInComment)
+	public boolean removeComments(StringBuilder line, boolean startsInComment)
 	{
 		return removeComments(line, startsInComment, false, false);
 	}
@@ -79,7 +68,7 @@ public class SourceUtil
 	 * @return <code>true</code> if the line ends with an un-closed comment,
 	 *         <code>false</code> otherwise.
 	 */
-	public static synchronized boolean removeComments(StringBuilder line, boolean startsInComment, boolean keepStrings, boolean keepComments)
+	public synchronized boolean removeComments(StringBuilder line, boolean startsInComment, boolean keepStrings, boolean keepComments)
 	{
 		if (line.indexOf("\n") != -1 || line.indexOf("\r") != -1)
 			throw new IllegalArgumentException("line may not contain line breaks!");
@@ -163,7 +152,7 @@ public class SourceUtil
 	 * @see #findAllCommentSymbols(StringBuilder)
 	 * @see #removeInvalidCommentSymbols(boolean, List)
 	 */
-	private static Match[] findCommentSymbols(StringBuilder line, boolean startsInComment)
+	private Match[] findCommentSymbols(StringBuilder line, boolean startsInComment)
 	{
 		List<Match> symbols = findAllCommentSymbols(line);
 		
@@ -179,16 +168,16 @@ public class SourceUtil
 	 * @param line
 	 * @return A list of {@link Match} instances describing the symbols.
 	 */
-	private static List<Match> findAllCommentSymbols(StringBuilder line)
+	private List<Match> findAllCommentSymbols(StringBuilder line)
 	{
 		List<Match> symbols = new ArrayList<>();
-		COMMENT_MATCHER.reset(line);
+		commentMatcher.reset(line);
 		int pos = 0;
-		while (COMMENT_MATCHER.find(pos))
+		while (commentMatcher.find(pos))
 		{
-			pos = COMMENT_MATCHER.start()+1; // Moving the position to the very next index to ensure that e.g. /*/ is matched twice (/* and */).
-			int index = COMMENT_MATCHER.start();
-			String text = COMMENT_MATCHER.group();
+			pos = commentMatcher.start()+1; // Moving the position to the very next index to ensure that e.g. /*/ is matched twice (/* and */).
+			int index = commentMatcher.start();
+			String text = commentMatcher.group();
 			
 			if (text.indexOf('"') == -1 || isValidStringSymbol(line, index))
 				symbols.add(new Match(index, text));
@@ -203,7 +192,7 @@ public class SourceUtil
 	 * String start or end. Invalid refers to escaped double-quotes (\") and the
 	 * double-quote char ('"').
 	 */
-	private static boolean isValidStringSymbol(StringBuilder line, int symbolIndex)
+	private boolean isValidStringSymbol(StringBuilder line, int symbolIndex)
 	{
 		if (symbolIndex > 0)
 		{
@@ -244,7 +233,7 @@ public class SourceUtil
 	 *         contains no comment end symbols (*&#47;). This is <i>not</i> the
 	 *         same list as <code>matches</code>!
 	 */
-	private static List<Match> removeInvalidCommentSymbols(
+	private List<Match> removeInvalidCommentSymbols(
 			boolean startsInComment, List<Match> symbols)
 	{
 		if (startsInComment)
@@ -307,7 +296,7 @@ public class SourceUtil
 	}
 	
 	
-	private static int find(String needle, List<Match> haystack, int start)
+	private int find(String needle, List<Match> haystack, int start)
 	{
 		for (int i = start; i < haystack.size(); i++)
 		{
@@ -320,7 +309,7 @@ public class SourceUtil
 	}
 
 
-	private static void removeBetween(int start, int end, List<Match> matches)
+	private void removeBetween(int start, int end, List<Match> matches)
 	{
 		Match match = matches.get(end);
 		

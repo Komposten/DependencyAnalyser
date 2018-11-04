@@ -29,6 +29,8 @@ public class PackageFinderTask implements StateRunnable
 	private List<PackageFinderTask> subTasks;
 	private List<PackageData> outputList;
 	
+	private SourceUtil sourceUtil;
+	
 	static
 	{
 		FILE_FILTER = new ExtensionFileFilter(true, Constants.FILE_EXTENSION);
@@ -47,6 +49,7 @@ public class PackageFinderTask implements StateRunnable
 		this.threadPool = threadPool;
 		this.outputList = outputList;
 		this.subTasks = Collections.synchronizedList(new ArrayList<>());
+		this.sourceUtil = new SourceUtil();
 	}
 	
 	
@@ -168,7 +171,7 @@ public class PackageFinderTask implements StateRunnable
 					continue;
 				
 				StringBuilder builder = new StringBuilder(line);
-				lastEndedInComment = SourceUtil.removeComments(builder, lastEndedInComment);
+				lastEndedInComment = sourceUtil.removeComments(builder, lastEndedInComment);
 				
 				line = builder.toString().trim();
 				
