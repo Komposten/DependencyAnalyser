@@ -54,6 +54,20 @@ public class PackageAnalyser
 		
 		for (File sourceFile : packageData.sourceFiles)
 		{
+			//CURRENT If there are threads available, delegate analysis to them.
+			//				 But how to handle the parsers?
+			
+			/*
+			 * Move analyseFile() to a class FileAnalyser.
+			 * It should take a file and a list of parsers as parameters.
+			 * 
+			 * Create a FileAnalysisTask which takes a file in the constructor.
+			 * The FileAnalysisTask runs FileAnalyser.analyseFile() on its file, then triggering storeResult() on all parsers as usual.
+			 * 
+			 * To think about:
+			 * 1) Make sure that the parsers storeResult() only updates existing PackageData data, not overwrites it!
+			 * 2) How should the parsers be instantiated? Don't want duplicate code with PackageAnalyser!
+			 */
 			analyseFile(sourceFile);
 		}
 		

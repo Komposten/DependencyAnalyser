@@ -79,6 +79,7 @@ public class FullAnalysisRunnable extends AnalysisRunnable
 
 	public void analyseSource(File sourceFolder)
 	{
+		long time = System.nanoTime(); //XXX Timing is debug stuff!
 		analysisListener.analysisBegun(AnalysisType.Full, sourceFolder);
 		analysisListener.analysisStageChanged(AnalysisStage.FindingPackages);
 		
@@ -88,6 +89,7 @@ public class FullAnalysisRunnable extends AnalysisRunnable
 		
 		analysePackages(packages);
 		
+		System.out.format("Time: %.02f\n", (System.nanoTime() - time) / 1E9);
 		analysisListener.analysisStageChanged(AnalysisStage.FindingCycles);
 		List<Cycle> cycles = findAllCyclicDependencies(packages);
 		
