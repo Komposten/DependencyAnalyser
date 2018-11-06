@@ -9,6 +9,7 @@ import java.util.List;
 
 import komposten.analyser.backend.parsers.DependencyParser;
 import komposten.analyser.backend.parsers.SourceParser;
+import komposten.analyser.backend.parsers.UnitLengthParser;
 import komposten.analyser.backend.util.SourceUtil;
 import komposten.utilities.logging.Level;
 import komposten.utilities.logging.LogUtils;
@@ -66,6 +67,7 @@ public class PackageAnalyser
 	{
 		parsers.clear();
 		parsers.add(new DependencyParser(currentPackage, internalPackages));
+		parsers.add(new UnitLengthParser());
 	}
 	
 
@@ -93,7 +95,7 @@ public class PackageAnalyser
 				StringBuilder builder = new StringBuilder(line);
 				lastEndedInComment = SourceUtil.removeComments(builder, lastEndedInComment, analyseStrings, analyseComments);
 				
-				line = builder.toString();
+				line = builder.toString().trim();
 				
 				for (SourceParser parser : parsers)
 				{

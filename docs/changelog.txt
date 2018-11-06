@@ -1,4 +1,11 @@
 ==========
+2018-11-06
+==========
+- Added UnitLengthParser (WIP).
+- PackageAnalyser now also creates a UnitLengthParser.
+- PackageAnalyser now always trims the string before passing it to the parsers.
+
+==========
 2018-11-03
 ==========
 - Removed Analyser.isContainedInCycle().
