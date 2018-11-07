@@ -1,4 +1,12 @@
 ==========
+2018-11-07
+==========
+- Fixed UnitLengthParser not recognising static and instance initialisers and labelled and unlabelled blocks.
+- UnitLengthParser now adds all Info objects as children of their parents.
+- Info is no longer generic.
+- Cleaned up UnitLengthParser.parseLine().
+
+==========
 2018-11-06
 ==========
 - Added UnitLengthParser (WIP).

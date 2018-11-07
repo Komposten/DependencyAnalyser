@@ -52,8 +52,7 @@ public class UnitLengthParser implements SourceParser
 	 */
 	private static final Pattern METHOD_PATTERN = Pattern.compile(
 			"(" + MODIFIER + "*)" 																								//modifiers
-//			+ "(" + CLASS_REFERENCE + "(?:\\s*" + ARRAY_BRACKETS + ")?)"				//return type supporting arrays and (nested) type parameterisation
-			+ "(" + RETURN_TYPE + ")"																						//return type supporting arrays and (nested) type parameterisation
+			+ "(" + RETURN_TYPE + ")"																							//return type supporting arrays and (nested) type parameterisation
 			+ "\\s*(" + IDENTIFIER + ")" 																					//method name
 			+ "\\s*(\\(" 																													//parameter list start
 				+ "(?:" + CLASS_REFERENCE + "(?:"																		//a class reference, possibly type parameterised
@@ -61,7 +60,7 @@ public class UnitLengthParser implements SourceParser
 						+ "|" 																													//or
 						+ "(?:\\s*" + ARRAY_BRACKETS + "\\s*" + IDENTIFIER + ")" 				//[] followed by an identifier
 				+ ")\\s*,?\\s*|\\s)*" 																							//possibly a comma, and 0 or more repeats of the parameter declaration pattern
-			+ "\\))(?:\\s*[\\{;])?"); 																						//parameter list end
+			+ "\\))(?:\\s*[\\{;])"); 																							//parameter list end
 	//FIXME UnitLengthParser; METHOD_PATTERN gives incorrect matches for generic methods. Add support for TYPE_PARAMETER between modifiers and return type.
 	/**
 	 * Capturing groups:
@@ -79,7 +78,19 @@ public class UnitLengthParser implements SourceParser
 			+ "(" + IDENTIFIER + "(?:\\s*" + TYPE_PARAMETER + ")?)"					//class name and possibly a generic type
 			+ "\\s*(?:extends\\s+(" + CLASS_REFERENCE + "))?"								//possible extension of another, possibly generic, class
 			+ "\\s*(?:implements\\s+((?:" + CLASS_REFERENCE + ",?\\s*)+))?"	//implementation of zero or more, possibly generic, interfaces
-			+ "\\s*(?:\\{|$)");
+			+ "\\s*(?:\\{)");
+	/**
+	 * Matches static initialisers, class initialisers, named/labelled blocks and
+	 * unnamed blocks. Does not match the blocks in e.g. if-statements or
+	 * try-blocks.<br />
+	 * Capturing groups:
+	 * <ol>
+	 * <li>Block name
+	 * </ol>
+	 */
+	private static final Pattern INITIALISER_OR_LOCAL_BLOCK_PATTERN = Pattern.compile(
+			"(static|" + IDENTIFIER + "\\s*:|(?<![\\)\\]A-Za-z\\s>']))\\s*\\{"
+			);
 	
 	static
 	{
@@ -89,13 +100,14 @@ public class UnitLengthParser implements SourceParser
 
 	private Matcher methodMatcher;
 	private Matcher classMatcher;
+	private Matcher initialiserOrLocalBlockMatcher;
 	private Matcher anonymousClassMatcher;
 	private Matcher lambdaMatcher;
 	private Matcher braceMatcher;
 	
 	private List<FileInfo> fileInfo;
 	private FileInfo currentFileInfo;
-	private Stack<Info<?>> infoStack;
+	private Stack<Info> infoStack;
 	
 	private Stack<Unit> unitStack;
 	private String previousLines;
@@ -111,6 +123,7 @@ public class UnitLengthParser implements SourceParser
 		
 		methodMatcher = METHOD_PATTERN.matcher("");
 		classMatcher = CLASS_PATTERN.matcher("");
+		initialiserOrLocalBlockMatcher = INITIALISER_OR_LOCAL_BLOCK_PATTERN.matcher("");
 //		anonymousClassMatcher = ANON_CLASS_PATTERN.matcher("");
 //		lambdaMatcher = LAMBDA_PATTERN.matcher("");
 		braceMatcher = Pattern.compile("(?<!')(\\{|\\})(?!')").matcher("");
@@ -120,17 +133,18 @@ public class UnitLengthParser implements SourceParser
 	@Override
 	public void nextFile(File file)
 	{
-		currentFileInfo = new FileInfo(file, null);
-		fileInfo.add(currentFileInfo);
-		
 		infoStack.clear();
 		unitStack.clear();
 		previousLines = "";
 		currentLine = 0;
 		lastSymbol = null;
+		
+		currentFileInfo = new FileInfo(file, null);
+		fileInfo.add(currentFileInfo);
+		infoStack.push(currentFileInfo);
 	}
 	
-	
+
 	@Override
 	public void parseLine(String line)
 	{
@@ -141,110 +155,116 @@ public class UnitLengthParser implements SourceParser
 		// one based on user settings), then choose line to pass depending on Parser
 		// NEXT_TASK 3 Call this method even on empty lines!
 		
-		/* 
-		 * Find indexes for all units in this line. Start and end.
-		 * Check each unit.
-		 * 		If it is a class-unit, check if we are in a class already, then add it to the stack as Class, InnerClass or AnonymousClass.
-		 * 			Store inner and anonymous classes as separate ClassInfo objects, but keep track of their parent?
-		 * 		If it is a method-unit, add it to the unit stack.
-		 * 		
-		 * At the end of a unit, store the UnitInfo in the current FileInfo object.
-		 */
-
-		/*
-		 * FIXME
-		 * Problem: Does not work properly for class initialisers ({ } blocks without name) and static initialisers if there are other declarations before them.
-		 * Solution: Find all nameless blocks (initialisers or local scopes) and static initialisers as valid units. Then filter out the local scopes.
-		 */
-		
 		List<UnitSymbol> unitSymbols = findAllUnitSymbols(line);
 		
-		for (UnitSymbol symbol : unitSymbols)
+		for (UnitSymbol unitSymbol : unitSymbols)
 		{
-			Unit parent = (unitStack.isEmpty() ? null : unitStack.peek());
+			Unit parentUnit = (unitStack.isEmpty() ? null : unitStack.peek());
 			
-			if (symbol.type == Unit.Type.UnitEnd)
+			if (unitSymbol.type == Unit.Type.UnitEnd)
 			{
-				Unit currentUnit = unitStack.pop();
-				
-				if (currentUnit.type != Unit.Type.Invalid)
-				{
-					Info<?> currentInfo = infoStack.pop();
-					
-					currentInfo.length = currentLine - currentUnit.startLine;
-				}
-				
-				for (int i = 0; i < unitStack.size(); i++)
-					System.out.print(" ");
-				System.out.println("------" + currentLine);
+				endCurrentUnit();
 			}
-			else if (symbol.type == Unit.Type.Invalid)
+			else if (unitSymbol.type == Unit.Type.Invalid)
 			{
-				for (int i = 0; i < unitStack.size(); i++)
-					System.out.print(" ");
-				System.out.println("Brace: " + currentLine);
-				Unit unit = new Unit("", Unit.Type.Invalid, unitStack.size(), currentLine, parent);
-				unitStack.push(unit);
-
+				addInvalidUnit(parentUnit);
 			}
 			else
 			{
-				boolean hasBody = true;
-				String name;
-				Unit.Type type;
-				Info<?> parentInfo = (infoStack.isEmpty() ? null : infoStack.peek());
-				Info<?> unitInfo;
+				addValidUnit(unitSymbol, parentUnit);
+			}
+		}
+	}
 
-				switch (symbol.type)
+
+	private void endCurrentUnit()
+	{
+		Unit currentUnit = unitStack.pop();
+		
+		if (currentUnit.type != Unit.Type.Invalid)
+		{
+			Info currentInfo = infoStack.pop();
+			
+			currentInfo.endLine = currentLine;
+		}
+		
+	}
+
+
+	private void addInvalidUnit(Unit parentUnit)
+	{
+		Unit unit = new Unit("", Unit.Type.Invalid, unitStack.size(), currentLine, parentUnit);
+		unitStack.push(unit);
+	}
+	
+	
+	private void addValidUnit(UnitSymbol unitSymbol, Unit parentUnit)
+	{
+		Info parentInfo = infoStack.peek();
+		
+		String name;
+		Unit.Type type;
+		Info unitInfo;
+		
+		boolean hasBody = true;
+
+		switch (unitSymbol.type)
+		{
+			case Method :
+				name = unitSymbol.match.group(3);
+				type = Unit.Type.Method;
+				hasBody = !(unitSymbol.match.group().endsWith(";"));
+				unitInfo = new MethodInfo(name, parentInfo);
+				break;
+			case Class :
+				name = unitSymbol.match.group(3);
+				type = Unit.Type.Class;
+				
+				for (Unit unit = parentUnit; unit != null; unit = unit.parent)
 				{
-					case Method :
-						name = symbol.match.group(3);
-						type = Unit.Type.Method;
-
-						if (symbol.match.group().endsWith(";"))
-							hasBody = false;
-
-						unitInfo = new MethodInfo(name, parentInfo);
-						break;
-					case Class :
-						boolean isInner = false;
-						for (Unit unit : unitStack)
-						{
-							if (unit.type == Unit.Type.Class)
-							{
-								isInner = true;
-								break;
-							}
-						}
-
-						name = symbol.match.group(3);
-						type = (isInner ? Unit.Type.InnerClass : Unit.Type.Class);
-						unitInfo = new ClassInfo(name, parentInfo);
-						break;
-					case UnitEnd :
-					case AnonymousClass :
-					case InnerClass :
-					default :
-						throw new IllegalStateException(symbol.type + " is a Unit.Type that should not occur here!");
+					if (unit.type == Unit.Type.Class)
+					{
+						type = Unit.Type.InnerClass;
+					}
 				}
 
-				infoStack.push(unitInfo);
+				unitInfo = new ClassInfo(name, parentInfo);
+				break;
+			case LocalBlock :
+				name = unitSymbol.match.group(1);
 				
-				for (int i = 0; i < unitStack.size(); i++)
-					System.out.print(" ");
-				System.out.println("Unit: " + name + ":" + type + ":" + currentLine);
-
-				if (hasBody)
+				if (parentUnit != null && Unit.Type.isClassVariant(parentUnit.type))
 				{
-					Unit unit = new Unit(name, type, unitStack.size(), currentLine, parent);
-					unitStack.push(unit);
+					type = Unit.Type.Initialiser;
+					if (name.isEmpty())
+						name = "<initialiser>";
+					unitInfo = new MethodInfo(name, parentInfo);
 				}
 				else
 				{
-					unitInfo.length = 1;
-					infoStack.pop();
+					type = Unit.Type.LocalBlock;
+					if (name.isEmpty())
+						name = "<unnamed>";
+					unitInfo = new BlockInfo(name, parentInfo);
 				}
-			}
+				break;
+			default :
+				throw new IllegalStateException(unitSymbol.type + " is a Unit.Type that should not occur here!");
+		}
+
+		unitInfo.startLine = currentLine;
+		parentInfo.children.add(unitInfo);
+		
+
+		if (hasBody)
+		{
+			Unit unit = new Unit(name, type, unitStack.size(), currentLine, parentUnit);
+			unitStack.push(unit);
+			infoStack.push(unitInfo);
+		}
+		else
+		{
+			unitInfo.endLine = unitInfo.startLine;
 		}
 	}
 
@@ -257,6 +277,7 @@ public class UnitLengthParser implements SourceParser
 		
 		findUnitSymbolsOnLine(previousLines, Unit.Type.Method, methodMatcher, unitSymbols);
 		findUnitSymbolsOnLine(previousLines, Unit.Type.Class, classMatcher, unitSymbols);
+		findUnitSymbolsOnLine(previousLines, Unit.Type.LocalBlock, initialiserOrLocalBlockMatcher, unitSymbols);
 		findBracesOnLine(previousLines, unitSymbols);
 
 		Collections.sort(unitSymbols);
@@ -285,41 +306,58 @@ public class UnitLengthParser implements SourceParser
 	}
 	
 	
+	//NEXT_TASK Re-factor this complete mess into something actually readable.
 	private void findBracesOnLine(String line, List<UnitSymbol> outputList)
 	{
 		braceMatcher.reset(line);
 		
-		boolean isFirst = true;
+		boolean isFirstMatch = true;
 		while (braceMatcher.find())
 		{
 			MatchResult result = braceMatcher.toMatchResult();
+			Unit.Type type = null;
 			
-			boolean isPartOfValid = false;
+			boolean isOpeningBrace = result.group().charAt(0) == '{';
 			
-			if (isFirst && lastSymbol != null && result.group().charAt(0) == '{' && line.substring(0, result.start()).trim().length() == 0)
+			if (isOpeningBrace)
 			{
-				isPartOfValid = (lastSymbol.type != Unit.Type.Invalid && lastSymbol.type != Unit.Type.Method) || !lastSymbol.match.group().endsWith("{");
+				boolean isPartOfExistingSymbol = false;
+				boolean isInitialiserOrLocalBlock = false;
+				String stringBeforeMatch = line.substring(0, result.start()).trim();
+				
+				if (isFirstMatch && lastSymbol != null && stringBeforeMatch.isEmpty())
+				{
+					isPartOfExistingSymbol = (lastSymbol.type != Unit.Type.UnitEnd && !lastSymbol.match.group().endsWith("{") && !lastSymbol.match.group().endsWith(";"));
+				}
+				else
+				{
+					for (UnitSymbol unitSymbol : outputList)
+					{
+						if (MathOps.isInInterval(result.start(), unitSymbol.match.start(), unitSymbol.match.end()-1, true))
+						{
+							isPartOfExistingSymbol = true;
+							break;
+						}
+					}
+				}
+				
+				if (!isPartOfExistingSymbol)
+				{
+					type = (isInitialiserOrLocalBlock ? Unit.Type.LocalBlock : Unit.Type.Invalid);
+				}
 			}
 			else
 			{
-				for (UnitSymbol unitSymbol : outputList)
-				{
-					if (MathOps.isInInterval(result.start(), unitSymbol.match.start(), unitSymbol.match.end()-1, true))
-					{
-						isPartOfValid = true;
-						break;
-					}
-				}
+				type = Unit.Type.UnitEnd;
 			}
 			
-			if (!isPartOfValid)
+			if (type != null)
 			{
-				Unit.Type type = (result.group().charAt(0) == '{' ? Unit.Type.Invalid : Unit.Type.UnitEnd);
 				UnitSymbol symbol = new UnitSymbol(type, result, line);
 				outputList.add(symbol);
 			}
 			
-			isFirst = false;
+			isFirstMatch = false;
 		}
 	}
 	
@@ -357,7 +395,16 @@ public class UnitLengthParser implements SourceParser
 	
 	private static class Unit
 	{
-		enum Type { Class, Method, InnerClass, AnonymousClass, UnitEnd, Invalid }
+		enum Type
+		{
+			Class, Method, InnerClass, AnonymousClass, UnitEnd, Initialiser, LocalBlock, Invalid;
+			
+			public static boolean isClassVariant(Type type)
+			{
+				return type == Class || type == InnerClass || type == AnonymousClass;
+			}
+		}
+		
 		String name;
 		Type type;
 		Unit parent;
@@ -377,6 +424,7 @@ public class UnitLengthParser implements SourceParser
 	
 	private static class UnitSymbol implements Comparable<UnitSymbol>
 	{
+		//NEXT_TASK Maybe extract the match info in here directly, so we e.g. only call substring() once per group.
 		Unit.Type type; 
 		MatchResult match;
 		String string;
@@ -397,25 +445,27 @@ public class UnitLengthParser implements SourceParser
 	}
 	
 	
-	private abstract class Info<T>
+	private abstract class Info
 	{
-		Info<?> parent;
+		Info parent;
 		String name;
-		int length;
-		List<T> children;
+		int startLine;
+		int endLine;
+		List<Info> children;
 		
-		public Info(String name, Info<?> parent)
+		public Info(String name, Info parent)
 		{
 			this.parent = parent;
 			this.name = name;
+			this.children = new LinkedList<>();
 		}
 	}
 	
 	
-	private class FileInfo extends Info<ClassInfo>
+	private class FileInfo extends Info
 	{
 		File file;
-		public FileInfo(File file, Info<?> parent)
+		public FileInfo(File file, Info parent)
 		{
 			super(file.getName(), parent);
 			this.file = file;
@@ -423,19 +473,27 @@ public class UnitLengthParser implements SourceParser
 	}
 	
 	
-	private class ClassInfo extends Info<MethodInfo>
+	private class ClassInfo extends Info
 	{
-
-		public ClassInfo(String name, Info<?> parent)
+		public ClassInfo(String name, Info parent)
 		{
 			super(name, parent);
 		}
 	}
 	
 	
-	private class MethodInfo extends Info<String>
+	private class MethodInfo extends Info
 	{
-		public MethodInfo(String name, Info<?> parent)
+		public MethodInfo(String name, Info parent)
+		{
+			super(name, parent);
+		}
+	}
+	
+	
+	private class BlockInfo extends Info
+	{
+		public BlockInfo(String name, Info parent)
 		{
 			super(name, parent);
 		}
@@ -462,6 +520,7 @@ public class UnitLengthParser implements SourceParser
 				p.parseLine(builder.toString().trim());
 			}
 			
+			p.postFile();
 		}
 		catch (FileNotFoundException e)
 		{
