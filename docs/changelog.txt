@@ -5,6 +5,7 @@
 - UnitLengthParser now adds all Info objects as children of their parents.
 - Info is no longer generic.
 - Cleaned up UnitLengthParser.parseLine().
+- UnitSymbol now stores regex match start and end as ints and groups as a string array, instead of as a match result.
 
 ==========
 2018-11-06

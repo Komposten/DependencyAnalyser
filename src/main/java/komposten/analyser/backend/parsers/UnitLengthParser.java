@@ -211,13 +211,13 @@ public class UnitLengthParser implements SourceParser
 		switch (unitSymbol.type)
 		{
 			case Method :
-				name = unitSymbol.match.group(3);
+				name = unitSymbol.matchGroups[3];
 				type = Unit.Type.Method;
-				hasBody = !(unitSymbol.match.group().endsWith(";"));
+				hasBody = !(unitSymbol.matchGroups[0].endsWith(";"));
 				unitInfo = new MethodInfo(name, parentInfo);
 				break;
 			case Class :
-				name = unitSymbol.match.group(3);
+				name = unitSymbol.matchGroups[3];
 				type = Unit.Type.Class;
 				
 				for (Unit unit = parentUnit; unit != null; unit = unit.parent)
@@ -231,7 +231,7 @@ public class UnitLengthParser implements SourceParser
 				unitInfo = new ClassInfo(name, parentInfo);
 				break;
 			case LocalBlock :
-				name = unitSymbol.match.group(1);
+				name = unitSymbol.matchGroups[1];
 				
 				if (parentUnit != null && Unit.Type.isClassVariant(parentUnit.type))
 				{
@@ -286,7 +286,7 @@ public class UnitLengthParser implements SourceParser
 		
 		if (!unitSymbols.isEmpty())
 		{
-			previousLines = previousLines.substring(unitSymbols.getLast().match.end());
+			previousLines = previousLines.substring(unitSymbols.getLast().endIndex);
 			lastSymbol = unitSymbols.getLast();
 		}
 		
@@ -327,13 +327,13 @@ public class UnitLengthParser implements SourceParser
 				
 				if (isFirstMatch && lastSymbol != null && stringBeforeMatch.isEmpty())
 				{
-					isPartOfExistingSymbol = (lastSymbol.type != Unit.Type.UnitEnd && !lastSymbol.match.group().endsWith("{") && !lastSymbol.match.group().endsWith(";"));
+					isPartOfExistingSymbol = (lastSymbol.type != Unit.Type.UnitEnd && !lastSymbol.matchGroups[0].endsWith("{") && !lastSymbol.matchGroups[0].endsWith(";"));
 				}
 				else
 				{
 					for (UnitSymbol unitSymbol : outputList)
 					{
-						if (MathOps.isInInterval(result.start(), unitSymbol.match.start(), unitSymbol.match.end()-1, true))
+						if (MathOps.isInInterval(result.start(), unitSymbol.startIndex, unitSymbol.endIndex-1, true))
 						{
 							isPartOfExistingSymbol = true;
 							break;
@@ -370,7 +370,7 @@ public class UnitLengthParser implements SourceParser
 		{
 			UnitSymbol symbol = iterator.next();
 			
-			if (symbol.type == Unit.Type.Method && symbol.match.group(2).trim().equals("new"))
+			if (symbol.type == Unit.Type.Method && symbol.matchGroups[2].trim().equals("new"))
 			{
 				iterator.remove();
 			}
@@ -424,23 +424,32 @@ public class UnitLengthParser implements SourceParser
 	
 	private static class UnitSymbol implements Comparable<UnitSymbol>
 	{
-		//NEXT_TASK Maybe extract the match info in here directly, so we e.g. only call substring() once per group.
+		//CURRENT Extract the match info in here directly, so we e.g. only call substring() once per group.
 		Unit.Type type; 
-		MatchResult match;
-		String string;
+		String fullString;
+		String[] matchGroups;
+		int startIndex;
+		int endIndex;
 		
 		public UnitSymbol(Unit.Type type, MatchResult match, String string)
 		{
 			this.type = type;
-			this.match = match;
-			this.string = string;
+			this.fullString = string;
+			this.startIndex = match.start();
+			this.endIndex = match.end();
+			
+			this.matchGroups = new String[match.groupCount()+1];
+			for (int i = 0; i <= match.groupCount(); i++)
+			{
+				matchGroups[i] = match.group(i);
+			}
 		}
 
 		
 		@Override
 		public int compareTo(UnitSymbol o)
 		{
-			return Integer.compare(match.start(), o.match.start());
+			return Integer.compare(startIndex, o.startIndex);
 		}
 	}
 	
