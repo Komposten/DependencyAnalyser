@@ -6,6 +6,7 @@
 - Info is no longer generic.
 - Cleaned up UnitLengthParser.parseLine().
 - UnitSymbol now stores regex match start and end as ints and groups as a string array, instead of as a match result.
+- The various Info classes now store more data about their respective objects.
 
 ==========
 2018-11-06

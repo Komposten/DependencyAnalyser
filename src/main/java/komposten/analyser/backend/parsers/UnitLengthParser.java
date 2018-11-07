@@ -214,7 +214,12 @@ public class UnitLengthParser implements SourceParser
 				name = unitSymbol.matchGroups[3];
 				type = Unit.Type.Method;
 				hasBody = !(unitSymbol.matchGroups[0].endsWith(";"));
-				unitInfo = new MethodInfo(name, parentInfo);
+
+				MethodInfo methodInfo = new MethodInfo(name, parentInfo);
+				methodInfo.modifiers = unitSymbol.matchGroups[1];
+				methodInfo.returnType = unitSymbol.matchGroups[2];
+				methodInfo.parameterClause = unitSymbol.matchGroups[4];
+				unitInfo = methodInfo;
 				break;
 			case Class :
 				name = unitSymbol.matchGroups[3];
@@ -228,23 +233,36 @@ public class UnitLengthParser implements SourceParser
 					}
 				}
 
-				unitInfo = new ClassInfo(name, parentInfo);
+				ClassInfo classInfo = new ClassInfo(name, parentInfo);
+				classInfo.modifiers = unitSymbol.matchGroups[1];
+				classInfo.type = ClassInfo.Type.fromString(unitSymbol.matchGroups[2].trim());
+				classInfo.extendClause = unitSymbol.matchGroups[4];
+				classInfo.implementsClause = unitSymbol.matchGroups[5];
+				unitInfo = classInfo;
 				break;
 			case LocalBlock :
 				name = unitSymbol.matchGroups[1];
 				
 				if (parentUnit != null && Unit.Type.isClassVariant(parentUnit.type))
 				{
-					type = Unit.Type.Initialiser;
 					if (name.isEmpty())
 						name = "<initialiser>";
-					unitInfo = new MethodInfo(name, parentInfo);
+					
+					type = Unit.Type.Initialiser;
+					
+					MethodInfo methodInfo2 = new MethodInfo(name, parentInfo);
+					if (name.equals("static"))
+					{
+						methodInfo2.modifiers = name;
+						name = "<initialiser>";
+					}
+					unitInfo = methodInfo2;
 				}
 				else
 				{
-					type = Unit.Type.LocalBlock;
 					if (name.isEmpty())
 						name = "<unnamed>";
+					type = Unit.Type.LocalBlock;
 					unitInfo = new BlockInfo(name, parentInfo);
 				}
 				break;
@@ -424,7 +442,6 @@ public class UnitLengthParser implements SourceParser
 	
 	private static class UnitSymbol implements Comparable<UnitSymbol>
 	{
-		//CURRENT Extract the match info in here directly, so we e.g. only call substring() once per group.
 		Unit.Type type; 
 		String fullString;
 		String[] matchGroups;
@@ -454,7 +471,7 @@ public class UnitLengthParser implements SourceParser
 	}
 	
 	
-	private abstract class Info
+	public static abstract class Info
 	{
 		Info parent;
 		String name;
@@ -471,7 +488,7 @@ public class UnitLengthParser implements SourceParser
 	}
 	
 	
-	private class FileInfo extends Info
+	public static class FileInfo extends Info
 	{
 		File file;
 		public FileInfo(File file, Info parent)
@@ -482,8 +499,31 @@ public class UnitLengthParser implements SourceParser
 	}
 	
 	
-	private class ClassInfo extends Info
+	public static class ClassInfo extends Info
 	{
+		public enum Type
+		{
+			Class,
+			Enum,
+			Interface;
+
+			public static Type fromString(String string)
+			{
+				for (Type type : values())
+				{
+					if (type.toString().equalsIgnoreCase(string))
+						return type;
+				}
+				
+				return null;
+			}
+		}
+		
+		String modifiers;
+		Type type;
+		String extendClause;
+		String implementsClause;
+		
 		public ClassInfo(String name, Info parent)
 		{
 			super(name, parent);
@@ -491,8 +531,12 @@ public class UnitLengthParser implements SourceParser
 	}
 	
 	
-	private class MethodInfo extends Info
+	public static class MethodInfo extends Info
 	{
+		String modifiers;
+		String returnType;
+		String parameterClause;
+		
 		public MethodInfo(String name, Info parent)
 		{
 			super(name, parent);
@@ -500,7 +544,7 @@ public class UnitLengthParser implements SourceParser
 	}
 	
 	
-	private class BlockInfo extends Info
+	public static class BlockInfo extends Info
 	{
 		public BlockInfo(String name, Info parent)
 		{
