@@ -1,13 +1,35 @@
 # DependencyAnalyser
 ### What is DependencyAnalyser?
-DependencyAnalyser is a standalone tool that analyses Java source code dependencies, specifically to look for circular dependencies between packages.
+DependencyAnalyser is a simple program that analyses Java source code to give information about the code quality.
+Currently it only analyses the dependency hierarchy between packages and finds cyclic dependencies, but
+future versions will include other statistics as well.
+
+### Features
+**Current features**
+- View the dependencies of individual packages.
+- See which packages are part of cyclic dependencies.
+- View graphs of all cyclic dependencies a package is part of.
+- View which files in one package are dependent on what files in another package.
+
+**Planned features**
+- More statistics (like length of code elements, and method-level cyclomatic complexity).
+- Multi-threading of the analysis.
+- Export the analysis result as HTML.
+- Save individual graphs as images.
+- Ability to run the software as a command-line tool.
 
 ### Running DependencyAnalyser
-1) Download the source files and deploy using Maven.
-2) Launch the .jar using javaw -jar dependency-analyser-[version].jar
+The current version is not yet set up to be easy to build and run. Future versions will be built using Maven.
+Running this version would require:
+1) Cloning the repository.
+2) Downloading the JGraphT and JGraphX libraries.
+3) Downloading and building my own [utility library](https://github.com/komposten/utilities).
+4) Adding the above mentioned libraries to the project build path/classpath.
+5) Building the project. 
 
 ### Dependencies
-DependencyAnalyser relies on JgraphT and JgraphX for creating and rendering graphs.
+DependencyAnalyser relies on the [JGraphX](https://github.com/jgraph/jgraphx) and [JGraphT](https://github.com/jgrapht/jgrapht) libraries for creating and rendering interactive graphs.
 
-###License
-This project is licensed under the X license. See LICENSE for more information.
+### License
+This project is currently under exclusive copyright (owned by me, Komposten).
+An open source license will be added in the future.

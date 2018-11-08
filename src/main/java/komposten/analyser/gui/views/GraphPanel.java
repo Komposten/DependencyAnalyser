@@ -9,7 +9,8 @@ import java.util.Set;
 
 import javax.swing.JPanel;
 
-import org.jgrapht.graph.ListenableDirectedGraph;
+import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DefaultListenableGraph;
 
 import com.mxgraph.layout.mxGraphLayout;
 import com.mxgraph.model.mxCell;
@@ -35,17 +36,17 @@ public abstract class GraphPanel<V extends Vertex, E extends Edge> extends JPane
 	protected int visibleEdges;
 	protected int visibleVertices;
 	
-	protected ListenableDirectedGraph<V, E> graph;
+	protected DefaultListenableGraph<V, E> graph;
 	protected DependencyGraph<V, E> jGraph;
 	protected mxGraphLayout graphLayout;
 	protected GraphComponent<V, E> graphPanel;
 	
-
+	
 	public GraphPanel(Backend backend, Class<? extends E> edgeClass)
 	{
 		this.backend = backend;
 		
-		graph = new ListenableDirectedGraph<>(edgeClass);
+		graph = new DefaultListenableGraph<>(new DefaultDirectedGraph<>(edgeClass));
 		jGraph = new DependencyGraph<>(graph);
 		graphLayout = createLayout();
 		graphPanel = new GraphComponent<>(jGraph, this);

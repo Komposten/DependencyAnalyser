@@ -5,22 +5,22 @@
 	<classpathentry kind="src" path="src/main/resources"/>
 	<classpathentry kind="src" path="src/test/resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
-	<classpathentry kind="lib" path="libs/jgrapht-core-0.9.2.jar" sourcepath="libs/jgrapht-0.9.2.zip">
+	<classpathentry kind="lib" path="libs/komposten-utils.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
+	<classpathentry kind="lib" path="libs/jgrapht-core.jar" sourcepath="libs/jgrapht-src.zip">
 		<attributes>
 			<attribute name="javadoc_location" value="http://jgrapht.org/javadoc/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="libs/jgrapht-ext-0.9.2.jar" sourcepath="libs/jgrapht-0.9.2.zip">
+	<classpathentry kind="lib" path="libs/jgrapht-ext.jar" sourcepath="libs/jgrapht-src.zip">
 		<attributes>
 			<attribute name="javadoc_location" value="http://jgrapht.org/javadoc/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="libs/jgraphx-3.5.1.2.jar" sourcepath="libs/jgraphx-3.5.1.2-src.zip">
+	<classpathentry kind="lib" path="libs/jgraphx.jar" sourcepath="libs/jgraphx-src.zip">
 		<attributes>
 			<attribute name="javadoc_location" value="https://jgraph.github.io/mxgraph/java/docs/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="libs/komposten-utils.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
