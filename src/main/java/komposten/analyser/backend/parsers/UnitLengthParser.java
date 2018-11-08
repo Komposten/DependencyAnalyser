@@ -399,6 +399,8 @@ public class UnitLengthParser implements SourceParser
 	@Override
 	public void postFile()
 	{
+		currentFileInfo.startLine = 1;
+		currentFileInfo.endLine = currentLine;
 	}
 
 
