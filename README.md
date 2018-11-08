@@ -9,7 +9,11 @@ future versions will include other statistics as well.
 - View the dependencies of individual packages.
 - See which packages are part of cyclic dependencies.
 - View graphs of all cyclic dependencies a package is part of.
-- View which files in one package are dependent on what files in another package.
+- View which classes in one package are dependent on what classes in another package.
+
+ Dependency view |Cycle view |Class view 
+--- | --- | ---
+![Dependency view](../assets/screenshots/dependency_view.png?raw=true)|![Dependency view](../assets/screenshots/cycle_view.png?raw=true)|![Dependency view](../assets/screenshots/class_view.png?raw=true)
 
 **Planned features**
 - More statistics (like length of code elements, and method-level cyclomatic complexity).
