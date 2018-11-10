@@ -9,7 +9,7 @@ import java.util.List;
 
 import komposten.analyser.backend.parsers.DependencyParser;
 import komposten.analyser.backend.parsers.SourceParser;
-import komposten.analyser.backend.parsers.UnitLengthParser;
+import komposten.analyser.backend.parsers.UnitParser;
 import komposten.analyser.backend.util.SourceUtil;
 import komposten.utilities.logging.Level;
 import komposten.utilities.logging.LogUtils;
@@ -67,7 +67,7 @@ public class PackageAnalyser
 	{
 		parsers.clear();
 		parsers.add(new DependencyParser(currentPackage, internalPackages));
-		parsers.add(new UnitLengthParser());
+		parsers.add(new UnitParser());
 	}
 	
 
