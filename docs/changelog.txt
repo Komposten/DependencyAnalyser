@@ -1,4 +1,9 @@
 ==========
+2018-11-10
+==========
+- Added support for anonymous classes to UnitLengthParser.
+
+==========
 2018-11-08
 ==========
 - Replaced usage of ListenableDirectedGraph in GraphPanel with a DefaultListenableGraph to support later JGraphX versions.

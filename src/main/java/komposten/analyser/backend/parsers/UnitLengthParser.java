@@ -23,10 +23,6 @@ public class UnitLengthParser implements SourceParser
 {
 	// NEXT_TASK Split parsers into two groups: IndependentParser (parse data not dependent on Units) and UnitParser. UnitParser does unit matching against lines and then passes that information to a list of parsers which make use of it!
 	
-//	/** Matches private, protected or public. */
-//	private static final String ACCESS_MODIFIER = "private|protected|public";
-//	/** Matches static, abstract, final, static final or final static. */
-//	private static final String STATIC_FINAL_MODIFIER = "static(?:\\s+final)?|abstract|final(?:\\s+static)?";
 	/** Matches any combination of modifiers (private, protected, public, abstract, static or final). */
 	private static final String MODIFIER = "(?:(?:private|protected|public|abstract|static|final)\\s+)";
 	/** Matches any valid Java identifier. */
@@ -38,7 +34,7 @@ public class UnitLengthParser implements SourceParser
 	 * Matches a reference to a class, as used in e.g. a return type.
 	 * Supports arrays and type parameterisation.
 	 */
-	private static final String CLASS_REFERENCE = REFERENCE + "\\s*(?:<[\\w$<>,\\s\\[\\]?]+?>)?";
+	private static final String CLASS_REFERENCE = REFERENCE + "\\s*" + TYPE_PARAMETERISATION + "?";
 	private static final String RETURN_TYPE = REFERENCE + "(?:(?:\\s*" + TYPE_PARAMETERISATION + "|" + ARRAY_BRACKETS + ")+|\\s)";
 	private static final String TYPE_PARAMETER = "<[\\w$<>,\\s\\[\\]]+?>";
 	/**
@@ -61,7 +57,14 @@ public class UnitLengthParser implements SourceParser
 						+ "(?:\\s*" + ARRAY_BRACKETS + "\\s*" + IDENTIFIER + ")" 				//[] followed by an identifier
 				+ ")\\s*,?\\s*|\\s)*" 																							//possibly a comma, and 0 or more repeats of the parameter declaration pattern
 			+ "\\))(?:\\s*[\\{;])"); 																							//parameter list end
-	//FIXME UnitLengthParser; METHOD_PATTERN gives incorrect matches for generic methods. Add support for TYPE_PARAMETER between modifiers and return type.
+	
+	/*
+	 * FIXME UnitLengthParser; Pattern problems:
+	 * 		METHOD: Incorrect matches for generic methods. (Does not allow for a TYPE_PARAMETER between modifiers and return type).
+	 * 		METHOD: Does not work for parameters like "Type<Type2>paramName"
+	 *		ANON_CLASS: Does not work for declarations like "Type<Type2>varName"
+	 * 		ANON_CLASS: Does not allow "new X()" and "new X() {}" as parameters!
+	 */
 	/**
 	 * Capturing groups:
 	 * <ol>
@@ -80,6 +83,25 @@ public class UnitLengthParser implements SourceParser
 			+ "\\s*(?:implements\\s+((?:" + CLASS_REFERENCE + ",?\\s*)+))?"	//implementation of zero or more, possibly generic, interfaces
 			+ "\\s*(?:\\{)");
 	/**
+	 * Capturing groups:
+	 * <ol>
+	 * <li>Modifiers
+	 * <li>Type to store the variable as
+	 * <li>Variable/field identifier
+	 * <li>Type to extend 
+	 * <li>Parameter list
+	 * </ol>
+	 */
+	private static final Pattern ANONYMOUS_CLASS_PATTERN = Pattern.compile(
+			"(?:(" + MODIFIER + "*)"					//modifiers
+			+ "(" + CLASS_REFERENCE + ")?"		//a class reference, possibly type parameterised
+			+ "\\s+(" + IDENTIFIER + ")"			//an identifier
+			+ "\\s*=)?"												//=
+			+ "\\s*new"												//new
+			+ "\\s+(" + CLASS_REFERENCE + ")"	//a class reference, possibly type parameterised
+			+ "\\s*(\\([^\\)]*\\))"						//parameter list
+			+ "\\s*\\{");
+	/**
 	 * Matches static initialisers, class initialisers, named/labelled blocks and
 	 * unnamed blocks. Does not match the blocks in e.g. if-statements or
 	 * try-blocks.<br />
@@ -96,6 +118,7 @@ public class UnitLengthParser implements SourceParser
 	{
 		System.out.println(METHOD_PATTERN.pattern()); //XXX Testing stuff.
 		System.out.println(CLASS_PATTERN.pattern()); //XXX Testing stuff.
+		System.out.println(ANONYMOUS_CLASS_PATTERN.pattern()); //XXX Testing stuff.
 	}
 
 	private Matcher methodMatcher;
@@ -124,7 +147,7 @@ public class UnitLengthParser implements SourceParser
 		methodMatcher = METHOD_PATTERN.matcher("");
 		classMatcher = CLASS_PATTERN.matcher("");
 		initialiserOrLocalBlockMatcher = INITIALISER_OR_LOCAL_BLOCK_PATTERN.matcher("");
-//		anonymousClassMatcher = ANON_CLASS_PATTERN.matcher("");
+		anonymousClassMatcher = ANONYMOUS_CLASS_PATTERN.matcher("");
 //		lambdaMatcher = LAMBDA_PATTERN.matcher("");
 		braceMatcher = Pattern.compile("(?<!')(\\{|\\})(?!')").matcher("");
 	}
@@ -149,7 +172,6 @@ public class UnitLengthParser implements SourceParser
 	public void parseLine(String line)
 	{
 		currentLine++;
-		//NEXT_TASK 1 Fully implement method and class length, before tackling anonymous classes and lambdas.
 		// NEXT_TASK 2 Require that comments be removed before calling this! Maybe
 		// have PackageAnalyser store two versions of a line (one without comments, and
 		// one based on user settings), then choose line to pass depending on Parser
@@ -240,6 +262,16 @@ public class UnitLengthParser implements SourceParser
 				classInfo.implementsClause = unitSymbol.matchGroups[5];
 				unitInfo = classInfo;
 				break;
+			case AnonymousClass :
+				name = unitSymbol.matchGroups[3];
+				type = Unit.Type.AnonymousClass;
+				
+				classInfo = new ClassInfo(name, parentInfo);
+				classInfo.modifiers = unitSymbol.matchGroups[1];
+				classInfo.type = ClassInfo.Type.Class;
+				classInfo.extendClause = unitSymbol.matchGroups[4];
+				unitInfo = classInfo;
+				break;
 			case LocalBlock :
 				name = unitSymbol.matchGroups[1];
 				
@@ -295,6 +327,7 @@ public class UnitLengthParser implements SourceParser
 		
 		findUnitSymbolsOnLine(previousLines, Unit.Type.Method, methodMatcher, unitSymbols);
 		findUnitSymbolsOnLine(previousLines, Unit.Type.Class, classMatcher, unitSymbols);
+		findUnitSymbolsOnLine(previousLines, Unit.Type.AnonymousClass, anonymousClassMatcher, unitSymbols);
 		findUnitSymbolsOnLine(previousLines, Unit.Type.LocalBlock, initialiserOrLocalBlockMatcher, unitSymbols);
 		findBracesOnLine(previousLines, unitSymbols);
 
@@ -324,7 +357,6 @@ public class UnitLengthParser implements SourceParser
 	}
 	
 	
-	//NEXT_TASK Re-factor this complete mess into something actually readable.
 	private void findBracesOnLine(String line, List<UnitSymbol> outputList)
 	{
 		braceMatcher.reset(line);
@@ -407,7 +439,7 @@ public class UnitLengthParser implements SourceParser
 	@Override
 	public void storeResult(PackageData packageData)
 	{
-		//TODO Store the data in the PackageData object somehow.
+		//NEXT_TASK 1; Store the data in the PackageData object somehow.
 		//			Maybe have some kind of "property tree" or something that we can stuff the data into.
 		//			The data in here could then be parsed automatically, and depth used for indenting.
 	}
