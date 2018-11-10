@@ -89,13 +89,14 @@ public class PackageAnalyser
 			{
 				lineNo++;
 				line = line.trim();
-				if (line.isEmpty())
-					continue;
 				
-				StringBuilder builder = new StringBuilder(line);
-				lastEndedInComment = SourceUtil.removeComments(builder, lastEndedInComment, analyseStrings, analyseComments);
-				
-				line = builder.toString().trim();
+				if (!line.isEmpty())
+				{
+					StringBuilder builder = new StringBuilder(line);
+					lastEndedInComment = SourceUtil.removeComments(builder, lastEndedInComment, analyseStrings, analyseComments);
+					
+					line = builder.toString().trim();
+				}
 				
 				for (SourceParser parser : parsers)
 				{

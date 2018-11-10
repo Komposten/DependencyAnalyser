@@ -5,6 +5,7 @@
 - Simplified UnitLengthParser's METHOD_PATTERN and CLASS_PATTERN a bit (WIP).
 - Added a new version of UnitLengthParser called UnitParser. It's fully stable (I think) and ridiculously fast in comparison. (WIP)
 - Added KEYWORDS and PRIMITIVES to Constants.
+- PackageAnalyser no longer skips empty lines.
 
 ==========
 2018-11-08
