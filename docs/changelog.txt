@@ -2,6 +2,7 @@
 2018-11-10
 ==========
 - Added support for anonymous classes to UnitLengthParser.
+- Simplified UnitLengthParser's METHOD_PATTERN and CLASS_PATTERN a bit (WIP).
 
 ==========
 2018-11-08

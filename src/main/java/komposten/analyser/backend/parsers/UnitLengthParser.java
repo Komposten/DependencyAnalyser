@@ -51,11 +51,12 @@ public class UnitLengthParser implements SourceParser
 			+ "(" + RETURN_TYPE + ")"																							//return type supporting arrays and (nested) type parameterisation
 			+ "\\s*(" + IDENTIFIER + ")" 																					//method name
 			+ "\\s*(\\(" 																													//parameter list start
-				+ "(?:" + CLASS_REFERENCE + "(?:"																		//a class reference, possibly type parameterised
-						+ "(?:\\s+" + IDENTIFIER + "\\s*(?:" + ARRAY_BRACKETS + ")?)" 	//an identifier, possibly followed by []
-						+ "|" 																													//or
-						+ "(?:\\s*" + ARRAY_BRACKETS + "\\s*" + IDENTIFIER + ")" 				//[] followed by an identifier
-				+ ")\\s*,?\\s*|\\s)*" 																							//possibly a comma, and 0 or more repeats of the parameter declaration pattern
+//				+ "(?:" + CLASS_REFERENCE + "(?:"																		//a class reference, possibly type parameterised
+//						+ "(?:\\s+" + IDENTIFIER + "\\s*(?:" + ARRAY_BRACKETS + ")?)" 	//an identifier, possibly followed by []
+//						+ "|" 																													//or
+//						+ "(?:\\s*" + ARRAY_BRACKETS + "\\s*" + IDENTIFIER + ")" 				//[] followed by an identifier
+//				+ ")\\s*,?\\s*|\\s)*" 																							//possibly a comma, and 0 or more repeats of the parameter declaration pattern
+				+ "(?:[^\\)]*?)"				 																							//possibly a comma, and 0 or more repeats of the parameter declaration pattern
 			+ "\\))(?:\\s*[\\{;])"); 																							//parameter list end
 	
 	/*
@@ -80,8 +81,9 @@ public class UnitLengthParser implements SourceParser
 			+ "(class|interface|enum)\\s+"																	//class OR interface OR enum
 			+ "(" + IDENTIFIER + "(?:\\s*" + TYPE_PARAMETER + ")?)"					//class name and possibly a generic type
 			+ "\\s*(?:extends\\s+(" + CLASS_REFERENCE + "))?"								//possible extension of another, possibly generic, class
-			+ "\\s*(?:implements\\s+((?:" + CLASS_REFERENCE + ",?\\s*)+))?"	//implementation of zero or more, possibly generic, interfaces
+			+ "\\s*(?:implements\\s+([^\\{]+?))?"														//implementation of zero or more interfaces
 			+ "\\s*(?:\\{)");
+	
 	/**
 	 * Capturing groups:
 	 * <ol>
