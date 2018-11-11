@@ -246,7 +246,8 @@ public class UnitParser implements SourceParser
 
 	private void createUnitFromBracketPair(BracketPair bracketPair, int siblingIndex)
 	{
-		Unit parentUnit  = (unitStack.isEmpty() ? null : unitStack.peek());
+		Unit parentUnit = (unitStack.isEmpty() ? null : unitStack.peek());
+		Info parentInfo = (infoStack.isEmpty() ? null : infoStack.peek());
 		
 		int searchRegionStart = -1;
 		int searchRegionEnd = -1;
@@ -289,18 +290,20 @@ public class UnitParser implements SourceParser
 			searchRegionStart = findBraceBefore(bracketPair, siblingIndex);
 		}
 		
-		boolean createdUnit = createUnit(bracketPair, parentUnit, searchRegionStart, searchRegionEnd);
+		boolean createdUnit = createUnit(bracketPair, parentUnit, parentInfo, searchRegionStart, searchRegionEnd);
 		
 		for (int i = 0; i < bracketPair.children.size(); i++)
 		{
 			BracketPair childPair = bracketPair.children.get(i);
-			createUnitFromBracketPair(childPair, i);
+			
+			if (childPair.isCurly())
+				createUnitFromBracketPair(childPair, i);
 		}
 		
 		
 		if (createdUnit)
 		{
-			//NEXT_TASK Remove Unit and UnitStack. Rename Info to Unit and use that instead. But what about Unit.Type?
+			//CURRENT Remove Unit and UnitStack. Rename Info to Unit and use that instead.
 			unitStack.pop();
 			infoStack.pop();
 		}
@@ -347,9 +350,9 @@ public class UnitParser implements SourceParser
 
 
 	private boolean createUnit(BracketPair pair, Unit parentUnit,
-			int searchRegionStart, int searchRegionEnd)
+			Info parentInfo, int searchRegionStart, int searchRegionEnd)
 	{
-		UnitDefinition unitDef = getUnitDefinition(searchRegionStart, searchRegionEnd, parentUnit);
+		UnitDefinition unitDef = getUnitDefinition(searchRegionStart, searchRegionEnd, parentInfo);
 		if (unitDef == null)
 		{
 			System.out.format("Is null: %s:%d->%d:%d->%d\n", pair.character, pair.startLine, pair.endLine, searchRegionStart, searchRegionEnd);
@@ -362,36 +365,79 @@ public class UnitParser implements SourceParser
 		Unit unit = null;
 		Info info = null;
 		
-		String fullMatch = unitDef.matchGroups[0].trim();
+//		String fullMatch = unitDef.matchGroups[0].trim();
 		switch (unitDef.type)
 		{
 			case Method :
 //				System.out.println("Method: " + fullMatch);
+				MethodInfo methodInfo = new MethodInfo(unitDef.matchGroups[3], parentInfo);
+				methodInfo.modifiers = unitDef.matchGroups[1];
+				methodInfo.returnType = unitDef.matchGroups[2];
+				info = methodInfo;
 				break;
 			case Class :
-//				System.out.println("Class: " + fullMatch);
-				break;
 			case InnerClass :
-//				System.out.println("Inner class: " + fullMatch);
+//				System.out.println("Class: " + fullMatch);
+				ClassInfo classInfo = new ClassInfo(unitDef.matchGroups[3], parentInfo);
+				classInfo.modifiers = unitDef.matchGroups[1];
+				classInfo.type = ClassInfo.Type.fromString(unitDef.matchGroups[2].trim());
+				classInfo.extendClause = unitDef.matchGroups[4];
+				classInfo.implementsClause = unitDef.matchGroups[5];
+				info = classInfo;
 				break;
 			case AnonymousClass :
 //				System.out.println("Anonymous class: " + fullMatch);
+				AnonymousClassInfo anonClassInfo = new AnonymousClassInfo(unitDef.matchGroups[3], parentInfo);
+				anonClassInfo.extendedType = unitDef.matchGroups[4];
+				info = anonClassInfo;
 				break;
 			case Constructor :
 //				System.out.println("Constructor: " + fullMatch);
-				break;
-			case LocalBlock :
-//				System.out.println("Local block: " + fullMatch);
+				methodInfo = new MethodInfo(unitDef.matchGroups[2], parentInfo);
+				methodInfo.modifiers = unitDef.matchGroups[1];
+				info = methodInfo;
 				break;
 			case Initialiser :
+//				System.out.println("Local block: " + fullMatch);
+				String name = unitDef.matchGroups[1].trim();
+				String modifiers = null;
+				
+				if (name.equals("static"))
+				{
+					modifiers = name;
+					name = "";
+				}
+				else
+				{
+					name = "<initialiser>";
+				}
+				
+				methodInfo = new MethodInfo(name, parentInfo);
+				methodInfo.modifiers = modifiers;
+				info = methodInfo;
+				break;
+			case LocalBlock :
 //				System.out.println("Initialiser: " + fullMatch);
+				name = unitDef.matchGroups[1].trim();
+				if (name.isEmpty())
+					name = "<unnamed>";
+				BlockInfo blockInfo = new BlockInfo(name, parentInfo);
+				info = blockInfo;
 				break;
 			case Statement :
 //				System.out.println("Statement: " + fullMatch);
+				info = new BlockInfo(unitDef.matchGroups[1], parentInfo);
 				break;
 			default :
 				throw new IllegalStateException(unitDef.type + " is a Unit.Type that should not occur here!");
 		}
+		
+		info.type = unitDef.type;
+		info.startLine = pair.startLine;
+		info.endLine = pair.endLine;
+		
+		if (info.parent != null)
+			info.parent.children.add(info);
 		
 //		info.startLine = pair.startLine;
 //		info.endLine = pair.endLine;
@@ -404,7 +450,7 @@ public class UnitParser implements SourceParser
 	}
 	
 	
-	private UnitDefinition getUnitDefinition(int searchRegionStart, int searchRegionEnd, Unit parentUnit)
+	private UnitDefinition getUnitDefinition(int searchRegionStart, int searchRegionEnd, Info parentInfo)
 	{
 		MatchResult result;
 
@@ -412,11 +458,11 @@ public class UnitParser implements SourceParser
 		result = endsWith(fileContent, classMatcher, searchRegionStart, searchRegionEnd);
 		if (result != null)
 		{
-			Unit.Type type = (parentUnit == null ? Unit.Type.Class : Unit.Type.InnerClass);
+			Unit.Type type = (parentInfo == null ? Unit.Type.Class : Unit.Type.InnerClass);
 			return new UnitDefinition(type, result);
 		}
 
-		if (parentUnit != null)
+		if (parentInfo != null)
 		{
 			// ANONYMOUS CLASS
 			result = endsWith(fileContent, anonymousClassMatcher, searchRegionStart, searchRegionEnd);
@@ -424,7 +470,7 @@ public class UnitParser implements SourceParser
 				return new UnitDefinition(Unit.Type.AnonymousClass, result);
 
 			// STATEMENT
-			if (!Unit.Type.isClassVariant(parentUnit.type))
+			if (!Unit.Type.isClassVariant(parentInfo.type))
 			{
 				result = endsWith(fileContent, statementMatcher, searchRegionStart, searchRegionEnd);
 				if (result != null && isValidStatement(result))
@@ -432,7 +478,7 @@ public class UnitParser implements SourceParser
 			}
 
 			// METHOD
-			if (Unit.Type.isClassVariant(parentUnit.type))
+			if (Unit.Type.isClassVariant(parentInfo.type))
 			{
 				result = endsWith(fileContent, methodMatcher, searchRegionStart, searchRegionEnd);
 				if (result != null && isValidMethod(result))
@@ -444,12 +490,12 @@ public class UnitParser implements SourceParser
 			result = endsWith(fileContent, blockMatcher, searchRegionStart, searchRegionEnd);
 			if (result != null)
 			{
-				Unit.Type type = (Unit.Type.isClassVariant(parentUnit.type) ? Unit.Type.Initialiser : Unit.Type.LocalBlock);
+				Unit.Type type = (Unit.Type.isClassVariant(parentInfo.type) ? Unit.Type.Initialiser : Unit.Type.LocalBlock);
 				return new UnitDefinition(type, result);
 			}
 
 			// CONSTRUCTOR
-			if (Unit.Type.isClassVariant(parentUnit.type))
+			if (Unit.Type.isClassVariant(parentInfo.type))
 			{
 				result = endsWith(fileContent, constructorMatcher, searchRegionStart, searchRegionEnd);
 				if (result != null && isValidConstructor(result))
@@ -585,6 +631,7 @@ public class UnitParser implements SourceParser
 	{
 		Info parent;
 		String name;
+		Unit.Type type;
 		int startLine;
 		int endLine;
 		List<Info> children;
@@ -605,6 +652,7 @@ public class UnitParser implements SourceParser
 		{
 			super(file.getName(), parent);
 			this.file = file;
+			this.type = Unit.Type.File;
 		}
 	}
 	
@@ -641,7 +689,7 @@ public class UnitParser implements SourceParser
 	{
 		enum Type
 		{
-			Class, Method, InnerClass, AnonymousClass, Constructor, Initialiser, LocalBlock, Statement, Unknown;
+			File, Class, InnerClass, AnonymousClass, Method, Constructor, Initialiser, LocalBlock, Statement, Unknown;
 			
 			public static boolean isClassVariant(Type type)
 			{
@@ -692,6 +740,17 @@ public class UnitParser implements SourceParser
 		String implementsClause;
 		
 		public ClassInfo(String name, Info parent)
+		{
+			super(name, parent);
+		}
+	}
+	
+	
+	public static class AnonymousClassInfo extends Info
+	{
+		String extendedType;
+		
+		public AnonymousClassInfo(String name, Info parent)
 		{
 			super(name, parent);
 		}

@@ -6,6 +6,9 @@
 - UnitParser.createUnit() now returns a boolean to indicate if a unit was created or not.
 - UnitParser.getUnitDefinition() now skips looking for unit types that cannot occur inside the current parent.
 - UnitParser.getUnitDefinition() now differentiates between Class and InnerClass, and Initialiser and LocalBlock.
+- UnitParser.createUnit() now creates Info objects for all unit types (some are placeholders).
+- Added a UnitType field to Info.
+- Added File to Unit.Type.
 
 ==========
 2018-11-10
