@@ -1,4 +1,11 @@
 ==========
+2018-11-11
+==========
+- BracketPair now stores a list of its children.
+- UnitParser.createUnits() now uses recursion through the BracketPair hierarchy.
+- UnitParser.createUnit() now returns a boolean to indicate if a unit was created or not.
+
+==========
 2018-11-10
 ==========
 - Added support for anonymous classes to UnitLengthParser.

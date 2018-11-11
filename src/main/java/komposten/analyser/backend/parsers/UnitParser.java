@@ -214,78 +214,131 @@ public class UnitParser implements SourceParser
 			{
 				BracketPair pair = new BracketPair(bracketChar, bracketIndex, bracketLine, currentBracketPair);
 				
-				bracketPairList.add(pair);
+				if (pair.parent == null)
+					bracketPairList.add(pair);
 				currentBracketPair = pair;
 			}
 			else if (currentBracketPair != null)
 			{
 				currentBracketPair.endIndex = bracketIndex;
 				currentBracketPair.endLine = bracketLine;
+				
+				if (currentBracketPair.parent != null)
+					currentBracketPair.parent.children.add(currentBracketPair);
 				currentBracketPair = currentBracketPair.parent;
 			}
 		}
 	}
-
-
+	
+	
 	private void createUnits()
 	{
 		for (int i = 0; i < bracketPairList.size(); i++)
 		{
-			BracketPair pair = bracketPairList.get(i);
-			
-			if (pair.isCurly())
+			BracketPair bracketPair = bracketPairList.get(i);
+			if (bracketPair.parent == null && bracketPair.isCurly())
 			{
-				int searchRegionStart = -1;
-				int searchRegionEnd = -1;
-				
-				int precedingParensIndex = -1;
-				for (int j = pair.startIndex-1; j >= 0; j--)
-				{
-					if (!Character.isWhitespace(fileContent.charAt(j)))
-					{
-						if (fileContent.charAt(j) == ')')
-							precedingParensIndex = j;
-						break;
-					}
-				}
-				
-				if (precedingParensIndex != -1)
-				{
-					BracketPair precedingParens = null;
-					for (int j = i-1; j >= 0; j--)
-					{
-						BracketPair precedingPair = bracketPairList.get(j);
-						if (precedingPair.endIndex == precedingParensIndex)
-						{
-							precedingParens = precedingPair;
-							precedingParensIndex = j;
-							break;
-						}
-					}
-
-					searchRegionEnd = precedingParens.startIndex;
-					searchRegionStart = findBraceBefore(searchRegionEnd, precedingParensIndex);
-				}
-				else
-				{
-					searchRegionEnd = pair.startIndex;
-					searchRegionStart = findBraceBefore(searchRegionEnd, i);
-				}
-				
-				createUnit(pair, searchRegionStart, searchRegionEnd);
+				createUnitFromBracketPair(bracketPair, i);
 			}
 		}
 	}
 
 
-	private int findBraceBefore(int searchRegionEnd, int searchStartIndex)
+	private void createUnitFromBracketPair(BracketPair bracketPair, int siblingIndex)
 	{
-		for (int i = searchStartIndex-1; i >= 0; i--)
+		Unit parentUnit  = (unitStack.isEmpty() ? null : unitStack.peek());
+		
+		int searchRegionStart = -1;
+		int searchRegionEnd = -1;
+		
+		int precedingParensIndex = -1;
+		for (int j = bracketPair.startIndex-1; j >= 0; j--)
 		{
-			BracketPair bracketPair = bracketPairList.get(i);
-			if (bracketPair.isCurly())
+			if (!Character.isWhitespace(fileContent.charAt(j)))
 			{
-				return (bracketPair.endIndex < searchRegionEnd ? bracketPair.endIndex : bracketPair.startIndex);
+				if (fileContent.charAt(j) == ')')
+					precedingParensIndex = j;
+				break;
+			}
+		}
+		
+		if (precedingParensIndex != -1)
+		{
+			BracketPair precedingParens = null;
+			for (int j = siblingIndex-1; j >= 0; j--)
+			{
+				BracketPair sibling = bracketPair.parent.children.get(j);
+				
+				if (!sibling.isCurly() && sibling.endIndex == precedingParensIndex)
+				{
+					precedingParens = sibling;
+					precedingParensIndex = j;
+					break;
+				}
+			}
+			
+			if (precedingParens == null)
+				throw new NullPointerException("There should be a ()-sibling before this BracketPair, but none was found!");
+
+			searchRegionEnd = precedingParens.startIndex;
+			searchRegionStart = findBraceBefore(precedingParens, precedingParensIndex);
+		}
+		else
+		{
+			searchRegionEnd = bracketPair.startIndex;
+			searchRegionStart = findBraceBefore(bracketPair, siblingIndex);
+		}
+		
+		boolean createdUnit = createUnit(bracketPair, parentUnit, searchRegionStart, searchRegionEnd);
+		
+		for (int i = 0; i < bracketPair.children.size(); i++)
+		{
+			BracketPair childPair = bracketPair.children.get(i);
+			createUnitFromBracketPair(childPair, i);
+		}
+		
+		
+		if (createdUnit)
+		{
+			//NEXT_TASK Remove Unit and UnitStack. Rename Info to Unit and use that instead. But what about Unit.Type?
+			unitStack.pop();
+			infoStack.pop();
+		}
+	}
+	
+	
+	private int findBraceBefore(BracketPair pair, int pairSiblingIndex)
+	{
+		if (pair.parent != null)
+		{
+			if (pairSiblingIndex == 0)
+			{
+				return pair.parent.startIndex;
+			}
+			
+			for (int i = pairSiblingIndex-1; i >= 0; i--)
+			{
+				BracketPair sibling = pair.parent.children.get(i);
+				if (sibling.isCurly())
+				{
+					return sibling.endIndex;
+				}
+			}
+		}
+		else
+		{
+			if (pairSiblingIndex == 0)
+			{
+				return 0;
+			}
+			
+			for (int i = pairSiblingIndex-1; i >= 0; i--)
+			{
+				BracketPair sibling = bracketPairList.get(i);
+				if (sibling.isCurly())
+				{
+					return sibling.endIndex;
+				}
 			}
 		}
 		
@@ -293,8 +346,8 @@ public class UnitParser implements SourceParser
 	}
 
 
-	private void createUnit(BracketPair pair, int searchRegionStart,
-			int searchRegionEnd)
+	private boolean createUnit(BracketPair pair, Unit parentUnit,
+			int searchRegionStart, int searchRegionEnd)
 	{
 		UnitDefinition unitDef = getUnitDefinition(searchRegionStart, searchRegionEnd);
 		if (unitDef == null)
@@ -303,8 +356,9 @@ public class UnitParser implements SourceParser
 			System.out.println("=====================");
 			System.out.println(fileContent.subSequence(searchRegionStart, searchRegionEnd));
 			System.out.println("=====================");
-			return;
+			return false;
 		}
+		
 		Unit unit = null;
 		Info info = null;
 		
@@ -346,6 +400,7 @@ public class UnitParser implements SourceParser
 		
 		unitStack.push(unit);
 		infoStack.push(info);
+		return true;
 	}
 
 
@@ -536,6 +591,7 @@ public class UnitParser implements SourceParser
 	{
 		final char character;
 		final BracketPair parent;
+		final List<BracketPair> children;
 		final int startIndex;
 		final int startLine;
 		int endIndex;
@@ -547,6 +603,8 @@ public class UnitParser implements SourceParser
 			this.startIndex = startIndex;
 			this.startLine = startLine;
 			this.parent = parent;
+			this.children = new LinkedList<>();
+			
 		}
 		
 		
