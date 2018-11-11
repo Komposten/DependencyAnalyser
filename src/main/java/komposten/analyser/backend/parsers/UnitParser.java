@@ -349,7 +349,7 @@ public class UnitParser implements SourceParser
 	private boolean createUnit(BracketPair pair, Unit parentUnit,
 			int searchRegionStart, int searchRegionEnd)
 	{
-		UnitDefinition unitDef = getUnitDefinition(searchRegionStart, searchRegionEnd);
+		UnitDefinition unitDef = getUnitDefinition(searchRegionStart, searchRegionEnd, parentUnit);
 		if (unitDef == null)
 		{
 			System.out.format("Is null: %s:%d->%d:%d->%d\n", pair.character, pair.startLine, pair.endLine, searchRegionStart, searchRegionEnd);
@@ -402,39 +402,55 @@ public class UnitParser implements SourceParser
 		infoStack.push(info);
 		return true;
 	}
-
-
-	private UnitDefinition getUnitDefinition(int searchRegionStart, int searchRegionEnd)
+	
+	
+	private UnitDefinition getUnitDefinition(int searchRegionStart, int searchRegionEnd, Unit parentUnit)
 	{
-		/* 
-		 * CURRENT 1: It would technically be possible to limit which matchers to run depending on the current parent unit.
-		 *  You can only define methods inside classes, not at top-level or inside methods.
-		 * 	You can define classes anywhere.
-		 * 	You cannot define anonymous classes at top-level.
-		 *  You can only define statements inside methods (or initialisers).
-		 *  You can only define initialisers inside classes.
-		 */
 		MatchResult result;
-		
+
+		// CLASS
 		result = endsWith(fileContent, classMatcher, searchRegionStart, searchRegionEnd);
 		if (result != null)
 			return new UnitDefinition(Unit.Type.Class, result);
-		result = endsWith(fileContent, anonymousClassMatcher, searchRegionStart, searchRegionEnd);
-		if (result != null)
-			return new UnitDefinition(Unit.Type.AnonymousClass, result);
-		result = endsWith(fileContent, statementMatcher, searchRegionStart, searchRegionEnd);
-		if (result != null && isValidStatement(result))
-			return new UnitDefinition(Unit.Type.Statement, result);
-		result = endsWith(fileContent, methodMatcher, searchRegionStart, searchRegionEnd);
-		if (result != null && isValidMethod(result))
-			return new UnitDefinition(Unit.Type.Method, result);
-		result = endsWith(fileContent, blockMatcher, searchRegionStart, searchRegionEnd);
-		if (result != null)
-			return new UnitDefinition(Unit.Type.LocalBlock, result);
-		result = endsWith(fileContent, constructorMatcher, searchRegionStart, searchRegionEnd);
-		if (result != null && isValidConstructor(result))
-			return new UnitDefinition(Unit.Type.Constructor, result);
-		
+
+		if (parentUnit != null)
+		{
+			// ANONYMOUS CLASS
+			result = endsWith(fileContent, anonymousClassMatcher, searchRegionStart, searchRegionEnd);
+			if (result != null)
+				return new UnitDefinition(Unit.Type.AnonymousClass, result);
+
+			// STATEMENT
+			if (!Unit.Type.isClassVariant(parentUnit.type))
+			{
+				result = endsWith(fileContent, statementMatcher, searchRegionStart, searchRegionEnd);
+				if (result != null && isValidStatement(result))
+					return new UnitDefinition(Unit.Type.Statement, result);
+			}
+
+			// METHOD
+			if (Unit.Type.isClassVariant(parentUnit.type))
+			{
+				result = endsWith(fileContent, methodMatcher, searchRegionStart, searchRegionEnd);
+				if (result != null && isValidMethod(result))
+					return new UnitDefinition(Unit.Type.Method, result);
+
+			}
+
+			// CLASS
+			result = endsWith(fileContent, blockMatcher, searchRegionStart, searchRegionEnd);
+			if (result != null)
+				return new UnitDefinition(Unit.Type.LocalBlock, result);
+
+			// CONSTRUCTOR
+			if (Unit.Type.isClassVariant(parentUnit.type))
+			{
+				result = endsWith(fileContent, constructorMatcher, searchRegionStart, searchRegionEnd);
+				if (result != null && isValidConstructor(result))
+					return new UnitDefinition(Unit.Type.Constructor, result);
+			}
+		}
+
 		return null;
 	}
 

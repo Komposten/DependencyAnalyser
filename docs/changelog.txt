@@ -4,6 +4,7 @@
 - BracketPair now stores a list of its children.
 - UnitParser.createUnits() now uses recursion through the BracketPair hierarchy.
 - UnitParser.createUnit() now returns a boolean to indicate if a unit was created or not.
+- UnitParser.getUnitDefinition() now skips looking for unit types that cannot occur inside the current parent.
 
 ==========
 2018-11-10
