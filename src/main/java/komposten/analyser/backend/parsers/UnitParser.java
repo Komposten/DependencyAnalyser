@@ -351,7 +351,7 @@ public class UnitParser implements SourceParser
 			case InnerClass :
 				ClassInfo classInfo = new ClassInfo(unitDef.matchGroups[3], parentInfo);
 				classInfo.modifiers = unitDef.matchGroups[1];
-				classInfo.type = ClassInfo.Type.fromString(unitDef.matchGroups[2].trim());
+				classInfo.type = ClassInfo.Type.fromString(unitDef.matchGroups[2]);
 				classInfo.extendClause = unitDef.matchGroups[4];
 				classInfo.implementsClause = unitDef.matchGroups[5];
 				info = classInfo;
@@ -367,7 +367,7 @@ public class UnitParser implements SourceParser
 				info = methodInfo;
 				break;
 			case Initialiser :
-				String name = unitDef.matchGroups[1].trim();
+				String name = unitDef.matchGroups[1];
 				String modifiers = null;
 				
 				if (name.equals("static"))
@@ -385,7 +385,7 @@ public class UnitParser implements SourceParser
 				info = methodInfo;
 				break;
 			case LocalBlock :
-				name = unitDef.matchGroups[1].trim();
+				name = unitDef.matchGroups[1];
 				if (name.isEmpty())
 					name = "<unnamed>";
 				BlockInfo blockInfo = new BlockInfo(name, parentInfo);
@@ -583,7 +583,8 @@ public class UnitParser implements SourceParser
 			this.matchGroups = new String[match.groupCount()+1];
 			for (int i = 0; i <= match.groupCount(); i++)
 			{
-				matchGroups[i] = match.group(i);
+				String group = match.group(i);
+				matchGroups[i] = (group == null ? "" : group.trim());
 			}
 		}
 	}

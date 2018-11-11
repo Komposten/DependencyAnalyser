@@ -9,6 +9,7 @@
 - UnitParser.createUnit() now creates Info objects for all unit types (some are placeholders).
 - Added a UnitType field to Info.
 - Added File to Unit.Type.
+- UnitDefinition now trims all match group strings, and replaces nulls with "".
 
 ==========
 2018-11-10
