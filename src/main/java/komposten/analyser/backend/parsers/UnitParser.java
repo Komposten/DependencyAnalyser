@@ -22,21 +22,6 @@ import komposten.utilities.data.IntPair;
 
 public class UnitParser implements SourceParser
 {
-	/*
-	 * Design 3:
-	 * - nextLine():
-	 * 		* Add the new line to the previous ones, until we eventually store the whole file.
-	 *    * Find all {, }, ( and ) in the line and add their indices (sorted) into a master list.
-	 * - postFile():
-	 * 		1 Build "Unknown" units from all the braces and parentheses.
-	 *    2 Go through all { in the list.
-	 *    3 If preceded by a ), found which unit that ) belongs to, and then the (-index.
-	 *    4 Check the string before the { to get the unit definition.
-	 *    		a) If we had a ) in step 3, set the search region to end at the matching (.
-	 *    		b) Set the search region to start at the first {, } or ( (unless there is a matching )) preceding our current {.
-	 */
-	
-	
 	//TODO UnitParser; Does not match abstract methods/method definitions in interfaces.
 	//FIXME UnitParser; Handle array initialisations (e.g. new int[] { 1, 2, 3 } or int[] array = { 1, 2, 3}).
 	
@@ -62,16 +47,16 @@ public class UnitParser implements SourceParser
 	private static final Pattern PATTERN_METHOD = Pattern.compile(
 			"(" + MODIFIER + "*)" 							//modifiers
 			+ "(" + RETURN_TYPE + ")"						//return type supporting arrays and (nested) type parameterisation
-			+ "\\s*(" + IDENTIFIER + ")\\s*$"); 	//method name
+			+ "\\s*(" + IDENTIFIER + ")\\s*$"); //method name
 	private static final Pattern PATTERN_CONSTRUCTOR = Pattern.compile(
 			"(" + MODIFIER + "*)" 							//modifiers
-			+ "\\s*(" + IDENTIFIER + ")\\s*$"); 	//constructor name
+			+ "\\s*(" + IDENTIFIER + ")\\s*$"); //constructor name
 	private static final Pattern PATTERN_CLASS = Pattern.compile(
-			"(" + MODIFIER + "*)"																						//modifiers
-			+ "(class|interface|enum)\\s+"																	//class OR interface OR enum
-			+ "(" + IDENTIFIER + "(?:\\s*" + TYPE_PARAMETER + ")?)"					//class name and possibly a generic type
-			+ "\\s*(?:extends\\s+(" + CLASS_REFERENCE + "))?"								//possible extension of another, possibly generic, class
-			+ "\\s*(?:implements\\s+([^\\{]+?))?"														//implementation of zero or more interfaces
+			"(" + MODIFIER + "*)"																		//modifiers
+			+ "(class|interface|enum)\\s+"													//class OR interface OR enum
+			+ "(" + IDENTIFIER + "(?:\\s*" + TYPE_PARAMETER + ")?)"	//class name and possibly a generic type
+			+ "\\s*(?:extends\\s+(" + CLASS_REFERENCE + "))?"				//possible extension of another, possibly generic, class
+			+ "\\s*(?:implements\\s+([^\\{]+?))?"										//implementation of zero or more interfaces
 			+ "\\s*$");
 	private static final Pattern PATTERN_ANONYMOUS_CLASS = Pattern.compile(
 			"(?:(" + MODIFIER + "?)"					//modifiers
@@ -122,13 +107,6 @@ public class UnitParser implements SourceParser
 		blockMatcher = PATTERN_BLOCK.matcher("");
 		statementMatcher = PATTERN_STATEMENT.matcher("");
 		bracketMatcher = Pattern.compile("[\\{\\}\\(\\)]").matcher("");
-		
-//		System.out.println(methodMatcher.pattern().toString());
-//		System.out.println(classMatcher.pattern().toString());
-//		System.out.println(anonymousClassMatcher.pattern().toString());
-//		System.out.println(blockMatcher.pattern().toString());
-//		System.out.println(statementMatcher.pattern().toString());
-//		System.out.println(constructorMatcher.pattern().toString());
 	}
 
 
@@ -355,21 +333,15 @@ public class UnitParser implements SourceParser
 		UnitDefinition unitDef = getUnitDefinition(searchRegionStart, searchRegionEnd, parentInfo);
 		if (unitDef == null)
 		{
-			System.out.format("Is null: %s:%d->%d:%d->%d\n", pair.character, pair.startLine, pair.endLine, searchRegionStart, searchRegionEnd);
-			System.out.println("=====================");
-			System.out.println(fileContent.subSequence(searchRegionStart, searchRegionEnd));
-			System.out.println("=====================");
 			return false;
 		}
 		
 		Unit unit = null;
 		Info info = null;
 		
-//		String fullMatch = unitDef.matchGroups[0].trim();
 		switch (unitDef.type)
 		{
 			case Method :
-//				System.out.println("Method: " + fullMatch);
 				MethodInfo methodInfo = new MethodInfo(unitDef.matchGroups[3], parentInfo);
 				methodInfo.modifiers = unitDef.matchGroups[1];
 				methodInfo.returnType = unitDef.matchGroups[2];
@@ -377,7 +349,6 @@ public class UnitParser implements SourceParser
 				break;
 			case Class :
 			case InnerClass :
-//				System.out.println("Class: " + fullMatch);
 				ClassInfo classInfo = new ClassInfo(unitDef.matchGroups[3], parentInfo);
 				classInfo.modifiers = unitDef.matchGroups[1];
 				classInfo.type = ClassInfo.Type.fromString(unitDef.matchGroups[2].trim());
@@ -386,19 +357,16 @@ public class UnitParser implements SourceParser
 				info = classInfo;
 				break;
 			case AnonymousClass :
-//				System.out.println("Anonymous class: " + fullMatch);
 				AnonymousClassInfo anonClassInfo = new AnonymousClassInfo(unitDef.matchGroups[3], parentInfo);
 				anonClassInfo.extendedType = unitDef.matchGroups[4];
 				info = anonClassInfo;
 				break;
 			case Constructor :
-//				System.out.println("Constructor: " + fullMatch);
 				methodInfo = new MethodInfo(unitDef.matchGroups[2], parentInfo);
 				methodInfo.modifiers = unitDef.matchGroups[1];
 				info = methodInfo;
 				break;
 			case Initialiser :
-//				System.out.println("Local block: " + fullMatch);
 				String name = unitDef.matchGroups[1].trim();
 				String modifiers = null;
 				
@@ -417,7 +385,6 @@ public class UnitParser implements SourceParser
 				info = methodInfo;
 				break;
 			case LocalBlock :
-//				System.out.println("Initialiser: " + fullMatch);
 				name = unitDef.matchGroups[1].trim();
 				if (name.isEmpty())
 					name = "<unnamed>";
@@ -425,7 +392,6 @@ public class UnitParser implements SourceParser
 				info = blockInfo;
 				break;
 			case Statement :
-//				System.out.println("Statement: " + fullMatch);
 				info = new BlockInfo(unitDef.matchGroups[1], parentInfo);
 				break;
 			default :
@@ -438,11 +404,6 @@ public class UnitParser implements SourceParser
 		
 		if (info.parent != null)
 			info.parent.children.add(info);
-		
-//		info.startLine = pair.startLine;
-//		info.endLine = pair.endLine;
-//		currentInfo.children.add(info);
-		//NEXT_TASK 1: How to handle this? Can't do currentInfo = info or currentInfo = currentInfo.parent unless I know if the current unit has any children or siblings!
 		
 		unitStack.push(unit);
 		infoStack.push(info);
@@ -543,6 +504,7 @@ public class UnitParser implements SourceParser
 	
 	private boolean isValidConstructor(MatchResult match)
 	{
+		//NEXT_TASK Better way of validating: Check that the name (group 2) is the same as the name of the parent!
 		String modifier = match.group(1).trim();
 		if (!modifier.isEmpty() && !isKeyword(modifier, false))
 			return false;
