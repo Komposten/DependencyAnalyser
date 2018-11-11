@@ -459,7 +459,7 @@ public class UnitParser implements SourceParser
 			if (Unit.Type.isClassVariant(parentInfo.type))
 			{
 				result = endsWith(fileContent, constructorMatcher, searchRegionStart, searchRegionEnd);
-				if (result != null && isValidConstructor(result))
+				if (result != null && isValidConstructor(result, parentInfo))
 					return new UnitDefinition(Unit.Type.Constructor, result);
 			}
 		}
@@ -502,13 +502,12 @@ public class UnitParser implements SourceParser
 	}
 	
 	
-	private boolean isValidConstructor(MatchResult match)
+	private boolean isValidConstructor(MatchResult match, Info parentInfo)
 	{
-		//NEXT_TASK Better way of validating: Check that the name (group 2) is the same as the name of the parent!
 		String modifier = match.group(1).trim();
 		if (!modifier.isEmpty() && !isKeyword(modifier, false))
 			return false;
-		if (isKeyword(match.group(2).trim(), false))
+		if (!match.group(2).trim().equals(parentInfo.name))
 			return false;
 		return true;
 	}

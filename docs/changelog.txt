@@ -10,6 +10,7 @@
 - Added a UnitType field to Info.
 - Added File to Unit.Type.
 - UnitDefinition now trims all match group strings, and replaces nulls with "".
+- UnitParser.isValidConstructor() now checks the found units name against the name of the parent.
 
 ==========
 2018-11-10
