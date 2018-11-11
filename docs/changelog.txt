@@ -5,6 +5,7 @@
 - UnitParser.createUnits() now uses recursion through the BracketPair hierarchy.
 - UnitParser.createUnit() now returns a boolean to indicate if a unit was created or not.
 - UnitParser.getUnitDefinition() now skips looking for unit types that cannot occur inside the current parent.
+- UnitParser.getUnitDefinition() now differentiates between Class and InnerClass, and Initialiser and LocalBlock.
 
 ==========
 2018-11-10

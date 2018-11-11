@@ -411,7 +411,10 @@ public class UnitParser implements SourceParser
 		// CLASS
 		result = endsWith(fileContent, classMatcher, searchRegionStart, searchRegionEnd);
 		if (result != null)
-			return new UnitDefinition(Unit.Type.Class, result);
+		{
+			Unit.Type type = (parentUnit == null ? Unit.Type.Class : Unit.Type.InnerClass);
+			return new UnitDefinition(type, result);
+		}
 
 		if (parentUnit != null)
 		{
@@ -437,10 +440,13 @@ public class UnitParser implements SourceParser
 
 			}
 
-			// CLASS
+			// BLOCK
 			result = endsWith(fileContent, blockMatcher, searchRegionStart, searchRegionEnd);
 			if (result != null)
-				return new UnitDefinition(Unit.Type.LocalBlock, result);
+			{
+				Unit.Type type = (Unit.Type.isClassVariant(parentUnit.type) ? Unit.Type.Initialiser : Unit.Type.LocalBlock);
+				return new UnitDefinition(type, result);
+			}
 
 			// CONSTRUCTOR
 			if (Unit.Type.isClassVariant(parentUnit.type))
