@@ -1,4 +1,10 @@
 ==========
+2018-11-12
+==========
+- Removed UnitParser.Unit.
+- Renamed UnitParser.Info to Unit (and made the same change to Info's subclasses.
+
+==========
 2018-11-11
 ==========
 - BracketPair now stores a list of its children.
