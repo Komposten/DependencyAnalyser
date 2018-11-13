@@ -3,6 +3,7 @@
 ==========
 - Removed UnitParser.Unit.
 - Renamed UnitParser.Info to Unit (and made the same change to Info's subclasses.
+- Removed UnitLengthParser.
 
 ==========
 2018-11-11
