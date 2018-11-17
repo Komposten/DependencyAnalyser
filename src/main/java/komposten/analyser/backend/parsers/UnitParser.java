@@ -546,9 +546,9 @@ public class UnitParser implements SourceParser
 	{
 		/*
 		 * CURRENT
-		 * 1) Create a data structure to store the information in, in a tree-like format.
-		 * 2) PackageData should have a map with one data structure per File (or class).
-		 * 3) PackageData should also have a general data structure for package-level data
+		 * X) Create a data structure to store the information in, in a tree-like format.
+		 * X) PackageData should have a map with one data structure per File (or class).
+		 * /) PackageData should also have a general data structure for package-level data
 		 * (such as cycles, longest file, mean method length, etc.).
 		 */
 		
@@ -563,31 +563,8 @@ public class UnitParser implements SourceParser
 				packageData.fileProperties.put(fileUnit.file, fileProperties);
 			}
 			
-			fileProperties.merge(compileFileProperties(), true);
+			fileProperties.merge(compileFileProperties(fileUnit), true);
 		}
-
-		/*
-		 * Package:
-		 *   Name: String
-		 *   File count: int
-		 *   Class count :int
-		 *   Dependencies: Dependency[]
-		 *   Cycles: List<Cycle>
-		 *   Avg, min, max file length: int
-		 *   Avg, min, max class length: int
-		 *   Avg, min, max method length: int
-		 *   Longest, shortest file's name: String
-		 *   Longest, shortest class' name: String
-		 *   Longest, shortest method's name: String
-		 * 
-		 * File:
-		 *   Name: String
-		 *   Length: int
-		 *   Avg, min, max class length: int
-		 *   Avg, min, max method length: int
-		 *   Longest, shortest class' name: String
-		 *   Longest, shortest method's name: String
-		 */
 	}
 	
 	
@@ -651,7 +628,54 @@ public class UnitParser implements SourceParser
 	}
 	
 	
-	private Map<Unit.Type, Object[]> getLengthStats()
+	private PackageProperties compileFileProperties(FileUnit fileUnit)
+	{
+		Map<Unit.Type, Object[]> fileStats = getLengthStats(fileUnit);
+		int classCount = (int)fileStats.get(Unit.Type.Class)[INDEX_COUNT] +
+				(int)fileStats.get(Unit.Type.InnerClass)[INDEX_COUNT] +
+				(int)fileStats.get(Unit.Type.AnonymousClass)[INDEX_COUNT];
+		
+		PackageProperties properties = new PackageProperties();
+		
+		//NEXT_TASK Merge class, inner class and anonymous class stats.
+
+		//NEXT_TASK Re-factor into smaller methods to avoid duplicated code.
+		PackageProperties minClassProperties = new PackageProperties();
+		minClassProperties.set("Name", fileStats.get(Unit.Type.Class)[INDEX_MIN_NAME]);
+		minClassProperties.set("Length", fileStats.get(Unit.Type.Class)[INDEX_MIN]);
+		
+		PackageProperties maxClassProperties = new PackageProperties();
+		maxClassProperties.set("Name", fileStats.get(Unit.Type.Class)[INDEX_MAX_NAME]);
+		maxClassProperties.set("Length", fileStats.get(Unit.Type.Class)[INDEX_MAX]);
+		
+		PackageProperties classProperties = new PackageProperties();
+		classProperties.set("Class count", classCount);
+		classProperties.set("Mean class length", fileStats.get(Unit.Type.Class)[INDEX_MEAN]);
+		classProperties.set("Shortest class", minClassProperties);
+		classProperties.set("Longest class", maxClassProperties);
+
+		PackageProperties minMethodProperties = new PackageProperties();
+		minMethodProperties.set("Name", fileStats.get(Unit.Type.Method)[INDEX_MIN_NAME]);
+		minMethodProperties.set("Length", fileStats.get(Unit.Type.Method)[INDEX_MIN]);
+		
+		PackageProperties maxMethodProperties = new PackageProperties();
+		maxMethodProperties.set("Name", fileStats.get(Unit.Type.Method)[INDEX_MAX_NAME]);
+		maxMethodProperties.set("Length", fileStats.get(Unit.Type.Method)[INDEX_MAX]);
+		
+		PackageProperties methodProperties = new PackageProperties();
+		methodProperties.set("Mean method length", fileStats.get(Unit.Type.Method)[INDEX_MEAN]);
+		methodProperties.set("Shortest method", minMethodProperties);
+		methodProperties.set("Longest method", maxMethodProperties);
+		
+		properties.set("File length", fileUnit.endLine - fileUnit.startLine);
+		properties.set("Class stats", classProperties);
+		properties.set("Method stats", methodProperties);
+		
+		return properties;
+	}
+
+
+	private void clearStatsMap()
 	{
 		for (Object[] array : statsMap.values())
 		{
@@ -663,12 +687,28 @@ public class UnitParser implements SourceParser
 			array[INDEX_SUM] = 0;
 			array[INDEX_COUNT] = 0;
 		}
+	}
+	
+	
+	private Map<Unit.Type, Object[]> getLengthStats()
+	{
+		clearStatsMap();
 		
 		for (FileUnit fileUnit : fileUnitList)
 		{
 			getLengthStats(fileUnit, statsMap);
 		}
 		
+		calculateMeanLengths(statsMap);
+		
+		return statsMap;
+	}
+	
+	
+	private Map<Unit.Type, Object[]> getLengthStats(FileUnit fileUnit)
+	{
+		clearStatsMap();
+		getLengthStats(fileUnit, statsMap);
 		calculateMeanLengths(statsMap);
 		
 		return statsMap;
