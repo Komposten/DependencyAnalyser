@@ -617,31 +617,31 @@ public class UnitParser implements SourceParser
 		fileProperties.set("Longest file", maxFileProperties);
 
 		PackageProperties minClassProperties = new PackageProperties();
-		minFileProperties.set("Name", fileStats.get(Unit.Type.Class)[INDEX_MIN_NAME]);
-		minFileProperties.set("Length", fileStats.get(Unit.Type.Class)[INDEX_MIN]);
+		minClassProperties.set("Name", fileStats.get(Unit.Type.Class)[INDEX_MIN_NAME]);
+		minClassProperties.set("Length", fileStats.get(Unit.Type.Class)[INDEX_MIN]);
 		
 		PackageProperties maxClassProperties = new PackageProperties();
-		maxFileProperties.set("Name", fileStats.get(Unit.Type.Class)[INDEX_MAX_NAME]);
-		maxFileProperties.set("Length", fileStats.get(Unit.Type.Class)[INDEX_MAX]);
+		maxClassProperties.set("Name", fileStats.get(Unit.Type.Class)[INDEX_MAX_NAME]);
+		maxClassProperties.set("Length", fileStats.get(Unit.Type.Class)[INDEX_MAX]);
 		
 		PackageProperties classProperties = new PackageProperties();
 		classProperties.set("Class count", classCount);
 		classProperties.set("Mean class length", fileStats.get(Unit.Type.Class)[INDEX_MEAN]);
-		fileProperties.set("Shortest class", minClassProperties);
-		fileProperties.set("Longest class", maxClassProperties);
+		classProperties.set("Shortest class", minClassProperties);
+		classProperties.set("Longest class", maxClassProperties);
 
 		PackageProperties minMethodProperties = new PackageProperties();
-		minFileProperties.set("Name", fileStats.get(Unit.Type.Method)[INDEX_MIN_NAME]);
-		minFileProperties.set("Length", fileStats.get(Unit.Type.Method)[INDEX_MIN]);
+		minMethodProperties.set("Name", fileStats.get(Unit.Type.Method)[INDEX_MIN_NAME]);
+		minMethodProperties.set("Length", fileStats.get(Unit.Type.Method)[INDEX_MIN]);
 		
 		PackageProperties maxMethodProperties = new PackageProperties();
-		maxFileProperties.set("Name", fileStats.get(Unit.Type.Method)[INDEX_MAX_NAME]);
-		maxFileProperties.set("Length", fileStats.get(Unit.Type.Method)[INDEX_MAX]);
+		maxMethodProperties.set("Name", fileStats.get(Unit.Type.Method)[INDEX_MAX_NAME]);
+		maxMethodProperties.set("Length", fileStats.get(Unit.Type.Method)[INDEX_MAX]);
 		
 		PackageProperties methodProperties = new PackageProperties();
-		fileProperties.set("Mean method length", fileStats.get(Unit.Type.Method)[INDEX_MEAN]);
-		fileProperties.set("Shortest method", minMethodProperties);
-		fileProperties.set("Longest method", maxMethodProperties);
+		methodProperties.set("Mean method length", fileStats.get(Unit.Type.Method)[INDEX_MEAN]);
+		methodProperties.set("Shortest method", minMethodProperties);
+		methodProperties.set("Longest method", maxMethodProperties);
 		
 		properties.set("File stats", fileProperties);
 		properties.set("Class stats", classProperties);
