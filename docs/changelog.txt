@@ -2,6 +2,7 @@
 2018-11-17
 ==========
 - Started implementing UnitParser.storeResult().
+- Added PackageProperties (pending name change).
 
 ==========
 2018-11-12
