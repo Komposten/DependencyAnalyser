@@ -1,4 +1,9 @@
 ==========
+2018-11-17
+==========
+- Started implementing UnitParser.storeResult().
+
+==========
 2018-11-12
 ==========
 - Removed UnitParser.Unit.

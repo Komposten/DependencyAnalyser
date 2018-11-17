@@ -8,14 +8,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import komposten.analyser.backend.PackageData;
+import komposten.analyser.backend.PackageProperties;
 import komposten.analyser.backend.util.Constants;
 import komposten.analyser.backend.util.SourceUtil;
 import komposten.utilities.data.IntPair;
@@ -26,6 +29,14 @@ public class UnitParser implements SourceParser
 	//TODO UnitParser; Does not match abstract methods/method definitions in interfaces.
 	//FIXME UnitParser; Handle array initialisations (e.g. new int[] { 1, 2, 3 } or int[] array = { 1, 2, 3}).
 	//FIXME UnitParser; PATTERN_ANONYMOUS_CLASS does not handle Class<Class2>fieldName.
+	
+	private static final int INDEX_MEAN = 0;
+	private static final int INDEX_MIN = 1;
+	private static final int INDEX_MAX = 2;
+	private static final int INDEX_MIN_NAME = 3;
+	private static final int INDEX_MAX_NAME = 4;
+	private static final int INDEX_SUM = 5;
+	private static final int INDEX_COUNT = 6;
 	
 	/** Matches any combination of modifiers (private, protected, public, abstract, static or final). */
 	private static final String MODIFIER = "(?:(?:private|protected|public|abstract|static|final)\\s+)";
@@ -92,6 +103,8 @@ public class UnitParser implements SourceParser
 	private BracketPair currentBracketPair;
 	private int currentLineNumber;
 	
+	private Map<Unit.Type, Object[]> statsMap;
+	
 
 	public UnitParser()
 	{
@@ -99,6 +112,10 @@ public class UnitParser implements SourceParser
 		bracketPairList = new ArrayList<>();
 		fileUnitList = new LinkedList<>();
 		unitStack = new Stack<>();
+		
+		statsMap = new HashMap<Unit.Type, Object[]>();
+		for (Unit.Type type : Unit.Type.values())
+			statsMap.put(type, new Object[7]);
 
 		methodMatcher = PATTERN_METHOD.matcher("");
 		constructorMatcher = PATTERN_CONSTRUCTOR.matcher("");
@@ -534,9 +551,153 @@ public class UnitParser implements SourceParser
 		 * 3) PackageData should also have a general data structure for package-level data
 		 * (such as cycles, longest file, mean method length, etc.).
 		 */
+		
+		packageData.packageProperties.merge(compilePackageProperties(), true);
+		
+		for (FileUnit fileUnit : fileUnitList)
+		{
+			PackageProperties fileProperties = packageData.fileProperties.get(fileUnit.file);
+			if (fileProperties == null)
+			{
+				fileProperties = new PackageProperties();
+				packageData.fileProperties.put(fileUnit.file, fileProperties);
+			}
+			
+			fileProperties.merge(compileFileProperties(), true);
+		}
+
+		/*
+		 * Package:
+		 *   Name: String
+		 *   File count: int
+		 *   Class count :int
+		 *   Dependencies: Dependency[]
+		 *   Cycles: List<Cycle>
+		 *   Avg, min, max file length: int
+		 *   Avg, min, max class length: int
+		 *   Avg, min, max method length: int
+		 *   Longest, shortest file's name: String
+		 *   Longest, shortest class' name: String
+		 *   Longest, shortest method's name: String
+		 * 
+		 * File:
+		 *   Name: String
+		 *   Length: int
+		 *   Avg, min, max class length: int
+		 *   Avg, min, max method length: int
+		 *   Longest, shortest class' name: String
+		 *   Longest, shortest method's name: String
+		 */
 	}
 	
 	
+	private PackageProperties compilePackageProperties()
+	{
+		Map<Unit.Type, Object[]> fileStats = getLengthStats();
+		int classCount = (int)fileStats.get(Unit.Type.Class)[INDEX_COUNT] +
+				(int)fileStats.get(Unit.Type.InnerClass)[INDEX_COUNT] +
+				(int)fileStats.get(Unit.Type.AnonymousClass)[INDEX_COUNT];
+		
+		PackageProperties properties = new PackageProperties();
+		
+		//NEXT_TASK Merge class, inner class and anonymous class stats.
+
+		PackageProperties minFileProperties = new PackageProperties();
+		minFileProperties.set("Name", fileStats.get(Unit.Type.File)[INDEX_MIN_NAME]);
+		minFileProperties.set("Length", fileStats.get(Unit.Type.File)[INDEX_MIN]);
+		
+		PackageProperties maxFileProperties = new PackageProperties();
+		maxFileProperties.set("Name", fileStats.get(Unit.Type.File)[INDEX_MAX_NAME]);
+		maxFileProperties.set("Length", fileStats.get(Unit.Type.File)[INDEX_MAX]);
+		
+		PackageProperties fileProperties = new PackageProperties();
+		fileProperties.set("File count", fileUnitList.size());
+		fileProperties.set("Mean file length", fileStats.get(Unit.Type.File)[INDEX_MEAN]);
+		fileProperties.set("Shortest file", minFileProperties);
+		fileProperties.set("Longest file", maxFileProperties);
+
+		PackageProperties minClassProperties = new PackageProperties();
+		minFileProperties.set("Name", fileStats.get(Unit.Type.Class)[INDEX_MIN_NAME]);
+		minFileProperties.set("Length", fileStats.get(Unit.Type.Class)[INDEX_MIN]);
+		
+		PackageProperties maxClassProperties = new PackageProperties();
+		maxFileProperties.set("Name", fileStats.get(Unit.Type.Class)[INDEX_MAX_NAME]);
+		maxFileProperties.set("Length", fileStats.get(Unit.Type.Class)[INDEX_MAX]);
+		
+		PackageProperties classProperties = new PackageProperties();
+		classProperties.set("Class count", classCount);
+		classProperties.set("Mean class length", fileStats.get(Unit.Type.Class)[INDEX_MEAN]);
+		fileProperties.set("Shortest class", minClassProperties);
+		fileProperties.set("Longest class", maxClassProperties);
+
+		PackageProperties minMethodProperties = new PackageProperties();
+		minFileProperties.set("Name", fileStats.get(Unit.Type.Method)[INDEX_MIN_NAME]);
+		minFileProperties.set("Length", fileStats.get(Unit.Type.Method)[INDEX_MIN]);
+		
+		PackageProperties maxMethodProperties = new PackageProperties();
+		maxFileProperties.set("Name", fileStats.get(Unit.Type.Method)[INDEX_MAX_NAME]);
+		maxFileProperties.set("Length", fileStats.get(Unit.Type.Method)[INDEX_MAX]);
+		
+		PackageProperties methodProperties = new PackageProperties();
+		fileProperties.set("Mean method length", fileStats.get(Unit.Type.Method)[INDEX_MEAN]);
+		fileProperties.set("Shortest method", minMethodProperties);
+		fileProperties.set("Longest method", maxMethodProperties);
+		
+		properties.set("File stats", fileProperties);
+		properties.set("Class stats", classProperties);
+		properties.set("Method stats", methodProperties);
+		
+		return properties;
+	}
+	
+	
+	private Map<Unit.Type, Object[]> getLengthStats()
+	{
+		for (Object[] array : statsMap.values())
+		{
+			Arrays.fill(array, null);
+		}
+		
+		for (FileUnit fileUnit : fileUnitList)
+		{
+			getLengthStats(fileUnit, statsMap);
+		}
+		
+		for (Object[] array : statsMap.values())
+		{
+			array[INDEX_MEAN] = (int)array[INDEX_SUM] / (float)array[INDEX_COUNT];
+		}
+		
+		return statsMap;
+	}
+
+
+	private void getLengthStats(Unit unit, Map<Unit.Type, Object[]> outputMap)
+	{
+		Object[] statArray = outputMap.get(unit.type);
+		int unitLength = unit.endLine - unit.startLine;
+		
+		if (statArray[INDEX_MIN] == null || unitLength < (int)statArray[INDEX_MIN])
+		{
+			statArray[INDEX_MIN] = unitLength;
+			statArray[INDEX_MIN_NAME] = unit.name; //TODO UnitParser; Prepend the enclosing class' name: "parentClassName.unitName".
+		}
+		if (statArray[INDEX_MAX] == null || unitLength > (int)statArray[INDEX_MAX])
+		{
+			statArray[INDEX_MAX] = unitLength;
+			statArray[INDEX_MAX_NAME] = unit.name;
+		}
+		
+		statArray[INDEX_SUM] = (int)statArray[3] + unitLength;
+		statArray[INDEX_COUNT] = (int)statArray[4] + 1;
+		
+		for (Unit child : unit.children)
+		{
+			getLengthStats(child, outputMap);
+		}
+	}
+
+
 	public static void main(String[] args)
 	{
 		UnitParser p = new UnitParser();

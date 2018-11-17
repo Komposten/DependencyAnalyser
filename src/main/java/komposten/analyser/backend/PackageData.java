@@ -3,7 +3,9 @@ package komposten.analyser.backend;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import komposten.analyser.backend.GraphCycleFinder.GraphNode;
 
@@ -23,10 +25,15 @@ public class PackageData implements GraphCycleFinder.GraphNode, Serializable, Ve
 	public boolean isInCycle;
 	public List<Cycle> cycles;
 	
+	public PackageProperties packageProperties;
+	public Map<File, PackageProperties> fileProperties;
+	
 	
 	{
 		this.dependencies = new Dependency[0];
 		this.cycles = new ArrayList<>();
+		this.packageProperties = new PackageProperties();
+		fileProperties = new HashMap<>();
 	}
 	
 	
