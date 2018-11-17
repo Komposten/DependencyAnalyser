@@ -3,6 +3,7 @@
 ==========
 - Started implementing UnitParser.storeResult().
 - Added PackageProperties (pending name change).
+- Fixed UnitParser incorrectly identifying classes as inner classes.
 
 ==========
 2018-11-12

@@ -366,7 +366,7 @@ public class UnitParser implements SourceParser
 			case InnerClass :
 				ClassUnit classUnit = new ClassUnit(unitDef.matchGroups[3], parentUnit);
 				classUnit.modifiers = unitDef.matchGroups[1];
-				classUnit.type = ClassUnit.Type.fromString(unitDef.matchGroups[2]);
+				classUnit.classType = ClassUnit.Type.fromString(unitDef.matchGroups[2]);
 				classUnit.extendClause = unitDef.matchGroups[4];
 				classUnit.implementsClause = unitDef.matchGroups[5];
 				info = classUnit;
@@ -433,7 +433,7 @@ public class UnitParser implements SourceParser
 		result = endsWith(fileContent, classMatcher, searchRegionStart, searchRegionEnd);
 		if (result != null)
 		{
-			Unit.Type type = (parentUnit == null ? Unit.Type.Class : Unit.Type.InnerClass);
+			Unit.Type type = ((parentUnit == null || parentUnit.type == Unit.Type.File) ? Unit.Type.Class : Unit.Type.InnerClass);
 			return new UnitDefinition(type, result);
 		}
 
@@ -851,7 +851,7 @@ public class UnitParser implements SourceParser
 		}
 		
 		String modifiers;
-		Type type;
+		Type classType;
 		String extendClause;
 		String implementsClause;
 		
