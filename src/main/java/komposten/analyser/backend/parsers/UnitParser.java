@@ -352,7 +352,7 @@ public class UnitParser implements SourceParser
 			return false;
 		}
 		
-		Unit info = null;
+		Unit unit = null;
 		
 		switch (unitDef.type)
 		{
@@ -360,7 +360,7 @@ public class UnitParser implements SourceParser
 				MethodUnit methodUnit = new MethodUnit(unitDef.matchGroups[3], parentUnit);
 				methodUnit.modifiers = unitDef.matchGroups[1];
 				methodUnit.returnType = unitDef.matchGroups[2];
-				info = methodUnit;
+				unit = methodUnit;
 				break;
 			case Class :
 			case InnerClass :
@@ -369,17 +369,17 @@ public class UnitParser implements SourceParser
 				classUnit.classType = ClassUnit.Type.fromString(unitDef.matchGroups[2]);
 				classUnit.extendClause = unitDef.matchGroups[4];
 				classUnit.implementsClause = unitDef.matchGroups[5];
-				info = classUnit;
+				unit = classUnit;
 				break;
 			case AnonymousClass :
 				AnonymousClassUnit anonClassUnit = new AnonymousClassUnit(unitDef.matchGroups[3], parentUnit);
 				anonClassUnit.extendedType = unitDef.matchGroups[4];
-				info = anonClassUnit;
+				unit = anonClassUnit;
 				break;
 			case Constructor :
 				methodUnit = new MethodUnit(unitDef.matchGroups[2], parentUnit);
 				methodUnit.modifiers = unitDef.matchGroups[1];
-				info = methodUnit;
+				unit = methodUnit;
 				break;
 			case Initialiser :
 				String name = unitDef.matchGroups[1];
@@ -397,30 +397,30 @@ public class UnitParser implements SourceParser
 				
 				methodUnit = new MethodUnit(name, parentUnit);
 				methodUnit.modifiers = modifiers;
-				info = methodUnit;
+				unit = methodUnit;
 				break;
 			case LocalBlock :
 				name = unitDef.matchGroups[1];
 				if (name.isEmpty())
 					name = "<unnamed>";
 				BlockUnit blockUnit = new BlockUnit(name, parentUnit);
-				info = blockUnit;
+				unit = blockUnit;
 				break;
 			case Statement :
-				info = new BlockUnit(unitDef.matchGroups[1], parentUnit);
+				unit = new BlockUnit(unitDef.matchGroups[1], parentUnit);
 				break;
 			default :
 				throw new IllegalStateException(unitDef.type + " is a Unit.Type that should not occur here!");
 		}
 		
-		info.type = unitDef.type;
-		info.startLine = pair.startLine;
-		info.endLine = pair.endLine;
+		unit.type = unitDef.type;
+		unit.startLine = pair.startLine;
+		unit.endLine = pair.endLine;
 		
-		if (info.parent != null)
-			info.parent.children.add(info);
+		if (unit.parent != null)
+			unit.parent.children.add(unit);
 		
-		unitStack.push(info);
+		unitStack.push(unit);
 		return true;
 	}
 	
