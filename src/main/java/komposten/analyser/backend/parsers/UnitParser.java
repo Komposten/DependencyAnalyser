@@ -655,7 +655,13 @@ public class UnitParser implements SourceParser
 	{
 		for (Object[] array : statsMap.values())
 		{
-			Arrays.fill(array, null);
+			array[INDEX_MEAN] = 0;
+			array[INDEX_MIN] = Integer.MAX_VALUE;
+			array[INDEX_MAX] = 0;
+			array[INDEX_MIN_NAME] = null;
+			array[INDEX_MAX_NAME] = null;
+			array[INDEX_SUM] = 0;
+			array[INDEX_COUNT] = 0;
 		}
 		
 		for (FileUnit fileUnit : fileUnitList)
@@ -663,10 +669,7 @@ public class UnitParser implements SourceParser
 			getLengthStats(fileUnit, statsMap);
 		}
 		
-		for (Object[] array : statsMap.values())
-		{
-			array[INDEX_MEAN] = (int)array[INDEX_SUM] / (float)array[INDEX_COUNT];
-		}
+		calculateMeanLengths(statsMap);
 		
 		return statsMap;
 	}
@@ -688,12 +691,21 @@ public class UnitParser implements SourceParser
 			statArray[INDEX_MAX_NAME] = unit.name;
 		}
 		
-		statArray[INDEX_SUM] = (int)statArray[3] + unitLength;
-		statArray[INDEX_COUNT] = (int)statArray[4] + 1;
+		statArray[INDEX_SUM] = (int)statArray[INDEX_SUM] + unitLength;
+		statArray[INDEX_COUNT] = (int)statArray[INDEX_COUNT] + 1;
 		
 		for (Unit child : unit.children)
 		{
 			getLengthStats(child, outputMap);
+		}
+	}
+
+
+	private void calculateMeanLengths(Map<Unit.Type, Object[]> data)
+	{
+		for (Object[] array : data.values())
+		{
+			array[INDEX_MEAN] = (int)array[INDEX_SUM] / (float)(int)array[INDEX_COUNT];
 		}
 	}
 
