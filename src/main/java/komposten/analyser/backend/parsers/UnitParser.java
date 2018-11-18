@@ -571,14 +571,11 @@ public class UnitParser implements SourceParser
 	private PackageProperties compilePackageProperties()
 	{
 		Map<Unit.Type, Object[]> fileStats = getLengthStats();
-		int classCount = (int)fileStats.get(Unit.Type.Class)[INDEX_COUNT] +
-				(int)fileStats.get(Unit.Type.InnerClass)[INDEX_COUNT] +
-				(int)fileStats.get(Unit.Type.AnonymousClass)[INDEX_COUNT];
+		
+		Object[] classStats = mergeClassStats(fileStats);
 		
 		PackageProperties properties = new PackageProperties();
 		
-		//NEXT_TASK Merge class, inner class and anonymous class stats.
-
 		PackageProperties minFileProperties = new PackageProperties();
 		minFileProperties.set("Name", fileStats.get(Unit.Type.File)[INDEX_MIN_NAME]);
 		minFileProperties.set("Length", fileStats.get(Unit.Type.File)[INDEX_MIN]);
@@ -594,16 +591,16 @@ public class UnitParser implements SourceParser
 		fileProperties.set("Longest file", maxFileProperties);
 
 		PackageProperties minClassProperties = new PackageProperties();
-		minClassProperties.set("Name", fileStats.get(Unit.Type.Class)[INDEX_MIN_NAME]);
-		minClassProperties.set("Length", fileStats.get(Unit.Type.Class)[INDEX_MIN]);
+		minClassProperties.set("Name", classStats[INDEX_MIN_NAME]);
+		minClassProperties.set("Length", classStats[INDEX_MIN]);
 		
 		PackageProperties maxClassProperties = new PackageProperties();
-		maxClassProperties.set("Name", fileStats.get(Unit.Type.Class)[INDEX_MAX_NAME]);
-		maxClassProperties.set("Length", fileStats.get(Unit.Type.Class)[INDEX_MAX]);
+		maxClassProperties.set("Name", classStats[INDEX_MAX_NAME]);
+		maxClassProperties.set("Length", classStats[INDEX_MAX]);
 		
 		PackageProperties classProperties = new PackageProperties();
-		classProperties.set("Class count", classCount);
-		classProperties.set("Mean class length", fileStats.get(Unit.Type.Class)[INDEX_MEAN]);
+		classProperties.set("Class count", classStats[INDEX_COUNT]);
+		classProperties.set("Mean class length", classStats[INDEX_MEAN]);
 		classProperties.set("Shortest class", minClassProperties);
 		classProperties.set("Longest class", maxClassProperties);
 
@@ -626,31 +623,28 @@ public class UnitParser implements SourceParser
 		
 		return properties;
 	}
-	
-	
+
+
 	private PackageProperties compileFileProperties(FileUnit fileUnit)
 	{
 		Map<Unit.Type, Object[]> fileStats = getLengthStats(fileUnit);
-		int classCount = (int)fileStats.get(Unit.Type.Class)[INDEX_COUNT] +
-				(int)fileStats.get(Unit.Type.InnerClass)[INDEX_COUNT] +
-				(int)fileStats.get(Unit.Type.AnonymousClass)[INDEX_COUNT];
+		
+		Object[] classStats = mergeClassStats(fileStats);
 		
 		PackageProperties properties = new PackageProperties();
 		
-		//NEXT_TASK Merge class, inner class and anonymous class stats.
-
 		//NEXT_TASK Re-factor into smaller methods to avoid duplicated code.
 		PackageProperties minClassProperties = new PackageProperties();
-		minClassProperties.set("Name", fileStats.get(Unit.Type.Class)[INDEX_MIN_NAME]);
-		minClassProperties.set("Length", fileStats.get(Unit.Type.Class)[INDEX_MIN]);
+		minClassProperties.set("Name", classStats[INDEX_MIN_NAME]);
+		minClassProperties.set("Length", classStats[INDEX_MIN]);
 		
 		PackageProperties maxClassProperties = new PackageProperties();
-		maxClassProperties.set("Name", fileStats.get(Unit.Type.Class)[INDEX_MAX_NAME]);
-		maxClassProperties.set("Length", fileStats.get(Unit.Type.Class)[INDEX_MAX]);
+		maxClassProperties.set("Name", classStats[INDEX_MAX_NAME]);
+		maxClassProperties.set("Length", classStats[INDEX_MAX]);
 		
 		PackageProperties classProperties = new PackageProperties();
-		classProperties.set("Class count", classCount);
-		classProperties.set("Mean class length", fileStats.get(Unit.Type.Class)[INDEX_MEAN]);
+		classProperties.set("Class count", classStats[INDEX_COUNT]);
+		classProperties.set("Mean class length", classStats[INDEX_MEAN]);
 		classProperties.set("Shortest class", minClassProperties);
 		classProperties.set("Longest class", maxClassProperties);
 
@@ -747,6 +741,38 @@ public class UnitParser implements SourceParser
 		{
 			array[INDEX_MEAN] = (int)array[INDEX_SUM] / (float)(int)array[INDEX_COUNT];
 		}
+	}
+	
+	
+	private Object[] mergeClassStats(Map<Unit.Type, Object[]> fileStats)
+	{
+		Object[] classStats = fileStats.get(Unit.Type.Class);
+//		Object[] anonClassStats = fileStats.get(Unit.Type.AnonymousClass);
+		Object[] innerClassStats = fileStats.get(Unit.Type.InnerClass);
+		Object[] mergedStats = Arrays.copyOf(classStats, classStats.length);
+		
+//		mergeStatArrays(anonClassStats, mergedStats);
+		mergeStatArrays(innerClassStats, mergedStats);
+		
+		return mergedStats;
+	}
+
+
+	private void mergeStatArrays(Object[] source, Object[] target)
+	{
+		if ((int)source[INDEX_MIN] < (int)target[INDEX_MIN])
+		{
+			target[INDEX_MIN] = source[INDEX_MIN];
+			target[INDEX_MIN_NAME] = source[INDEX_MIN_NAME];
+		}
+		if ((int)source[INDEX_MAX] > (int)target[INDEX_MAX])
+		{
+			target[INDEX_MAX] = source[INDEX_MAX];
+			target[INDEX_MAX_NAME] = source[INDEX_MAX_NAME];
+		}
+		target[INDEX_SUM] = (int)target[INDEX_SUM] + (int)source[INDEX_SUM];
+		target[INDEX_COUNT] = (int)target[INDEX_COUNT] + (int)source[INDEX_COUNT];
+		target[INDEX_MEAN] = (int)target[INDEX_SUM] / (float)(int)target[INDEX_COUNT];
 	}
 
 
