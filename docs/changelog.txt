@@ -6,6 +6,7 @@
 - Fixed UnitParser saying all units are 1 line shorter than they actually are.
 - Re-factored UnitParser.compileFile/PackageProperties() to remove duplicated code.
 - Added UnitParser.createUnitSummaryProperty().
+- Fixed UnitParser.getUnitDefinition() potentially trying all unit types when parent unit is a FileUnit. 
 
 ==========
 2018-11-17

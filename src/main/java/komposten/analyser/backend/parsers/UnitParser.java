@@ -437,7 +437,7 @@ public class UnitParser implements SourceParser
 			return new UnitDefinition(type, result);
 		}
 
-		if (parentUnit != null)
+		if (parentUnit != null && parentUnit.type != Unit.Type.File)
 		{
 			// ANONYMOUS CLASS
 			result = endsWith(fileContent, anonymousClassMatcher, searchRegionStart, searchRegionEnd);
