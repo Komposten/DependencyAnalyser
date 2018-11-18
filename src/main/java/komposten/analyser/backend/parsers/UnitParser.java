@@ -570,56 +570,17 @@ public class UnitParser implements SourceParser
 	
 	private PackageProperties compilePackageProperties()
 	{
-		Map<Unit.Type, Object[]> fileStats = getLengthStats();
+		Map<Unit.Type, Object[]> statsByUnit = getLengthStats();
 		
-		Object[] classStats = mergeClassStats(fileStats);
+		Object[] fileStats = statsByUnit.get(Unit.Type.File);
+		Object[] classStats = mergeClassStats(statsByUnit);
+		Object[] methodStats = statsByUnit.get(Unit.Type.Method);
 		
 		PackageProperties properties = new PackageProperties();
 		
-		PackageProperties minFileProperties = new PackageProperties();
-		minFileProperties.set("Name", fileStats.get(Unit.Type.File)[INDEX_MIN_NAME]);
-		minFileProperties.set("Length", fileStats.get(Unit.Type.File)[INDEX_MIN]);
-		
-		PackageProperties maxFileProperties = new PackageProperties();
-		maxFileProperties.set("Name", fileStats.get(Unit.Type.File)[INDEX_MAX_NAME]);
-		maxFileProperties.set("Length", fileStats.get(Unit.Type.File)[INDEX_MAX]);
-		
-		PackageProperties fileProperties = new PackageProperties();
-		fileProperties.set("File count", fileUnitList.size());
-		fileProperties.set("Mean file length", fileStats.get(Unit.Type.File)[INDEX_MEAN]);
-		fileProperties.set("Shortest file", minFileProperties);
-		fileProperties.set("Longest file", maxFileProperties);
-
-		PackageProperties minClassProperties = new PackageProperties();
-		minClassProperties.set("Name", classStats[INDEX_MIN_NAME]);
-		minClassProperties.set("Length", classStats[INDEX_MIN]);
-		
-		PackageProperties maxClassProperties = new PackageProperties();
-		maxClassProperties.set("Name", classStats[INDEX_MAX_NAME]);
-		maxClassProperties.set("Length", classStats[INDEX_MAX]);
-		
-		PackageProperties classProperties = new PackageProperties();
-		classProperties.set("Class count", classStats[INDEX_COUNT]);
-		classProperties.set("Mean class length", classStats[INDEX_MEAN]);
-		classProperties.set("Shortest class", minClassProperties);
-		classProperties.set("Longest class", maxClassProperties);
-
-		PackageProperties minMethodProperties = new PackageProperties();
-		minMethodProperties.set("Name", fileStats.get(Unit.Type.Method)[INDEX_MIN_NAME]);
-		minMethodProperties.set("Length", fileStats.get(Unit.Type.Method)[INDEX_MIN]);
-		
-		PackageProperties maxMethodProperties = new PackageProperties();
-		maxMethodProperties.set("Name", fileStats.get(Unit.Type.Method)[INDEX_MAX_NAME]);
-		maxMethodProperties.set("Length", fileStats.get(Unit.Type.Method)[INDEX_MAX]);
-		
-		PackageProperties methodProperties = new PackageProperties();
-		methodProperties.set("Mean method length", fileStats.get(Unit.Type.Method)[INDEX_MEAN]);
-		methodProperties.set("Shortest method", minMethodProperties);
-		methodProperties.set("Longest method", maxMethodProperties);
-		
-		properties.set("File stats", fileProperties);
-		properties.set("Class stats", classProperties);
-		properties.set("Method stats", methodProperties);
+		properties.set("File stats", createUnitSummaryProperty(fileStats, true));
+		properties.set("Class stats", createUnitSummaryProperty(classStats, true));
+		properties.set("Method stats", createUnitSummaryProperty(methodStats, false));
 		
 		return properties;
 	}
@@ -627,43 +588,15 @@ public class UnitParser implements SourceParser
 
 	private PackageProperties compileFileProperties(FileUnit fileUnit)
 	{
-		Map<Unit.Type, Object[]> fileStats = getLengthStats(fileUnit);
+		Map<Unit.Type, Object[]> statsByUnit = getLengthStats(fileUnit);
 		
-		Object[] classStats = mergeClassStats(fileStats);
+		Object[] classStats = mergeClassStats(statsByUnit);
+		Object[] methodStats = statsByUnit.get(Unit.Type.Method);
 		
 		PackageProperties properties = new PackageProperties();
-		
-		//NEXT_TASK Re-factor into smaller methods to avoid duplicated code.
-		PackageProperties minClassProperties = new PackageProperties();
-		minClassProperties.set("Name", classStats[INDEX_MIN_NAME]);
-		minClassProperties.set("Length", classStats[INDEX_MIN]);
-		
-		PackageProperties maxClassProperties = new PackageProperties();
-		maxClassProperties.set("Name", classStats[INDEX_MAX_NAME]);
-		maxClassProperties.set("Length", classStats[INDEX_MAX]);
-		
-		PackageProperties classProperties = new PackageProperties();
-		classProperties.set("Class count", classStats[INDEX_COUNT]);
-		classProperties.set("Mean class length", classStats[INDEX_MEAN]);
-		classProperties.set("Shortest class", minClassProperties);
-		classProperties.set("Longest class", maxClassProperties);
-
-		PackageProperties minMethodProperties = new PackageProperties();
-		minMethodProperties.set("Name", fileStats.get(Unit.Type.Method)[INDEX_MIN_NAME]);
-		minMethodProperties.set("Length", fileStats.get(Unit.Type.Method)[INDEX_MIN]);
-		
-		PackageProperties maxMethodProperties = new PackageProperties();
-		maxMethodProperties.set("Name", fileStats.get(Unit.Type.Method)[INDEX_MAX_NAME]);
-		maxMethodProperties.set("Length", fileStats.get(Unit.Type.Method)[INDEX_MAX]);
-		
-		PackageProperties methodProperties = new PackageProperties();
-		methodProperties.set("Mean method length", fileStats.get(Unit.Type.Method)[INDEX_MEAN]);
-		methodProperties.set("Shortest method", minMethodProperties);
-		methodProperties.set("Longest method", maxMethodProperties);
-		
 		properties.set("File length", fileUnit.endLine - fileUnit.startLine + 1);
-		properties.set("Class stats", classProperties);
-		properties.set("Method stats", methodProperties);
+		properties.set("Class stats", createUnitSummaryProperty(classStats, true));
+		properties.set("Method stats", createUnitSummaryProperty(methodStats, false));
 		
 		return properties;
 	}
@@ -773,6 +706,27 @@ public class UnitParser implements SourceParser
 		target[INDEX_SUM] = (int)target[INDEX_SUM] + (int)source[INDEX_SUM];
 		target[INDEX_COUNT] = (int)target[INDEX_COUNT] + (int)source[INDEX_COUNT];
 		target[INDEX_MEAN] = (int)target[INDEX_SUM] / (float)(int)target[INDEX_COUNT];
+	}
+	
+	
+	private PackageProperties createUnitSummaryProperty(Object[] unitStats, boolean includeCount)
+	{
+		PackageProperties minProperties = new PackageProperties();
+		minProperties.set("Name", unitStats[INDEX_MIN_NAME]);
+		minProperties.set("Length", unitStats[INDEX_MIN]);
+		
+		PackageProperties maxProperties = new PackageProperties();
+		maxProperties.set("Name", unitStats[INDEX_MAX_NAME]);
+		maxProperties.set("Length", unitStats[INDEX_MAX]);
+		
+		PackageProperties properties = new PackageProperties();
+		if (includeCount)
+			properties.set("Count", unitStats[INDEX_COUNT]);
+		properties.set("Mean length", unitStats[INDEX_MEAN]);
+		properties.set("Shortest", minProperties);
+		properties.set("Longest", maxProperties);
+		
+		return properties;
 	}
 
 
