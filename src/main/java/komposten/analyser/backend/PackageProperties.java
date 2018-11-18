@@ -1,6 +1,6 @@
 package komposten.analyser.backend;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class PackageProperties
@@ -9,7 +9,7 @@ public class PackageProperties
 
 	public PackageProperties()
 	{
-		this.values = new HashMap<>();
+		this.values = new LinkedHashMap<>();
 	}
 	
 	

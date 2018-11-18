@@ -1,4 +1,9 @@
 ==========
+2018-11-18
+==========
+- PackageProperties now uses a LinkedHashMap instead of HashMap to maintain data order.
+
+==========
 2018-11-17
 ==========
 - Started implementing UnitParser.storeResult().
