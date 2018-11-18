@@ -661,7 +661,7 @@ public class UnitParser implements SourceParser
 		methodProperties.set("Shortest method", minMethodProperties);
 		methodProperties.set("Longest method", maxMethodProperties);
 		
-		properties.set("File length", fileUnit.endLine - fileUnit.startLine);
+		properties.set("File length", fileUnit.endLine - fileUnit.startLine + 1);
 		properties.set("Class stats", classProperties);
 		properties.set("Method stats", methodProperties);
 		
@@ -712,7 +712,7 @@ public class UnitParser implements SourceParser
 	private void getLengthStats(Unit unit, Map<Unit.Type, Object[]> outputMap)
 	{
 		Object[] statArray = outputMap.get(unit.type);
-		int unitLength = unit.endLine - unit.startLine;
+		int unitLength = unit.endLine - unit.startLine + 1;
 		
 		if (statArray[INDEX_MIN] == null || unitLength < (int)statArray[INDEX_MIN])
 		{

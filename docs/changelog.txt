@@ -3,6 +3,7 @@
 ==========
 - PackageProperties now uses a LinkedHashMap instead of HashMap to maintain data order.
 - UnitParser.storeResult() now counts both top-level and inner classes when calculating the class data.
+- Fixed UnitParser saying all units are 1 line shorter than they actually are.
 
 ==========
 2018-11-17
