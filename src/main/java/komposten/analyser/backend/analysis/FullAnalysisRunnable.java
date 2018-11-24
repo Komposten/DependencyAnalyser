@@ -92,6 +92,8 @@ public class FullAnalysisRunnable extends AnalysisRunnable
 		
 		if (cycles != null)
 		{
+			setCyclePropertiesForPackages(packages);
+			
 			System.out.println("Cycle count: " + cycles.size());
 			//NEXT_TASK Analyser's AnalysisListener should retrieve the package data from this runnable when analysisComplete() is called, before propagating the event.
 			analysisListener.analysisComplete(AnalysisType.Full);
@@ -258,6 +260,20 @@ public class FullAnalysisRunnable extends AnalysisRunnable
 		else
 		{
 			return null;
+		}
+	}
+
+
+	private void setCyclePropertiesForPackages(List<PackageData> packages)
+	{
+		for (PackageData packageData : packages)
+		{
+			packageData.packageProperties.set("Cycle count", packageData.cycles.size());
+			int longestCycle = 0;
+			for (Cycle cycle : packageData.cycles)
+				if (cycle.getPackages().length > longestCycle)
+					longestCycle = cycle.getPackages().length;
+			packageData.packageProperties.set("Longest cycle", longestCycle);
 		}
 	}
 	

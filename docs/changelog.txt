@@ -5,6 +5,7 @@
 - UnitParser now includes constructors and initialisers in the method stats.
 - UnitParser now prefixes the names of the shortest and longest methods with their respective class' names.
 - UnitParser now includes the location of the shortest and longest classes and methods in the stats.
+- FullAnalysisRunnable and PackageAnalysisRunnable now add cycle count and max cycle length to the package properties.
 
 ==========
 2018-11-18

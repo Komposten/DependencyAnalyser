@@ -69,6 +69,7 @@ public class PackageAnalysisRunnable extends AnalysisRunnable
 			System.out.println("Cycle count in " + packageData + ": " + cycles.size());
 			
 			packageData.cycles.addAll(cycles);
+			setCyclePropertiesForPackage(packageData);
 			
 			if (cycles.size() >= Constants.CYCLE_LIMIT)
 				analysisListener.analysisPartiallyComplete(AnalysisType.Package);
@@ -112,6 +113,27 @@ public class PackageAnalysisRunnable extends AnalysisRunnable
 		}
 		
 		return cycles;
+	}
+
+
+	private void setCyclePropertiesForPackage(PackageData packageData)
+	{
+		int cycleCount = packageData.cycles.size();
+		String cycleCountString;
+		if (cycleCount <= Constants.CYCLE_LIMIT)
+			cycleCountString = String.valueOf(cycleCount);
+		else
+			cycleCountString = ">" + Constants.CYCLE_LIMIT;
+			
+		int longestCycle = 0;
+		for (Cycle cycle : packageData.cycles)
+		{
+			if (cycle.getPackages().length > longestCycle)
+				longestCycle = cycle.getPackages().length;
+		}
+		
+		packageData.packageProperties.set("Cycle count", cycleCountString);
+		packageData.packageProperties.set("Longest cycle", longestCycle);
 	}
 	
 	
