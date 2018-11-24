@@ -35,8 +35,11 @@ public class UnitParser implements SourceParser
 	private static final int INDEX_MAX = 2;
 	private static final int INDEX_MIN_NAME = 3;
 	private static final int INDEX_MAX_NAME = 4;
-	private static final int INDEX_SUM = 5;
-	private static final int INDEX_COUNT = 6;
+	private static final int INDEX_MIN_LOC = 5;
+	private static final int INDEX_MAX_LOC = 6;
+	private static final int INDEX_SUM = 7;
+	private static final int INDEX_COUNT = 8;
+	private static final int STAT_FIELD_COUNT = 9;
 	
 	/** Matches any combination of modifiers (private, protected, public, abstract, static or final). */
 	private static final String MODIFIER = "(?:(?:private|protected|public|abstract|static|final)\\s+)";
@@ -115,7 +118,7 @@ public class UnitParser implements SourceParser
 		
 		statsMap = new HashMap<Unit.Type, Object[]>();
 		for (Unit.Type type : Unit.Type.values())
-			statsMap.put(type, new Object[7]);
+			statsMap.put(type, new Object[STAT_FIELD_COUNT]);
 
 		methodMatcher = PATTERN_METHOD.matcher("");
 		constructorMatcher = PATTERN_CONSTRUCTOR.matcher("");
@@ -611,6 +614,8 @@ public class UnitParser implements SourceParser
 			array[INDEX_MAX] = 0;
 			array[INDEX_MIN_NAME] = null;
 			array[INDEX_MAX_NAME] = null;
+			array[INDEX_MIN_LOC] = null;
+			array[INDEX_MAX_LOC] = null;
 			array[INDEX_SUM] = 0;
 			array[INDEX_COUNT] = 0;
 		}
@@ -623,7 +628,7 @@ public class UnitParser implements SourceParser
 		
 		for (FileUnit fileUnit : fileUnitList)
 		{
-			getLengthStats(fileUnit, null, statsMap);
+			getLengthStats(fileUnit, null, fileUnit, statsMap);
 		}
 		
 		calculateMeanLengths(statsMap);
@@ -635,7 +640,7 @@ public class UnitParser implements SourceParser
 	private Map<Unit.Type, Object[]> getLengthStats(FileUnit fileUnit)
 	{
 		clearStatsMap();
-		getLengthStats(fileUnit, null, statsMap);
+		getLengthStats(fileUnit, null, fileUnit, statsMap);
 		calculateMeanLengths(statsMap);
 		
 		return statsMap;
@@ -646,9 +651,10 @@ public class UnitParser implements SourceParser
 	 * 
 	 * @param unit The <code>Unit</code> to get stats from.
 	 * @param parentClassUnit <code>unit</code>s first parent of a class type.
+	 * @param fileUnit The <code>Unit.Type.File</code> <code>Unit</code> that contains <code>unit</code>.
 	 * @param outputMap A map for storing the results.
 	 */
-	private void getLengthStats(Unit unit, Unit parentClassUnit, Map<Unit.Type, Object[]> outputMap)
+	private void getLengthStats(Unit unit, Unit parentClassUnit, Unit fileUnit, Map<Unit.Type, Object[]> outputMap)
 	{
 		Object[] statArray = outputMap.get(unit.type);
 		int unitLength = unit.endLine - unit.startLine + 1;
@@ -657,11 +663,13 @@ public class UnitParser implements SourceParser
 		{
 			statArray[INDEX_MIN] = unitLength;
 			statArray[INDEX_MIN_NAME] = getUnitName(unit, parentClassUnit);
+			statArray[INDEX_MIN_LOC] = getUnitLocation(unit, fileUnit);
 		}
 		if (statArray[INDEX_MAX] == null || unitLength > (int)statArray[INDEX_MAX])
 		{
 			statArray[INDEX_MAX] = unitLength;
 			statArray[INDEX_MAX_NAME] = getUnitName(unit, parentClassUnit);
+			statArray[INDEX_MAX_LOC] = getUnitLocation(unit, fileUnit);
 		}
 		
 		statArray[INDEX_SUM] = (int)statArray[INDEX_SUM] + unitLength;
@@ -674,7 +682,7 @@ public class UnitParser implements SourceParser
 		
 		for (Unit child : unit.children)
 		{
-			getLengthStats(child, parentClassUnit, outputMap);
+			getLengthStats(child, parentClassUnit, fileUnit, outputMap);
 		}
 	}
 
@@ -687,6 +695,15 @@ public class UnitParser implements SourceParser
 			return unit.name;
 		
 		return parentClassUnit.name + "." + unit.name;
+	}
+
+
+	private String getUnitLocation(Unit unit, Unit fileUnit)
+	{
+		if (fileUnit == null || fileUnit == unit)
+			return null;
+		
+		return fileUnit.name + ":" + unit.startLine;
 	}
 
 
@@ -717,11 +734,13 @@ public class UnitParser implements SourceParser
 		{
 			target[INDEX_MIN] = source[INDEX_MIN];
 			target[INDEX_MIN_NAME] = source[INDEX_MIN_NAME];
+			target[INDEX_MIN_LOC] = source[INDEX_MIN_LOC];
 		}
 		if ((int)source[INDEX_MAX] > (int)target[INDEX_MAX])
 		{
 			target[INDEX_MAX] = source[INDEX_MAX];
 			target[INDEX_MAX_NAME] = source[INDEX_MAX_NAME];
+			target[INDEX_MAX_LOC] = source[INDEX_MAX_LOC];
 		}
 		target[INDEX_SUM] = (int)target[INDEX_SUM] + (int)source[INDEX_SUM];
 		target[INDEX_COUNT] = (int)target[INDEX_COUNT] + (int)source[INDEX_COUNT];
@@ -734,10 +753,14 @@ public class UnitParser implements SourceParser
 		PackageProperties minProperties = new PackageProperties();
 		minProperties.set("Name", unitStats[INDEX_MIN_NAME]);
 		minProperties.set("Length", unitStats[INDEX_MIN]);
+		if (unitStats[INDEX_MIN_LOC] != null)
+			minProperties.set("Location", unitStats[INDEX_MIN_LOC]);
 		
 		PackageProperties maxProperties = new PackageProperties();
 		maxProperties.set("Name", unitStats[INDEX_MAX_NAME]);
 		maxProperties.set("Length", unitStats[INDEX_MAX]);
+		if (unitStats[INDEX_MAX_LOC] != null)
+			maxProperties.set("Location", unitStats[INDEX_MAX_LOC]);
 		
 		PackageProperties properties = new PackageProperties();
 		if (includeCount)

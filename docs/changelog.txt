@@ -4,6 +4,7 @@
 - Replaced UnitParser.mergeClassStats() with a more general version (mergeStats()).
 - UnitParser now includes constructors and initialisers in the method stats.
 - UnitParser now prefixes the names of the shortest and longest methods with their respective class' names.
+- UnitParser now includes the location of the shortest and longest classes and methods in the stats.
 
 ==========
 2018-11-18
