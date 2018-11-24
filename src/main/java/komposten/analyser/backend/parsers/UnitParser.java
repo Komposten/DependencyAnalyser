@@ -27,7 +27,6 @@ public class UnitParser implements SourceParser
 {
 	//NEXT_TASK Split parsers into two groups: IndependentParser (parse data not dependent on Units) and UnitParser. UnitParser does unit matching against lines and then passes that information to a list of parsers which make use of it!
 	//TODO UnitParser; Does not match abstract methods/method definitions in interfaces.
-	//FIXME UnitParser; Handle array initialisations (e.g. new int[] { 1, 2, 3 } or int[] array = { 1, 2, 3}).
 	//FIXME UnitParser; PATTERN_ANONYMOUS_CLASS does not handle Class<Class2>fieldName.
 	
 	private static final int INDEX_MEAN = 0;
@@ -198,7 +197,6 @@ public class UnitParser implements SourceParser
 		createBracketPairs();
 		createUnits();
 		
-		//NEXT_TASK Calculate file average, max and min class and method/constructor/initialiser length?
 	}
 
 
@@ -547,14 +545,6 @@ public class UnitParser implements SourceParser
 	@Override
 	public void storeResult(PackageData packageData)
 	{
-		/*
-		 * CURRENT
-		 * X) Create a data structure to store the information in, in a tree-like format.
-		 * X) PackageData should have a map with one data structure per File (or class).
-		 * /) PackageData should also have a general data structure for package-level data
-		 * (such as cycles, longest file, mean method length, etc.).
-		 */
-		
 		packageData.packageProperties.merge(compilePackageProperties(), true);
 		
 		for (FileUnit fileUnit : fileUnitList)
