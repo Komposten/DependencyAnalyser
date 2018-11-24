@@ -1,4 +1,10 @@
 ==========
+2018-11-24
+==========
+- Replaced UnitParser.mergeClassStats() with a more general version (mergeStats()).
+- UnitParser now includes constructors and initialisers in the method stats.
+
+==========
 2018-11-18
 ==========
 - PackageProperties now uses a LinkedHashMap instead of HashMap to maintain data order.

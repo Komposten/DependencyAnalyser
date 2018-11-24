@@ -573,8 +573,8 @@ public class UnitParser implements SourceParser
 		Map<Unit.Type, Object[]> statsByUnit = getLengthStats();
 		
 		Object[] fileStats = statsByUnit.get(Unit.Type.File);
-		Object[] classStats = mergeClassStats(statsByUnit);
-		Object[] methodStats = statsByUnit.get(Unit.Type.Method);
+		Object[] classStats = mergeStats(statsByUnit, Unit.Type.Class, Unit.Type.InnerClass);
+		Object[] methodStats = mergeStats(statsByUnit, Unit.Type.Method, Unit.Type.Constructor, Unit.Type.Initialiser);
 		
 		PackageProperties properties = new PackageProperties();
 		
@@ -589,9 +589,9 @@ public class UnitParser implements SourceParser
 	private PackageProperties compileFileProperties(FileUnit fileUnit)
 	{
 		Map<Unit.Type, Object[]> statsByUnit = getLengthStats(fileUnit);
-		
-		Object[] classStats = mergeClassStats(statsByUnit);
-		Object[] methodStats = statsByUnit.get(Unit.Type.Method);
+
+		Object[] classStats = mergeStats(statsByUnit, Unit.Type.Class, Unit.Type.InnerClass);
+		Object[] methodStats = mergeStats(statsByUnit, Unit.Type.Method, Unit.Type.Constructor, Unit.Type.Initialiser);
 		
 		PackageProperties properties = new PackageProperties();
 		properties.set("File length", fileUnit.endLine - fileUnit.startLine + 1);
@@ -677,15 +677,13 @@ public class UnitParser implements SourceParser
 	}
 	
 	
-	private Object[] mergeClassStats(Map<Unit.Type, Object[]> fileStats)
+	private Object[] mergeStats(Map<Unit.Type, Object[]> stats, Unit.Type... typesToMerge)
 	{
-		Object[] classStats = fileStats.get(Unit.Type.Class);
-//		Object[] anonClassStats = fileStats.get(Unit.Type.AnonymousClass);
-		Object[] innerClassStats = fileStats.get(Unit.Type.InnerClass);
-		Object[] mergedStats = Arrays.copyOf(classStats, classStats.length);
+		Object[] firstArray = stats.get(typesToMerge[0]);
+		Object[] mergedStats = Arrays.copyOf(firstArray, firstArray.length);
 		
-//		mergeStatArrays(anonClassStats, mergedStats);
-		mergeStatArrays(innerClassStats, mergedStats);
+		for (int i = 1; i < typesToMerge.length; i++)
+			mergeStatArrays(stats.get(typesToMerge[i]), mergedStats);
 		
 		return mergedStats;
 	}
