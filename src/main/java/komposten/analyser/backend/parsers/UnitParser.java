@@ -623,7 +623,7 @@ public class UnitParser implements SourceParser
 		
 		for (FileUnit fileUnit : fileUnitList)
 		{
-			getLengthStats(fileUnit, statsMap);
+			getLengthStats(fileUnit, null, statsMap);
 		}
 		
 		calculateMeanLengths(statsMap);
@@ -635,14 +635,20 @@ public class UnitParser implements SourceParser
 	private Map<Unit.Type, Object[]> getLengthStats(FileUnit fileUnit)
 	{
 		clearStatsMap();
-		getLengthStats(fileUnit, statsMap);
+		getLengthStats(fileUnit, null, statsMap);
 		calculateMeanLengths(statsMap);
 		
 		return statsMap;
 	}
 
 
-	private void getLengthStats(Unit unit, Map<Unit.Type, Object[]> outputMap)
+	/**
+	 * 
+	 * @param unit The <code>Unit</code> to get stats from.
+	 * @param parentClassUnit <code>unit</code>s first parent of a class type.
+	 * @param outputMap A map for storing the results.
+	 */
+	private void getLengthStats(Unit unit, Unit parentClassUnit, Map<Unit.Type, Object[]> outputMap)
 	{
 		Object[] statArray = outputMap.get(unit.type);
 		int unitLength = unit.endLine - unit.startLine + 1;
@@ -650,21 +656,37 @@ public class UnitParser implements SourceParser
 		if (statArray[INDEX_MIN] == null || unitLength < (int)statArray[INDEX_MIN])
 		{
 			statArray[INDEX_MIN] = unitLength;
-			statArray[INDEX_MIN_NAME] = unit.name; //TODO UnitParser; Prepend the enclosing class' name: "parentClassName.unitName".
+			statArray[INDEX_MIN_NAME] = getUnitName(unit, parentClassUnit);
 		}
 		if (statArray[INDEX_MAX] == null || unitLength > (int)statArray[INDEX_MAX])
 		{
 			statArray[INDEX_MAX] = unitLength;
-			statArray[INDEX_MAX_NAME] = unit.name;
+			statArray[INDEX_MAX_NAME] = getUnitName(unit, parentClassUnit);
 		}
 		
 		statArray[INDEX_SUM] = (int)statArray[INDEX_SUM] + unitLength;
 		statArray[INDEX_COUNT] = (int)statArray[INDEX_COUNT] + 1;
 		
+		if (unit.type == Unit.Type.Class || unit.type == Unit.Type.InnerClass)
+		{
+			parentClassUnit = unit;
+		}
+		
 		for (Unit child : unit.children)
 		{
-			getLengthStats(child, outputMap);
+			getLengthStats(child, parentClassUnit, outputMap);
 		}
+	}
+
+
+	private Object getUnitName(Unit unit, Unit parentClassUnit)
+	{
+		if (parentClassUnit == null)
+			return unit.name;
+		if (unit.type == Unit.Type.InnerClass || unit.type == Unit.Type.Class)
+			return unit.name;
+		
+		return parentClassUnit.name + "." + unit.name;
 	}
 
 
