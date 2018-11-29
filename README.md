@@ -23,16 +23,19 @@ future versions will include other statistics as well.
 - Ability to run the software as a command-line tool.
 
 ### Running DependencyAnalyser
-The current version is not yet set up to be easy to build and run. Future versions will be built using Maven.
-Running this version would require:
-1) Cloning the repository.
-2) Downloading the JGraphT and JGraphX libraries.
-3) Downloading and building my own [utility library](https://github.com/komposten/utilities).
-4) Adding the above mentioned libraries to the project build path/classpath.
-5) Building the project. 
+Using Maven:
+1) Clone the repository.
+2) Run `mvn package`.
+3) Find the runnable jar-file and required libraries in `target/packaged`.
+4) Run the jar file using `javaw -jar dependency-analyser-[VERSION].jar` or by double-clicking it.
 
 ### Dependencies
-DependencyAnalyser relies on the [JGraphX](https://github.com/jgraph/jgraphx) and [JGraphT](https://github.com/jgrapht/jgrapht) libraries for creating and rendering interactive graphs.
+Interactive graphs:
+* [JGraphX](https://github.com/jgraph/jgraphx)
+* [JGraphT](https://github.com/jgrapht/jgrapht)
+
+Other
+* [Komposten's Utilities](https://github.com/Komposten/Utilities)
 
 ### License
 This project is currently under exclusive copyright (owned by me, Komposten).

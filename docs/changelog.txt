@@ -1,4 +1,13 @@
 ==========
+2018-11-29
+==========
+- Updated pom.xml to include komposten.utilities as a dependency.
+- Fixed broken surefire plugin reference in pom.xml.
+- Changed the JUnit dependencies in pom.xml.
+- Fixed GraphCycleFinderTest using org.junit.Assert instead of org.junit.jupiter.api.Assertions for assertArrayEquals().
+- Updated "Running DependencyAnalyser" section in README.md.
+
+==========
 2018-11-08
 ==========
 - Replaced usage of ListenableDirectedGraph in GraphPanel with a DefaultListenableGraph to support later JGraphX versions.
