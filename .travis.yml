@@ -4,3 +4,5 @@ install: true
 branches:
   only:
   - master
+  - multithreading
+  - more-stats
