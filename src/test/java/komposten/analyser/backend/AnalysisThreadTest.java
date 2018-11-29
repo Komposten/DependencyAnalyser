@@ -16,9 +16,7 @@ class AnalysisThreadTest
 		ARunnable runnable = new ARunnable();
 		thread.postRunnable(runnable);
 		
-		Thread.sleep(100);
-		
-		assertTrue(runnable.hasRun);
+		assertTrue(waitForRunnable(runnable), "The runnable took more than " + TIMEOUT + "ms!");
 	}
 
 
@@ -33,10 +31,26 @@ class AnalysisThreadTest
 		thread.postRunnable(runnable1);
 		thread.postRunnable(runnable2);
 		
-		Thread.sleep(100);
-
+		assertTrue(waitForRunnable(runnable2), "The second runnable took more than " + TIMEOUT + "ms!");
 		assertTrue(runnable1.hasRun);
 		assertTrue(runnable2.hasRun);
+	}
+
+
+	private static final long TIMEOUT = 5000;
+	private boolean waitForRunnable(ARunnable runnable) throws InterruptedException
+	{
+		long timer = 0;
+		while (!runnable.hasRun)
+		{
+			Thread.sleep(100);
+			timer += 100;
+			
+			if (timer > TIMEOUT)
+				return false;
+		}
+		
+		return true;
 	}
 	
 	
