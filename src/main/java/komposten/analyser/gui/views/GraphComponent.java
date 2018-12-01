@@ -3,7 +3,7 @@ package komposten.analyser.gui.views;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.MouseWheelEvent;
 
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
@@ -16,8 +16,8 @@ import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.swing.handler.mxRubberband;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
-import com.mxgraph.util.mxRectangle;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
+import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxGraphView;
 
@@ -48,6 +48,7 @@ public class GraphComponent<V extends Vertex, E extends Edge> extends mxGraphCom
 		zoom(1.25d);
 		getVerticalScrollBar().setUnitIncrement(16);
 		getGraphControl().addMouseListener(mouseListener);
+		getGraphControl().addMouseWheelListener(mouseListener);
 		graph.getSelectionModel().addListener(mxEvent.CHANGE, selectionChangedListener);
 		
 		rubberband = new mxRubberband(this);
@@ -198,7 +199,7 @@ public class GraphComponent<V extends Vertex, E extends Edge> extends mxGraphCom
 	}
 	
 	
-	private MouseListener mouseListener = new MouseAdapter()
+	private MouseAdapter mouseListener = new MouseAdapter()
 	{
 		@Override
 		public void mouseClicked(MouseEvent event)
@@ -221,6 +222,19 @@ public class GraphComponent<V extends Vertex, E extends Edge> extends mxGraphCom
 						parent.edgeDoubleClicked((E)edge, isBidirectional);
 					}
 				}
+			}
+		}
+		
+		
+		@Override
+		public void mouseWheelMoved(MouseWheelEvent e)
+		{
+			if (e.isControlDown())
+			{
+				if (e.getWheelRotation() < 0)
+					zoomIn();
+				else
+					zoomOut();
 			}
 		}
 	};
