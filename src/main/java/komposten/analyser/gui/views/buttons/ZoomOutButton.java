@@ -10,7 +10,7 @@ public class ZoomOutButton extends IconButton
 
 	public ZoomOutButton(GraphPanel<?, ?> panel)
 	{
-		super("/buttons/zoom_out.png", "Zoom out");
+		super("/buttons/zoom_out.png", "Zoom out (Ctrl+-)");
 		
 		this.panel = panel;
 	}

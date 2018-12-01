@@ -10,7 +10,7 @@ public class ZoomResetButton extends IconButton
 
 	public ZoomResetButton(GraphPanel<?, ?> panel)
 	{
-		super("/buttons/zoom_reset.png", "Reset zoom");
+		super("/buttons/zoom_reset.png", "Reset zoom (Ctrl+0)");
 		
 		this.panel = panel;
 	}

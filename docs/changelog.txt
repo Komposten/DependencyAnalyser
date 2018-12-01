@@ -1,4 +1,10 @@
 ==========
+2018-12-01
+==========
+- Re-factored AnalyserPanel's JTabbedPane into a separate class.
+- Added keyboard shortcuts for zooming the graphs (available regardless of which component has focus).
+
+==========
 2018-11-29
 ==========
 - Updated pom.xml to include komposten.utilities as a dependency.
