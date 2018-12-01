@@ -3,6 +3,7 @@
 ==========
 - Re-factored AnalyserPanel's JTabbedPane into a separate class.
 - Added keyboard shortcuts for zooming the graphs (available regardless of which component has focus).
+- Moved all zooming functionality into GraphComponent (from GraphPanel and GraphTabPanel).
 
 ==========
 2018-11-29
