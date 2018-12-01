@@ -19,7 +19,6 @@ import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxGraph;
-import com.mxgraph.view.mxGraphView;
 
 import komposten.analyser.backend.Edge;
 import komposten.analyser.backend.PackageData;
@@ -45,7 +44,8 @@ public class GraphComponent<V extends Vertex, E extends Edge> extends mxGraphCom
 		setConnectable(false);
 		setPanning(true);
 		setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		zoom(1.25d);
+		setZoomFactor(1.25d);
+		zoomReset();
 		getVerticalScrollBar().setUnitIncrement(16);
 		getGraphControl().addMouseListener(mouseListener);
 		getGraphControl().addMouseWheelListener(mouseListener);
@@ -62,18 +62,20 @@ public class GraphComponent<V extends Vertex, E extends Edge> extends mxGraphCom
 		InputMap inputMap = getInputMap(WHEN_IN_FOCUSED_WINDOW);
 		ActionMap actionMap = getActionMap();
 		
-		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, KeyEvent.CTRL_DOWN_MASK, true), "zoomin");
-		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, KeyEvent.CTRL_DOWN_MASK, true), "zoomout");
-		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_0, KeyEvent.CTRL_DOWN_MASK, true), "zoomreset");
-		actionMap.put("zoomin", new ZoomAction(ZoomAction.ZOOM_IN, this));
-		actionMap.put("zoomout", new ZoomAction(ZoomAction.ZOOM_OUT, this));
-		actionMap.put("zoomreset", new ZoomAction(ZoomAction.ZOOM_RESET, this));
+		String zoomInString = "zoomin";
+		String zoomOutString = "zoomout";
+		String zoomResetString = "zoomreset";
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, KeyEvent.CTRL_DOWN_MASK, true), zoomInString);
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, KeyEvent.CTRL_DOWN_MASK, true), zoomOutString);
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_0, KeyEvent.CTRL_DOWN_MASK, true), zoomResetString);
+		actionMap.put(zoomInString, new ZoomAction(ZoomAction.ZOOM_IN, this));
+		actionMap.put(zoomOutString, new ZoomAction(ZoomAction.ZOOM_OUT, this));
+		actionMap.put(zoomResetString, new ZoomAction(ZoomAction.ZOOM_RESET, this));
 	}
 	
 	
 	public void fitGraphToView()
 	{
-		mxGraphView view = getGraph().getView();
 		int componentWidth = getWidth();
 		int componentHeight = getHeight();
 		
@@ -83,57 +85,34 @@ public class GraphComponent<V extends Vertex, E extends Edge> extends mxGraphCom
 
 		double widthValue = componentWidth/viewWidth;
 		double heightValue = componentHeight/viewHeight;
-		view.setScale(Math.min(widthValue, heightValue) * 0.9);
 		
-		moveGraphIntoView(graphBounds);
+		zoomTo(Math.min(widthValue, heightValue) * 0.9, false);
 	}
 	
 	
 	public void fitGraphToWidth()
 	{
-		mxGraphView view = getGraph().getView();
 		int componentWidth = getWidth();
 
 		mxRectangle graphBounds = getGraphBounds();
 		double viewWidth = graphBounds.getWidth();
 
 		double widthValue = componentWidth/viewWidth;
-		view.setScale(widthValue * 0.9);
-
-		moveGraphIntoView(graphBounds);
+		
+		zoomTo(widthValue * 0.9, false);
 	}
 	
 	
 	public void fitGraphToHeight()
 	{
-		mxGraphView view = getGraph().getView();
 		int componentHeight = getHeight();
 
 		mxRectangle graphBounds = getGraphBounds();
 		double viewHeight = graphBounds.getHeight();
 
 		double heightValue = componentHeight/viewHeight;
-		view.setScale(heightValue * 0.9);
-
-		moveGraphIntoView(graphBounds);
-	}
-	
-	
-	public void moveGraphIntoView()
-	{
-		moveGraphIntoView(getGraphBounds());
-	}
-	
-	
-	public void moveGraphIntoView(mxRectangle graphBounds)
-	{
-		mxGraph graph = getGraph();
 		
-		Object[] oldSelection = graph.getSelectionCells();
-		
-		graph.selectAll();
-		graph.moveCells(graph.getSelectionCells(), -graphBounds.getX(), -graphBounds.getY());
-		graph.setSelectionCells(oldSelection);
+		zoomTo(heightValue * 0.9, false);
 	}
 	
 	
@@ -176,26 +155,9 @@ public class GraphComponent<V extends Vertex, E extends Edge> extends mxGraphCom
 	
 	
 	@Override
-	public void zoomIn()
-	{
-		mxGraphView view = getGraph().getView();
-		view.setScale(view.getScale() * 1.25);
-	}
-	
-	
-	@Override
-	public void zoomOut()
-	{
-		mxGraphView view = getGraph().getView();
-		view.setScale(view.getScale() / 1.25);
-	}
-	
-	
-	@Override
 	public void zoomReset()
 	{
-		mxGraphView view = getGraph().getView();
-		view.setScale(1.25);
+		zoomTo(1.25, false);
 	}
 	
 	

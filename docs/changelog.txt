@@ -7,6 +7,7 @@
 - Added basic mouse wheel zoom.
 - Updated README.md to say that package and class names must follow conventions.
 - Updated README.md with a link to a pre-built .jar.
+- Changed graph zoom to use JGraphX's mxGraphComponent's built-in zoom functionality instead of simply scaling the Swing components.
 
 ==========
 2018-11-29
