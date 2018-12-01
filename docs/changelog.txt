@@ -5,6 +5,8 @@
 - Added keyboard shortcuts for zooming the graphs (available regardless of which component has focus).
 - Moved all zooming functionality into GraphComponent (from GraphPanel and GraphTabPanel).
 - Added basic mouse wheel zoom.
+- Updated README.md to say that package and class names must follow conventions.
+- Updated README.md with a link to a pre-built .jar.
 
 ==========
 2018-11-29

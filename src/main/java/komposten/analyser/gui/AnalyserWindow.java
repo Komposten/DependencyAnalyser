@@ -24,7 +24,7 @@ import komposten.utilities.logging.LogUtils;
 
 public class AnalyserWindow extends JFrame
 {
-	private static final String UI_VERSION = "0.1-181108";
+	private static final String UI_VERSION = "0.1-181201";
 	
 	private Backend backend;
 	private AnalyserPanel panel;

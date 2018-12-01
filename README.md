@@ -11,6 +11,8 @@ future versions will include other statistics as well.
 - View graphs of all cyclic dependencies a package is part of.
 - View which classes in one package are dependent on what classes in another package.
 
+Note: Currently the dependency analysis requires that package and class names follow conventions (lowercase package names and camelcase class names)! This will be fixed in a future release (but is easier said than done).
+
  Dependency view |Cycle view |Class view 
 --- | --- | ---
 ![Dependency view](../assets/screenshots/dependency_view.png?raw=true)|![Dependency view](../assets/screenshots/cycle_view.png?raw=true)|![Dependency view](../assets/screenshots/class_view.png?raw=true)
@@ -23,7 +25,12 @@ future versions will include other statistics as well.
 - Ability to run the software as a command-line tool.
 
 ### Running DependencyAnalyser
-Using Maven:
+**Download a pre-built version**
+1) Download the build from my dropbox: [DependencyAnalyser 0.1-20181201](https://www.dropbox.com/s/a0xaqhmlah7ikil/dependency-analyser-0.1-20181201.zip?dl=0)
+2) Extract the .zip archive. Make sure both `dependency-analyser-[VERSION].jar` and `libs` end up next to each other.
+4) Run the jar file using `javaw -jar dependency-analyser-[VERSION].jar` or by double-clicking it.
+
+**Build the latest version using Maven**
 1) Clone the repository.
 2) Run `mvn package`.
 3) Find the runnable jar-file and required libraries in `target/packaged`.
