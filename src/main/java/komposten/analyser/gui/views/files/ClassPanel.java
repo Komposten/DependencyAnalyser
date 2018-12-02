@@ -17,6 +17,7 @@ import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.util.mxPoint;
 
+import komposten.analyser.backend.Cycle;
 import komposten.analyser.backend.Dependency;
 import komposten.analyser.backend.Edge;
 import komposten.analyser.backend.PackageData;
@@ -38,6 +39,10 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 	private mxCell lane1;
 	private mxCell lane2;
 	
+	private List<Object> cellsInCycles;
+	private List<Object> cellsExternal;
+	private List<Object> cellsDefault;
+	
 	public ClassPanel(Backend backend)
 	{
 		super(backend, ClassEdge.class);
@@ -48,6 +53,9 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 		edgeCells = new LinkedList<>();
 		vertexGroupsLane1 = new ArrayList<>();
 		vertexGroupsLane2 = new ArrayList<>();
+		cellsInCycles = new ArrayList<>();
+		cellsExternal = new ArrayList<>();
+		cellsDefault = new ArrayList<>();
 		
 		jGraph.getModel().beginUpdate();
 		try
@@ -55,7 +63,14 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 			//FIXME ClassPanel; Make it impossible to move cells between lanes (or out of lanes in general).
 			//				Either make cells immovable, or find another way ("cell moved listeners"?).
 			//				Listeners can be added using jGraph.addListener(). Event types can be found in mxEvent (e.g. REMOVE_CELLS_FROM_PARENT and CELLS_MOVED might be of interest).
-			String laneStyle = "shape=rectangle;autosize=0;foldable=false;fillOpacity=0.0;movable=false;";
+			String laneStyle = 
+					"shape=rectangle;"
+					+ "autosize=0;"
+					+ "foldable=false;"
+					+ "fillOpacity=0.0;"
+					+ "movable=false;"
+					+ "fillColor=#CCCCCC;"
+					+ "strokeColor=#777777";
 			String poolStyle = "shape=pool;fontSize=9;fontStyle=1;startSize=20;horizontal=true;autosize=0;foldable=false;movable=false;";
 			pool = (mxCell) jGraph.insertVertex(jGraph.getDefaultParent(), null, "", 10, 10, 0, 0, poolStyle);
 			lane1 = (mxCell) jGraph.insertVertex(pool, null, "", 0, 0, 0, 0, laneStyle);
@@ -83,6 +98,9 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 	@Override
 	protected void addVertices(Edge baseEdge, boolean isBidirectional)
 	{
+		cellsInCycles.clear();
+		cellsExternal.clear();
+		
 		if (baseEdge instanceof DependencyEdge)
 		{
 			PackageData source = (PackageData)baseEdge.getSource();
@@ -95,7 +113,25 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 			
 			if (isBidirectional)
 				addVerticesForDependency(target.getDependencyForPackage(source), source);
+			
+			if (source.isInCycle)
+				cellsInCycles.add(lane1Label);
+			else if (source.isExternal)
+				cellsExternal.add(lane1Label);
+			else
+				cellsDefault.add(lane1Label);
+			
+			if (target.isInCycle)
+				cellsInCycles.add(lane2Label);
+			else if (target.isExternal)
+				cellsExternal.add(lane2Label);
+			else
+				cellsDefault.add(lane2Label);
 		}
+		
+		jGraph.applyDefaultStyle(cellsDefault.toArray());
+		jGraph.applyCycleStyle(cellsInCycles.toArray());
+		jGraph.applyExternalStyle(cellsExternal.toArray());
 	}
 
 
@@ -107,21 +143,21 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 			String sourceClass = entry.getKey();
 			String[] targetClasses = entry.getValue();
 
-			addVertex(sourceClass, isSource);
+			addVertex(sourceClass, isSource, dependency.source);
 			
 			for (String targetClass : targetClasses)
 			{
-				addVertex(targetClass, !isSource);
+				addVertex(targetClass, !isSource, dependency.target);
 			}
 		}
 	}
 
 
-	private void addVertex(String className, boolean isSource)
+	private void addVertex(String className, boolean isSource, PackageData packageData)
 	{
 		if (!vertices.containsKey(className))
 		{
-			ClassVertex vertex = new ClassVertex(className, null);
+			ClassVertex vertex = new ClassVertex(packageData, className, null);
 			vertices.put(className, vertex);
 			
 			jGraph.getModel().beginUpdate();
@@ -134,6 +170,13 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
         jGraph.getVertexToCellMap().put(vertex, cell);
         jGraph.getCellToVertexMap().put(cell, vertex);
         vertexCells.add(cell);
+        
+        if (packageData.isInCycle)
+        	cellsInCycles.add(cell);
+        else if (packageData.isExternal)
+        	cellsExternal.add(cell);
+        else
+        	cellsDefault.add(cell);
 			}
 			finally
 			{
@@ -146,6 +189,9 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 	@Override
 	protected void addEdges(Edge baseEdge, boolean isBidirectional)
 	{
+		cellsInCycles.clear();
+		cellsExternal.clear();
+		
 		if (baseEdge instanceof DependencyEdge)
 		{
 			PackageData source = (PackageData)baseEdge.getSource();
@@ -158,6 +204,9 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 			
 			createVertexGroups();
 		}
+		
+		jGraph.applyCycleStyle(cellsInCycles.toArray());
+		jGraph.applyExternalStyle(cellsExternal.toArray());
 	}
 
 
@@ -193,6 +242,13 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
       jGraph.getEdgeToCellMap().put(edge, cell);
       jGraph.getCellToEdgeMap().put(cell, edge);
       edgeCells.add(cell);
+      
+      if (sourceVertex.isInCycle && targetVertex.isInCycle && inSameCycle(sourceVertex, targetVertex))
+  			cellsInCycles.add(cell);
+      else if (targetVertex.isExternal)
+      	cellsExternal.add(cell);
+      else
+      	cellsDefault.add(cell);
 		}
 		finally
 		{
@@ -201,6 +257,21 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 	}
 	
 	
+	private boolean inSameCycle(ClassVertex sourceVertex,
+			ClassVertex targetVertex)
+	{
+  	for (Cycle cycle : sourceVertex.packageData.cycles)
+  	{
+  		if (cycle.contains(targetVertex.packageData))
+  		{
+  			return true;
+  		}
+  	}
+  	
+  	return false;
+	}
+
+
 	private void createVertexGroups()
 	{
 		List<mxCell> availableVertices = new LinkedList<>(vertexCells);
@@ -329,6 +400,7 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 		layoutEdges();
 
 		jGraph.refresh();
+		System.out.println(graphPanel.getGraph().getView().getState(lane1).getStyle());
 	}
 	
 	

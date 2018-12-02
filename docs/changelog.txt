@@ -2,6 +2,8 @@
 2018-12-02
 ==========
 - Added a "Using DependencyAnalyser" section to README.md.
+- ClassPanel now applies default, external and cycle styles to its vertices, edges and labels.
+- ClassPanel's swim lanes are now grey instead of blue.
 
 ==========
 2018-12-01

@@ -35,6 +35,15 @@ public class DependencyGraph<V, E> extends JGraphXAdapter<V, E>
 	{
 		edgesSelectable = selectable;
 	}
+	
+	
+	public void applyDefaultStyle(Object[] cells)
+	{
+		setCellStyles(mxConstants.STYLE_FILLCOLOR, "#C3D9FF", cells);
+		setCellStyles(mxConstants.STYLE_STROKECOLOR, "#6482B9", cells);
+		setCellStyles(mxConstants.STYLE_STROKEWIDTH, "1", cells);
+		setCellStyles(mxConstants.STYLE_FONTCOLOR, "black", cells); //Default: #774400
+	}
 
 
 	public void applyCycleStyle(Object[] cells)
@@ -51,7 +60,7 @@ public class DependencyGraph<V, E> extends JGraphXAdapter<V, E>
 		setCellStyles(mxConstants.STYLE_FILLCOLOR, "#79B378", cells);
 		setCellStyles(mxConstants.STYLE_STROKECOLOR, "#4B7E4A", cells);
 		setCellStyles(mxConstants.STYLE_STROKEWIDTH, "1", cells);
-		setCellStyles(mxConstants.STYLE_FONTCOLOR, "#3F3F3F", cells);
+		setCellStyles(mxConstants.STYLE_FONTCOLOR, "black", cells);
 	}
 	
 	
