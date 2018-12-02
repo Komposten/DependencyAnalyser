@@ -36,6 +36,21 @@ Note: Currently the dependency analysis requires that package and class names fo
 3) Find the runnable jar-file and required libraries in `target/packaged`.
 4) Run the jar file using `javaw -jar dependency-analyser-[VERSION].jar` or by double-clicking it.
 
+### Using DependencyAnalyser
+**Basics**
+* Use `File -> Open` and choose a folder containing Java *source* files to analyse a project.
+* Select a package in the list on the left to view the dependencies and/or cycles for that package.
+* Double-clicking a package in a graph will switch to that package.
+* Double-clicking an arrow in a graph will show the classes that create that arrow.
+
+**Colour legend**
+* Blue = packages in the analysed project.
+* Red = packages in the analysed project that are part of at least one cycle.
+* Green = external packages (i.e. packages outside the analysed project).
+
+
+* **Note**: Two red packages can have a blue arrow between them. This means that both packages are part of at least one cycle each, but share no common cycles.
+
 ### Dependencies
 Interactive graphs:
 * [JGraphX](https://github.com/jgraph/jgraphx)

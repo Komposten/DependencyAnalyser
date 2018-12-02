@@ -1,4 +1,9 @@
 ==========
+2018-12-02
+==========
+- Added a "Using DependencyAnalyser" section to README.md.
+
+==========
 2018-12-01
 ==========
 - Re-factored AnalyserPanel's JTabbedPane into a separate class.
