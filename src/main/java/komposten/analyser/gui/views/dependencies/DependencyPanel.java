@@ -50,24 +50,17 @@ public class DependencyPanel extends RootedGraphPanel
 		for (Dependency dependency : rootPackage.dependencies)
 		{
 			boolean isExternal = dependency.target.isExternal;
-			boolean shouldAdd = (visibleEdges == SHOW_ALL_EDGES ||
-					(isExternal && visibleEdges == SHOW_EXTERNAL_DEPENDENCIES) ||
-					(!isExternal && visibleEdges == SHOW_INTERNAL_DEPENDENCIES));
-			
-			if (shouldAdd)
-			{
-				graph.addVertex(dependency.target);
-				
-				Object vertexCell = jGraph.getCellForVertex(dependency.target);
-				if (dependency.target.isInCycle)
-					verticesInCycles.add(vertexCell);
-				else if (isExternal)
-					verticesExternal.add(vertexCell);
-				else
-					verticesDefault.add(vertexCell);
-			}
+			graph.addVertex(dependency.target);
+
+			Object vertexCell = jGraph.getCellForVertex(dependency.target);
+			if (dependency.target.isInCycle)
+				verticesInCycles.add(vertexCell);
+			else if (isExternal)
+				verticesExternal.add(vertexCell);
+			else
+				verticesDefault.add(vertexCell);
 		}
-		
+
 		if (rootPackage.isInCycle)
 			verticesInCycles.add(jGraph.getCellForVertex(rootPackage));
 		
@@ -87,43 +80,22 @@ public class DependencyPanel extends RootedGraphPanel
 		for (Dependency dependency : rootPackage.dependencies)
 		{
 			boolean isExternal = dependency.target.isExternal;
-//			boolean shouldAdd = (visibleEdges == SHOW_ALL_EDGES ||
-//					(isExternal && visibleEdges == SHOW_EXTERNAL_DEPENDENCIES) ||
-//					(!isExternal && visibleEdges == SHOW_INTERNAL_DEPENDENCIES));
-			
-//			if (shouldAdd)
-//			{
-				DependencyEdge edge = new DependencyEdge(rootPackage, dependency.target);
-				graph.addEdge(edge.getSource(), edge.getTarget(), edge);
+			DependencyEdge edge = new DependencyEdge(rootPackage, dependency.target);
+			graph.addEdge(edge.getSource(), edge.getTarget(), edge);
 
-				Object edgeCell = jGraph.getCellForEdge(edge);
-				if (rootPackage.sharesCycleWith(dependency.target))
-					edgesInCycles.add(edgeCell);
-				else if (isExternal)
-					edgesToExternal.add(edgeCell);
-				else
-					edgesDefault.add(edgeCell);
-//			}
+			Object edgeCell = jGraph.getCellForEdge(edge);
+			if (rootPackage.sharesCycleWith(dependency.target))
+				edgesInCycles.add(edgeCell);
+			else if (isExternal)
+				edgesToExternal.add(edgeCell);
+			else
+				edgesDefault.add(edgeCell);
 		}
-		
+
 		jGraph.applyDefaultStyle(edgesDefault.toArray());
 		jGraph.applyCycleStyle(edgesInCycles.toArray());
 		jGraph.applyExternalStyle(edgesToExternal.toArray());
 	}
-	
-	
-//	@Override
-//	public void setVisibleEdges(int mode)
-//	{
-//		this.visibleEdges = mode;
-//		
-//		if (rootPackage != null)
-//		{
-//			PackageData temp = rootPackage;
-//			clearGraph();
-//			showGraphForPackage(temp);
-//		}
-//	}
 	
 	
 	@Override

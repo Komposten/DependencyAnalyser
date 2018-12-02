@@ -70,7 +70,15 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 					+ "movable=false;"
 					+ "fillColor=#CCCCCC;"
 					+ "strokeColor=#777777";
-			String poolStyle = "shape=pool;fontSize=9;fontStyle=1;startSize=20;horizontal=true;autosize=0;foldable=false;movable=false;";
+			String poolStyle = 
+					"shape=pool;"
+					+ "fontSize=9;"
+					+ "fontStyle=1;"
+					+ "startSize=20;"
+					+ "horizontal=true;"
+					+ "autosize=0;"
+					+ "foldable=false;"
+					+ "movable=false;";
 			pool = (mxCell) jGraph.insertVertex(jGraph.getDefaultParent(), null, "", 10, 10, 0, 0, poolStyle);
 			lane1 = (mxCell) jGraph.insertVertex(pool, null, "", 0, 0, 0, 0, laneStyle);
 			lane2 = (mxCell) jGraph.insertVertex(pool, null, "", 0, 0, 0, 0, laneStyle);
