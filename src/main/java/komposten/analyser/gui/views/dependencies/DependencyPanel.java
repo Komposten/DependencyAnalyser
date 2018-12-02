@@ -11,7 +11,6 @@ import com.mxgraph.layout.mxGraphLayout;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.model.mxICell;
 
-import komposten.analyser.backend.Cycle;
 import komposten.analyser.backend.Dependency;
 import komposten.analyser.backend.PackageData;
 import komposten.analyser.gui.backend.Backend;
@@ -45,8 +44,9 @@ public class DependencyPanel extends RootedGraphPanel
 	{
 		graph.addVertex(rootPackage);
 		
-		List<Object> verticesInCycles = new ArrayList<Object>();
-		List<Object> verticesExternal = new ArrayList<Object>();
+		List<Object> verticesInCycles = new ArrayList<>();
+		List<Object> verticesExternal = new ArrayList<>();
+		List<Object> verticesDefault = new ArrayList<>();
 		for (Dependency dependency : rootPackage.dependencies)
 		{
 			boolean isExternal = dependency.target.isExternal;
@@ -58,16 +58,20 @@ public class DependencyPanel extends RootedGraphPanel
 			{
 				graph.addVertex(dependency.target);
 				
+				Object vertexCell = jGraph.getCellForVertex(dependency.target);
 				if (dependency.target.isInCycle)
-					verticesInCycles.add(jGraph.getCellForVertex(dependency.target));
-				if (isExternal)
-					verticesExternal.add(jGraph.getCellForVertex(dependency.target));
+					verticesInCycles.add(vertexCell);
+				else if (isExternal)
+					verticesExternal.add(vertexCell);
+				else
+					verticesDefault.add(vertexCell);
 			}
 		}
 		
 		if (rootPackage.isInCycle)
 			verticesInCycles.add(jGraph.getCellForVertex(rootPackage));
 		
+		jGraph.applyDefaultStyle(verticesDefault.toArray());
 		jGraph.applyCycleStyle(verticesInCycles.toArray());
 		jGraph.applyExternalStyle(verticesExternal.toArray());
 	}
@@ -76,9 +80,9 @@ public class DependencyPanel extends RootedGraphPanel
 	@Override
 	protected void addEdges(PackageData rootPackage)
 	{
-		boolean isRootInCycle = rootPackage.isInCycle;
-		List<Object> edgesInCycles = new ArrayList<Object>();
+		List<Object> edgesInCycles = new ArrayList<>();
 		List<Object> edgesToExternal = new ArrayList<>();
+		List<Object> edgesDefault = new ArrayList<>();
 
 		for (Dependency dependency : rootPackage.dependencies)
 		{
@@ -92,25 +96,17 @@ public class DependencyPanel extends RootedGraphPanel
 				DependencyEdge edge = new DependencyEdge(rootPackage, dependency.target);
 				graph.addEdge(edge.getSource(), edge.getTarget(), edge);
 
-				if (isRootInCycle)
-				{
-					List<Cycle> cycles = rootPackage.cycles;
-
-					for (Cycle cycle : cycles)
-					{
-						if (cycle.contains(dependency.target))
-						{
-							edgesInCycles.add(jGraph.getCellForEdge(edge));
-							break;
-						}
-					}
-				}
-				
-				if (isExternal)
-					edgesToExternal.add(jGraph.getCellForEdge(edge));
+				Object edgeCell = jGraph.getCellForEdge(edge);
+				if (rootPackage.sharesCycleWith(dependency.target))
+					edgesInCycles.add(edgeCell);
+				else if (isExternal)
+					edgesToExternal.add(edgeCell);
+				else
+					edgesDefault.add(edgeCell);
 //			}
 		}
 		
+		jGraph.applyDefaultStyle(edgesDefault.toArray());
 		jGraph.applyCycleStyle(edgesInCycles.toArray());
 		jGraph.applyExternalStyle(edgesToExternal.toArray());
 	}

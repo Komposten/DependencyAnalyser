@@ -17,7 +17,6 @@ import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.util.mxPoint;
 
-import komposten.analyser.backend.Cycle;
 import komposten.analyser.backend.Dependency;
 import komposten.analyser.backend.Edge;
 import komposten.analyser.backend.PackageData;
@@ -243,7 +242,7 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
       jGraph.getCellToEdgeMap().put(cell, edge);
       edgeCells.add(cell);
       
-      if (sourceVertex.isInCycle && targetVertex.isInCycle && inSameCycle(sourceVertex, targetVertex))
+      if (sourceVertex.packageData.sharesCycleWith(targetVertex.packageData))
   			cellsInCycles.add(cell);
       else if (targetVertex.isExternal)
       	cellsExternal.add(cell);
@@ -254,21 +253,6 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 		{
 			jGraph.getModel().endUpdate();
 		}
-	}
-	
-	
-	private boolean inSameCycle(ClassVertex sourceVertex,
-			ClassVertex targetVertex)
-	{
-  	for (Cycle cycle : sourceVertex.packageData.cycles)
-  	{
-  		if (cycle.contains(targetVertex.packageData))
-  		{
-  			return true;
-  		}
-  	}
-  	
-  	return false;
 	}
 
 
