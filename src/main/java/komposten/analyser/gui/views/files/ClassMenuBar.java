@@ -18,11 +18,11 @@ public class ClassMenuBar extends ZoomMenuBar
 		super(panel);
 		
 		setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-		
-		AllDependenciesButton buttonAll = new AllDependenciesButton(panel);
-		BothDependenciesButton buttonBoth = new BothDependenciesButton(panel);
-		IngoingDependenciesButton buttonIn = new IngoingDependenciesButton(panel);
-		OutgoingDependenciesButton buttonOut = new OutgoingDependenciesButton(panel);
+
+		AllDependenciesButton buttonAll = new AllDependenciesButton(panel, "Show all dependencies for all classes.");
+		BothDependenciesButton buttonBoth = new BothDependenciesButton(panel, "Show all dependencies for the selected classes.");
+		IngoingDependenciesButton buttonIn = new IngoingDependenciesButton(panel, "Show only dependencies to the selected classes.");
+		OutgoingDependenciesButton buttonOut = new OutgoingDependenciesButton(panel, "Show only dependencies from the selected classes.");
 		
 		addSeparator();
 		

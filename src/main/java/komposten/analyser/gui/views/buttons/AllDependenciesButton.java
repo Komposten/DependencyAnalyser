@@ -7,10 +7,10 @@ public class AllDependenciesButton extends IconToggleButton
 {
 	private GraphPanel<?, ?> panel;
 
-
-	public AllDependenciesButton(GraphPanel<?, ?> panel)
+	
+	public AllDependenciesButton(GraphPanel<?, ?> panel, String tooltip)
 	{
-		super("/buttons/show_dependencies_all.png", "Show all dependencies for all packages.");
+		super("/buttons/show_dependencies_all.png", tooltip);
 		
 		this.panel = panel;
 	}

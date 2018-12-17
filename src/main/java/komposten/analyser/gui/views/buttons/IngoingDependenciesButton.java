@@ -8,9 +8,9 @@ public class IngoingDependenciesButton extends IconToggleButton
 	private GraphPanel<?, ?> panel;
 
 
-	public IngoingDependenciesButton(GraphPanel<?, ?> panel)
+	public IngoingDependenciesButton(GraphPanel<?, ?> panel, String tooltip)
 	{
-		super("/buttons/show_dependencies_selected_in.png", "Show only dependencies to the selected packages.");
+		super("/buttons/show_dependencies_selected_in.png", tooltip);
 		
 		this.panel = panel;
 	}

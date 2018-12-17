@@ -8,9 +8,9 @@ public class BothDependenciesButton extends IconToggleButton
 	private GraphPanel<?, ?> panel;
 
 
-	public BothDependenciesButton(GraphPanel<?, ?> panel)
+	public BothDependenciesButton(GraphPanel<?, ?> panel, String tooltip)
 	{
-		super("/buttons/show_dependencies_selected_both.png", "Show all dependencies for the selected packages.");
+		super("/buttons/show_dependencies_selected_both.png", tooltip);
 		
 		this.panel = panel;
 	}

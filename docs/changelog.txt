@@ -3,6 +3,7 @@
 ==========
 - Fixed clicking an edge in the cycle and class panels de-selecting the selected packages.
 - Selecting a swimlane or label in the class panel is now treated as selecting all classes (vertices) in that lane.
+- Fixed the tooltips for the class panel's buttons saying "packages" instead of "classes".
 
 ==========
 2018-12-02
