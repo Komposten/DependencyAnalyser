@@ -1,4 +1,31 @@
 ==========
+2018-12-17
+==========
+- Fixed clicking an edge in the cycle and class panels de-selecting the selected packages.
+- Selecting a swimlane or label in the class panel is now treated as selecting all classes (vertices) in that lane.
+- Fixed the tooltips for the class panel's buttons saying "packages" instead of "classes".
+
+==========
+2018-12-02
+==========
+- Added a "Using DependencyAnalyser" section to README.md.
+- ClassPanel now applies default, external and cycle styles to its vertices, edges and labels.
+- ClassPanel's swim lanes are now grey instead of blue.
+- DependencyPanel now applies the default style to cells that are neither external nor in cycles.
+- Added PackageData.sharesCycleWith(PackageData).
+
+==========
+2018-12-01
+==========
+- Re-factored AnalyserPanel's JTabbedPane into a separate class.
+- Added keyboard shortcuts for zooming the graphs (available regardless of which component has focus).
+- Moved all zooming functionality into GraphComponent (from GraphPanel and GraphTabPanel).
+- Added basic mouse wheel zoom.
+- Updated README.md to say that package and class names must follow conventions.
+- Updated README.md with a link to a pre-built .jar.
+- Changed graph zoom to use JGraphX's mxGraphComponent's built-in zoom functionality instead of simply scaling the Swing components.
+
+==========
 2018-11-29
 ==========
 - Updated pom.xml to include komposten.utilities as a dependency.

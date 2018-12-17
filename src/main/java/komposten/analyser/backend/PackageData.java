@@ -75,6 +75,21 @@ public class PackageData implements GraphCycleFinder.GraphNode, Serializable, Ve
 	}
 	
 	
+	public boolean sharesCycleWith(PackageData otherPackage)
+	{
+		if (!isInCycle || !otherPackage.isInCycle)
+			return false;
+		
+		for (Cycle cycle : cycles)
+		{
+			if (cycle.contains(otherPackage))
+				return true;
+		}
+		
+		return false;
+	}
+	
+	
 	@Override
 	public int hashCode()
 	{

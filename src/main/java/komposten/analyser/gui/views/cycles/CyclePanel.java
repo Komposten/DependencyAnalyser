@@ -10,7 +10,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import com.mxgraph.layout.mxGraphLayout;
-import com.mxgraph.model.mxICell;
 
 import komposten.analyser.backend.Cycle;
 import komposten.analyser.backend.Dependency;
@@ -71,7 +70,7 @@ public class CyclePanel extends RootedGraphPanel
 			}
 		}
 		
-		mxICell[] cells = jGraph.getEdgeToCellMap().values().toArray(new mxICell[0]);
+		Object[] cells = jGraph.getEdgeToCellMap().values().toArray();
 		jGraph.applyCycleStyle(cells);
 	}
 	
@@ -79,7 +78,11 @@ public class CyclePanel extends RootedGraphPanel
 	@Override
 	protected void selectionChanged(Object[] newSelection)
 	{
-		refreshGraph(false);
+		if (newSelection.length > 0)
+		{
+			setActiveCells(newSelection);
+			refreshGraph(false);
+		}
 	}
 	
 	

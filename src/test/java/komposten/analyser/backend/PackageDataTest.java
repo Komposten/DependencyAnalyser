@@ -1,8 +1,13 @@
 package komposten.analyser.backend;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import komposten.analyser.backend.GraphCycleFinder.GraphNode;
@@ -14,7 +19,6 @@ class PackageDataTest
 	static PackageData target2;
 	static Dependency dependency1;
 	static Dependency dependency2;
-
 
 	@BeforeAll
 	static void setUp()
@@ -29,7 +33,7 @@ class PackageDataTest
 		source.dependencies = new Dependency[] { dependency1, dependency2 };
 	}
 	
-
+	
 	@Test
 	void getSuccessorNodes()
 	{
@@ -108,5 +112,65 @@ class PackageDataTest
 	void equals_differentClass_false()
 	{
 		assertFalse(source.equals(dependency1), "should not be equal to object of different class!");
+	}
+	
+	
+	@Nested
+	static class CycleTests
+	{
+		static PackageData data1;
+		static PackageData data2;
+		static PackageData data3;
+		static PackageData data4;
+		static PackageData data5;
+		
+		@BeforeAll
+		static void setUpCycles()
+		{
+			data1 = new PackageData("data1");
+			data2 = new PackageData("data2");
+			data3 = new PackageData("data3");
+			data4 = new PackageData("data4");
+			data5 = new PackageData("data5");
+
+			Cycle cycle1 = new Cycle(new PackageData[] { data1, data2 });
+			Cycle cycle2 = new Cycle(new PackageData[] { data2, data3 });
+			
+			data1.isInCycle = true;
+			data1.cycles.add(cycle1);
+			data2.isInCycle = true;
+			data2.cycles.add(cycle1);
+			data2.cycles.add(cycle2);
+			data3.isInCycle = true;
+			data3.cycles.add(cycle2);
+		}
+		
+		
+		@Test
+		void sharesCycleWith_isNotInCycle_false()
+		{
+			assertFalse(data4.sharesCycleWith(data5));
+		}
+		
+		
+		@Test
+		void sharesCycleWith_otherIsNotInCycle_false()
+		{
+			assertFalse(data1.sharesCycleWith(data5));
+		}
+		
+		
+		@Test
+		void sharesCycleWith_noSharedCycle_false()
+		{
+			assertFalse(data1.sharesCycleWith(data3));
+		}
+		
+		
+		@Test
+		void sharesCycleWith_sharedCycle_true()
+		{
+			assertTrue(data1.sharesCycleWith(data2));
+		}
 	}
 }

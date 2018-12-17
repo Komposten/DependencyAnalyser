@@ -94,6 +94,7 @@
               <outputDirectory>
                 ${project.build.directory}/packaged/libs
               </outputDirectory>
+              <includeScope>runtime</includeScope>
             </configuration>
           </execution>
         </executions>

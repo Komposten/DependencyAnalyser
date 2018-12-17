@@ -10,7 +10,7 @@ public class ZoomInButton extends IconButton
 
 	public ZoomInButton(GraphPanel<?, ?> panel)
 	{
-		super("/buttons/zoom_in.png", "Zoom in");
+		super("/buttons/zoom_in.png", "Zoom in (Ctrl++)");
 		
 		this.panel = panel;
 	}
