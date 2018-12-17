@@ -78,7 +78,8 @@ public class CyclePanel extends RootedGraphPanel
 	@Override
 	protected void selectionChanged(Object[] newSelection)
 	{
-		refreshGraph(false);
+		if (newSelection.length > 0)
+			refreshGraph(false);
 	}
 	
 	

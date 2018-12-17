@@ -540,7 +540,17 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 	@Override
 	protected void selectionChanged(Object[] newSelection)
 	{
-		refreshGraph(false);
+		if (newSelection.length > 0)
+		{
+			for (Object cell : newSelection)
+			{
+				if (((mxICell)cell).isVertex())
+				{
+					refreshGraph(false);
+					break;
+				}
+			}
+		}
 	}
 
 
