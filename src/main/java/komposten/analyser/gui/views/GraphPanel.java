@@ -37,6 +37,8 @@ public abstract class GraphPanel<V extends Vertex, E extends Edge> extends JPane
 	protected mxGraphLayout graphLayout;
 	protected GraphComponent<V, E> graphPanel;
 	
+	protected Object[] activeCells = new Object[0];
+	
 	
 	public GraphPanel(Backend backend, Class<? extends E> edgeClass)
 	{
@@ -56,6 +58,26 @@ public abstract class GraphPanel<V extends Vertex, E extends Edge> extends JPane
 	protected abstract void vertexDoubleClicked(V vertex);
 	protected abstract void edgeDoubleClicked(E edge, boolean isBidirectional);
 	protected abstract void selectionChanged(Object[] newSelection);
+	
+
+	/**
+	 * Sets the "active" cells, i.e. the cells to and/or from which edges should
+	 * be visible if <code>visibleEdges != SHOW_ALL_EDGES</code>.
+	 */
+	protected void setActiveCells(Object... cells)
+	{
+		activeCells = cells;
+	}
+	
+	protected void setActiveCells(List<Object> cless)
+	{
+		setActiveCells(cless.toArray(new Object[cless.size()]));
+	}
+	
+	public Object[] getActiveCells()
+	{
+		return activeCells;
+	}
 	
 	public abstract void rebuildGraph();
 	
@@ -145,7 +167,7 @@ public abstract class GraphPanel<V extends Vertex, E extends Edge> extends JPane
 	}
 	
 	
-	protected void refreshVisibleEdges()
+	protected final void refreshVisibleEdges()
 	{
 		if (visibleEdges == SHOW_ALL_EDGES)
 			showAllEdges();
@@ -154,7 +176,7 @@ public abstract class GraphPanel<V extends Vertex, E extends Edge> extends JPane
 	}
 
 
-	protected void showAllEdges()
+	protected final void showAllEdges()
 	{
 		for (Entry<mxICell, E> entry : jGraph.getCellToEdgeMap().entrySet())
 		{
@@ -187,7 +209,7 @@ public abstract class GraphPanel<V extends Vertex, E extends Edge> extends JPane
 		}
 		
 		Set<V> selectedVertices = new HashSet<>();
-		Object[] selectedCells = jGraph.getSelectionCells();
+		Object[] selectedCells = activeCells;
 		
 		for (Object object : selectedCells)
 		{
@@ -238,7 +260,7 @@ public abstract class GraphPanel<V extends Vertex, E extends Edge> extends JPane
 	 * This method automatically calls {@link #refreshVisibleEdges()} as well
 	 * in order to hide/show edges to hidden/visible vertices.
 	 */
-	protected void refreshVisibleVertices()
+	protected final void refreshVisibleVertices()
 	{
 		if (visibleVertices == SHOW_ALL_VERTICES)
 			showAllVertices();
@@ -249,7 +271,7 @@ public abstract class GraphPanel<V extends Vertex, E extends Edge> extends JPane
 	}
 
 
-	protected void showAllVertices()
+	protected final void showAllVertices()
 	{
 		for (mxICell cell : jGraph.getVertexToCellMap().values())
 		{

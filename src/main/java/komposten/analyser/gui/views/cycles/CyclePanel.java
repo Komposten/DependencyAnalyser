@@ -79,7 +79,10 @@ public class CyclePanel extends RootedGraphPanel
 	protected void selectionChanged(Object[] newSelection)
 	{
 		if (newSelection.length > 0)
+		{
+			setActiveCells(newSelection);
 			refreshGraph(false);
+		}
 	}
 	
 	
