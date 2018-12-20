@@ -48,7 +48,7 @@ public class GraphComponent<V extends Vertex, E extends Edge> extends mxGraphCom
 		zoomReset();
 		getVerticalScrollBar().setUnitIncrement(16);
 		getGraphControl().addMouseListener(mouseListener);
-		getGraphControl().addMouseWheelListener(mouseListener);
+		addMouseWheelListener(mouseListener);
 		graph.getSelectionModel().addListener(mxEvent.CHANGE, selectionChangedListener);
 		
 		rubberband = new mxRubberband(this);
