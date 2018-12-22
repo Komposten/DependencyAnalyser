@@ -2,6 +2,8 @@
 2018-12-22
 ==========
 - UnitParser.findBrackets() now uses charAt() and '==' comparisons instead of a regex.
+- Started adding a UI to display the new statistics.
+- GraphTabPanel now handles its own minimum size.
 
 ==========
 2018-12-17

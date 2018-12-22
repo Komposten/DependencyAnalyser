@@ -1,15 +1,28 @@
 package komposten.analyser.backend;
 
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class PackageProperties
+public class PackageProperties implements Serializable
 {
 	private final Map<String, Object> values;
 
 	public PackageProperties()
 	{
 		this.values = new LinkedHashMap<>();
+	}
+	
+	
+	public int count()
+	{
+		return values.size();
+	}
+	
+	
+	public Map<String, Object> getValues()
+	{
+		return values;
 	}
 	
 	

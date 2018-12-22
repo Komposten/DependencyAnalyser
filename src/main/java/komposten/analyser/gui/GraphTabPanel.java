@@ -1,6 +1,8 @@
 package komposten.analyser.gui;
 
 
+import java.awt.Dimension;
+
 import javax.swing.JTabbedPane;
 
 import komposten.analyser.gui.backend.Backend;
@@ -26,7 +28,8 @@ public class GraphTabPanel extends JTabbedPane
 		add("Dependencies", panelDependencies);
 		add("Cycles", panelCycles);
 		add("Classes", panelClasses);
-		
+
+		setMinimumSize(new Dimension(500, getMinimumSize().height));
 	}
 	
 	
