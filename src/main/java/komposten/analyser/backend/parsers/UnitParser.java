@@ -94,7 +94,6 @@ public class UnitParser implements SourceParser
 	private Matcher anonymousClassMatcher;
 	private Matcher blockMatcher;
 	private Matcher statementMatcher;
-	private Matcher bracketMatcher;
 	
 	private StringBuilder fileContent;
 	private List<IntPair> bracketList;
@@ -125,7 +124,6 @@ public class UnitParser implements SourceParser
 		anonymousClassMatcher = PATTERN_ANONYMOUS_CLASS.matcher("");
 		blockMatcher = PATTERN_BLOCK.matcher("");
 		statementMatcher = PATTERN_STATEMENT.matcher("");
-		bracketMatcher = Pattern.compile("[\\{\\}\\(\\)]").matcher("");
 	}
 
 
@@ -153,24 +151,23 @@ public class UnitParser implements SourceParser
 		fileContent.append(line).append("\n");
 		bracketList.addAll(findBrackets(fileContent, offset));
 	}
-
-
+	
+	
 	private List<IntPair> findBrackets(CharSequence line, int startIndex)
 	{
 		List<IntPair> brackets = new LinkedList<>();
 		
-		//NEXT_TASK 2: Maybe simply loop and use charAt() == ... instead? Surely that should be faster than Regex?
-		bracketMatcher.reset(line);
-		bracketMatcher.region(startIndex, line.length());
-		
-		while (bracketMatcher.find())
+		for (int i = startIndex; i < line.length(); i++)
 		{
-			int start = bracketMatcher.start();
+			char c = line.charAt(i);
 			
-			if (!isJavaChar(start, line))
+			if (c == '(' || c == ')' || c == '{' || c == '}')
 			{
-				IntPair pair = new IntPair(start, currentLineNumber);
-				brackets.add(pair);
+				if (!isJavaChar(i, line))
+				{
+					IntPair pair = new IntPair(i, currentLineNumber);
+					brackets.add(pair);
+				}
 			}
 		}
 		
