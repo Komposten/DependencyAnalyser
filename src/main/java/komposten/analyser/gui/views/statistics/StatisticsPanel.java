@@ -22,10 +22,12 @@ public class StatisticsPanel extends JSplitPane
 	
 	public StatisticsPanel(Backend backend)
 	{
-		//CURRENT Differentiate between "package statistics" and "global statistics".
+		//CURRENT: Add thresholds to the back-end so "bad" values can be highlighted.
+		//			Pass these to the statistic instances? Store in Settings.
+		//NEXT_TASK Add a graph to the right panel, which visualises any selected row with a Statistic in.
+		//			Use embedded JavaFX chart, or JFreeChart? Advantage with JFreeChart: can be exported.
+		//NEXT_TASK Differentiate between "package statistics" and "global statistics".
 		//NEXT_TASK Support class/file statistics? (For the class panel.)
-		//NEXT_TASK Add a graph to the right panel, depending on the selected content.
-		//NEXT_TASK Add thresholds to the backend so "bad" values can be highlighted.
 		backend.addPropertyChangeListener(propertyListener, Backend.SELECTED_PACKAGE);
 		
 		tableModel = new StatisticsTableModel();

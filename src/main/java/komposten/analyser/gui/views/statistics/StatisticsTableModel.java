@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import javax.swing.table.AbstractTableModel;
 
 import komposten.analyser.backend.PackageProperties;
+import komposten.analyser.backend.util.Statistic;
 
 public class StatisticsTableModel extends AbstractTableModel
 {
@@ -142,15 +143,20 @@ public class StatisticsTableModel extends AbstractTableModel
 		
 		String getValueAsString()
 		{
-			
-			if (value instanceof Float || value instanceof Double)
+			if (value instanceof Statistic)
+			{
+				return ((Statistic)value).asReadableString();
+			}
+			else if (value instanceof Float || value instanceof Double)
 			{
 				return String.format("%.02f", value);
 			}
-			else
+			else if (value != null)
 			{
-				return String.format("%s", value.toString());
+				return value.toString();
 			}
+			
+			return null;
 		}
 	}
 }

@@ -4,6 +4,8 @@
 - UnitParser.findBrackets() now uses charAt() and '==' comparisons instead of a regex.
 - Started adding a UI to display the new statistics.
 - GraphTabPanel now handles its own minimum size.
+- Added Statistic, FrequencyStatistic and ProportionStatistic.
+- UnitParser now uses UnitTypeStatistics objects instead of Object arrays.
 
 ==========
 2018-12-17

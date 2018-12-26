@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 import komposten.analyser.backend.PackageData;
 import komposten.analyser.backend.PackageProperties;
 import komposten.analyser.backend.util.Constants;
+import komposten.analyser.backend.util.FrequencyStatistic;
 import komposten.analyser.backend.util.SourceUtil;
 import komposten.utilities.data.IntPair;
 
@@ -28,17 +29,6 @@ public class UnitParser implements SourceParser
 	//NEXT_TASK Split parsers into two groups: IndependentParser (parse data not dependent on Units) and UnitParser. UnitParser does unit matching against lines and then passes that information to a list of parsers which make use of it!
 	//TODO UnitParser; Does not match abstract methods/method definitions in interfaces.
 	//FIXME UnitParser; PATTERN_ANONYMOUS_CLASS does not handle Class<Class2>fieldName.
-	
-	private static final int INDEX_MEAN = 0;
-	private static final int INDEX_MIN = 1;
-	private static final int INDEX_MAX = 2;
-	private static final int INDEX_MIN_NAME = 3;
-	private static final int INDEX_MAX_NAME = 4;
-	private static final int INDEX_MIN_LOC = 5;
-	private static final int INDEX_MAX_LOC = 6;
-	private static final int INDEX_SUM = 7;
-	private static final int INDEX_COUNT = 8;
-	private static final int STAT_FIELD_COUNT = 9;
 	
 	/** Matches any combination of modifiers (private, protected, public, abstract, static or final). */
 	private static final String MODIFIER = "(?:(?:private|protected|public|abstract|static|final)\\s+)";
@@ -104,7 +94,7 @@ public class UnitParser implements SourceParser
 	private BracketPair currentBracketPair;
 	private int currentLineNumber;
 	
-	private Map<Unit.Type, Object[]> statsMap;
+	private Map<Unit.Type, UnitTypeStatistics> statsMap;
 	
 
 	public UnitParser()
@@ -114,9 +104,9 @@ public class UnitParser implements SourceParser
 		fileUnitList = new LinkedList<>();
 		unitStack = new Stack<>();
 		
-		statsMap = new HashMap<Unit.Type, Object[]>();
+		statsMap = new HashMap<Unit.Type, UnitTypeStatistics>();
 		for (Unit.Type type : Unit.Type.values())
-			statsMap.put(type, new Object[STAT_FIELD_COUNT]);
+			statsMap.put(type, new UnitTypeStatistics());
 
 		methodMatcher = PATTERN_METHOD.matcher("");
 		constructorMatcher = PATTERN_CONSTRUCTOR.matcher("");
@@ -560,11 +550,11 @@ public class UnitParser implements SourceParser
 	
 	private PackageProperties compilePackageProperties()
 	{
-		Map<Unit.Type, Object[]> statsByUnit = getLengthStats();
+		Map<Unit.Type, UnitTypeStatistics> statsByUnit = getLengthStats();
 		
-		Object[] fileStats = statsByUnit.get(Unit.Type.File);
-		Object[] classStats = mergeStats(statsByUnit, Unit.Type.Class, Unit.Type.InnerClass);
-		Object[] methodStats = mergeStats(statsByUnit, Unit.Type.Method, Unit.Type.Constructor, Unit.Type.Initialiser);
+		UnitTypeStatistics fileStats = statsByUnit.get(Unit.Type.File);
+		UnitTypeStatistics classStats = mergeStats(statsByUnit, Unit.Type.Class, Unit.Type.InnerClass);
+		UnitTypeStatistics methodStats = mergeStats(statsByUnit, Unit.Type.Method, Unit.Type.Constructor, Unit.Type.Initialiser);
 		
 		PackageProperties properties = new PackageProperties();
 		
@@ -578,10 +568,10 @@ public class UnitParser implements SourceParser
 
 	private PackageProperties compileFileProperties(FileUnit fileUnit)
 	{
-		Map<Unit.Type, Object[]> statsByUnit = getLengthStats(fileUnit);
+		Map<Unit.Type, UnitTypeStatistics> statsByUnit = getLengthStats(fileUnit);
 
-		Object[] classStats = mergeStats(statsByUnit, Unit.Type.Class, Unit.Type.InnerClass);
-		Object[] methodStats = mergeStats(statsByUnit, Unit.Type.Method, Unit.Type.Constructor, Unit.Type.Initialiser);
+		UnitTypeStatistics classStats = mergeStats(statsByUnit, Unit.Type.Class, Unit.Type.InnerClass);
+		UnitTypeStatistics methodStats = mergeStats(statsByUnit, Unit.Type.Method, Unit.Type.Constructor, Unit.Type.Initialiser);
 		
 		PackageProperties properties = new PackageProperties();
 		properties.set("File length", fileUnit.endLine - fileUnit.startLine + 1);
@@ -594,29 +584,17 @@ public class UnitParser implements SourceParser
 
 	private void clearStatsMap()
 	{
-		for (Object[] array : statsMap.values())
-		{
-			array[INDEX_MEAN] = 0;
-			array[INDEX_MIN] = Integer.MAX_VALUE;
-			array[INDEX_MAX] = 0;
-			array[INDEX_MIN_NAME] = null;
-			array[INDEX_MAX_NAME] = null;
-			array[INDEX_MIN_LOC] = null;
-			array[INDEX_MAX_LOC] = null;
-			array[INDEX_SUM] = 0;
-			array[INDEX_COUNT] = 0;
-		}
+		for (UnitTypeStatistics unitTypeStats : statsMap.values())
+			unitTypeStats.clear();
 	}
 	
 	
-	private Map<Unit.Type, Object[]> getLengthStats()
+	private Map<Unit.Type, UnitTypeStatistics> getLengthStats()
 	{
 		clearStatsMap();
 		
 		for (FileUnit fileUnit : fileUnitList)
-		{
 			getLengthStats(fileUnit, null, fileUnit, statsMap);
-		}
 		
 		calculateMeanLengths(statsMap);
 		
@@ -624,7 +602,7 @@ public class UnitParser implements SourceParser
 	}
 	
 	
-	private Map<Unit.Type, Object[]> getLengthStats(FileUnit fileUnit)
+	private Map<Unit.Type, UnitTypeStatistics> getLengthStats(FileUnit fileUnit)
 	{
 		clearStatsMap();
 		getLengthStats(fileUnit, null, fileUnit, statsMap);
@@ -641,26 +619,27 @@ public class UnitParser implements SourceParser
 	 * @param fileUnit The <code>Unit.Type.File</code> <code>Unit</code> that contains <code>unit</code>.
 	 * @param outputMap A map for storing the results.
 	 */
-	private void getLengthStats(Unit unit, Unit parentClassUnit, Unit fileUnit, Map<Unit.Type, Object[]> outputMap)
+	private void getLengthStats(Unit unit, Unit parentClassUnit, Unit fileUnit, Map<Unit.Type, UnitTypeStatistics> outputMap)
 	{
-		Object[] statArray = outputMap.get(unit.type);
+		UnitTypeStatistics unitTypeStats = outputMap.get(unit.type);
 		int unitLength = unit.endLine - unit.startLine + 1;
 		
-		if (statArray[INDEX_MIN] == null || unitLength < (int)statArray[INDEX_MIN])
+		if (unitTypeStats.min < 0 || unitLength < unitTypeStats.min)
 		{
-			statArray[INDEX_MIN] = unitLength;
-			statArray[INDEX_MIN_NAME] = getUnitName(unit, parentClassUnit);
-			statArray[INDEX_MIN_LOC] = getUnitLocation(unit, fileUnit);
+			unitTypeStats.min = unitLength;
+			unitTypeStats.minName = getUnitName(unit, parentClassUnit);
+			unitTypeStats.minLocation = getUnitLocation(unit, fileUnit);
 		}
-		if (statArray[INDEX_MAX] == null || unitLength > (int)statArray[INDEX_MAX])
+		if (unitLength > unitTypeStats.max)
 		{
-			statArray[INDEX_MAX] = unitLength;
-			statArray[INDEX_MAX_NAME] = getUnitName(unit, parentClassUnit);
-			statArray[INDEX_MAX_LOC] = getUnitLocation(unit, fileUnit);
+			unitTypeStats.max = unitLength;
+			unitTypeStats.maxName = getUnitName(unit, parentClassUnit);
+			unitTypeStats.maxLocation = getUnitLocation(unit, fileUnit);
 		}
 		
-		statArray[INDEX_SUM] = (int)statArray[INDEX_SUM] + unitLength;
-		statArray[INDEX_COUNT] = (int)statArray[INDEX_COUNT] + 1;
+		unitTypeStats.lengthSum = unitTypeStats.lengthSum + unitLength;
+		unitTypeStats.count++;
+		unitTypeStats.lengths.add(unitLength);
 		
 		if (unit.type == Unit.Type.Class || unit.type == Unit.Type.InnerClass)
 		{
@@ -674,7 +653,7 @@ public class UnitParser implements SourceParser
 	}
 
 
-	private Object getUnitName(Unit unit, Unit parentClassUnit)
+	private String getUnitName(Unit unit, Unit parentClassUnit)
 	{
 		if (parentClassUnit == null)
 			return unit.name;
@@ -694,65 +673,46 @@ public class UnitParser implements SourceParser
 	}
 
 
-	private void calculateMeanLengths(Map<Unit.Type, Object[]> data)
+	private void calculateMeanLengths(Map<Unit.Type, UnitTypeStatistics> data)
 	{
-		for (Object[] array : data.values())
+		for (UnitTypeStatistics unitTypeStats : data.values())
 		{
-			array[INDEX_MEAN] = (int)array[INDEX_SUM] / (float)(int)array[INDEX_COUNT];
+			unitTypeStats.mean = unitTypeStats.lengthSum / (double)unitTypeStats.count;
 		}
 	}
 	
 	
-	private Object[] mergeStats(Map<Unit.Type, Object[]> stats, Unit.Type... typesToMerge)
+	private UnitTypeStatistics mergeStats(Map<Unit.Type, UnitTypeStatistics> stats, Unit.Type... typesToMerge)
 	{
-		Object[] firstArray = stats.get(typesToMerge[0]);
-		Object[] mergedStats = Arrays.copyOf(firstArray, firstArray.length);
+		UnitTypeStatistics mergedStats = new UnitTypeStatistics();
 		
-		for (int i = 1; i < typesToMerge.length; i++)
-			mergeStatArrays(stats.get(typesToMerge[i]), mergedStats);
+		for (Unit.Type type : typesToMerge)
+			mergedStats.mergeWith(stats.get(type));
 		
 		return mergedStats;
 	}
-
-
-	private void mergeStatArrays(Object[] source, Object[] target)
-	{
-		if ((int)source[INDEX_MIN] < (int)target[INDEX_MIN])
-		{
-			target[INDEX_MIN] = source[INDEX_MIN];
-			target[INDEX_MIN_NAME] = source[INDEX_MIN_NAME];
-			target[INDEX_MIN_LOC] = source[INDEX_MIN_LOC];
-		}
-		if ((int)source[INDEX_MAX] > (int)target[INDEX_MAX])
-		{
-			target[INDEX_MAX] = source[INDEX_MAX];
-			target[INDEX_MAX_NAME] = source[INDEX_MAX_NAME];
-			target[INDEX_MAX_LOC] = source[INDEX_MAX_LOC];
-		}
-		target[INDEX_SUM] = (int)target[INDEX_SUM] + (int)source[INDEX_SUM];
-		target[INDEX_COUNT] = (int)target[INDEX_COUNT] + (int)source[INDEX_COUNT];
-		target[INDEX_MEAN] = (int)target[INDEX_SUM] / (float)(int)target[INDEX_COUNT];
-	}
 	
 	
-	private PackageProperties createUnitSummaryProperty(Object[] unitStats, boolean includeCount)
+	private PackageProperties createUnitSummaryProperty(UnitTypeStatistics unitTypeStats, boolean includeCount)
 	{
+		int[] lengths = unitTypeStats.lengths.stream().mapToInt((x) -> (int)x).toArray();
+		
 		PackageProperties minProperties = new PackageProperties();
-		minProperties.set("Name", unitStats[INDEX_MIN_NAME]);
-		minProperties.set("Length", unitStats[INDEX_MIN]);
-		if (unitStats[INDEX_MIN_LOC] != null)
-			minProperties.set("Location", unitStats[INDEX_MIN_LOC]);
+		minProperties.set("Name", unitTypeStats.minName);
+		minProperties.set("Length", new FrequencyStatistic(unitTypeStats.min, lengths));
+		if (unitTypeStats.minLocation != null)
+			minProperties.set("Location", unitTypeStats.minLocation);
 		
 		PackageProperties maxProperties = new PackageProperties();
-		maxProperties.set("Name", unitStats[INDEX_MAX_NAME]);
-		maxProperties.set("Length", unitStats[INDEX_MAX]);
-		if (unitStats[INDEX_MAX_LOC] != null)
-			maxProperties.set("Location", unitStats[INDEX_MAX_LOC]);
+		maxProperties.set("Name", unitTypeStats.maxName);
+		maxProperties.set("Length", new FrequencyStatistic(unitTypeStats.max, lengths));
+		if (unitTypeStats.maxLocation != null)
+			maxProperties.set("Location", unitTypeStats.maxLocation);
 		
 		PackageProperties properties = new PackageProperties();
 		if (includeCount)
-			properties.set("Count", unitStats[INDEX_COUNT]);
-		properties.set("Mean length", unitStats[INDEX_MEAN]);
+			properties.set("Count", unitTypeStats.count);
+		properties.set("Mean length", unitTypeStats.mean);
 		properties.set("Shortest", minProperties);
 		properties.set("Longest", maxProperties);
 		
