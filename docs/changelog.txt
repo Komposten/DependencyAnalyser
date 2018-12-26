@@ -6,6 +6,7 @@
 - GraphTabPanel now handles its own minimum size.
 - Added Statistic, FrequencyStatistic and ProportionStatistic.
 - UnitParser now uses UnitTypeStatistics objects instead of Object arrays.
+- Added DoubleStatistic.
 
 ==========
 2018-12-20

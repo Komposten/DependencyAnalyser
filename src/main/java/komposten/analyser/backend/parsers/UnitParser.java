@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 import komposten.analyser.backend.PackageData;
 import komposten.analyser.backend.PackageProperties;
 import komposten.analyser.backend.util.Constants;
+import komposten.analyser.backend.util.DoubleStatistic;
 import komposten.analyser.backend.util.FrequencyStatistic;
 import komposten.analyser.backend.util.SourceUtil;
 import komposten.utilities.data.IntPair;
@@ -712,7 +713,7 @@ public class UnitParser implements SourceParser
 		PackageProperties properties = new PackageProperties();
 		if (includeCount)
 			properties.set("Count", unitTypeStats.count);
-		properties.set("Mean length", unitTypeStats.mean);
+		properties.set("Mean length", new DoubleStatistic(unitTypeStats.mean));
 		properties.set("Shortest", minProperties);
 		properties.set("Longest", maxProperties);
 		
