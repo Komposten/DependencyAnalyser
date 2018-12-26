@@ -112,7 +112,11 @@ public class UnitParser implements SourceParser
 		
 		statsMap = new HashMap<Unit.Type, UnitTypeStatistics>();
 		for (Unit.Type type : Unit.Type.values())
-			statsMap.put(type, new UnitTypeStatistics());
+		{
+			UnitTypeStatistics unitTypeStats = new UnitTypeStatistics();
+			unitTypeStats.type = type;
+			statsMap.put(type, unitTypeStats);
+		}
 
 		methodMatcher = PATTERN_METHOD.matcher("");
 		constructorMatcher = PATTERN_CONSTRUCTOR.matcher("");
@@ -691,6 +695,7 @@ public class UnitParser implements SourceParser
 	private UnitTypeStatistics mergeStats(Map<Unit.Type, UnitTypeStatistics> stats, Unit.Type... typesToMerge)
 	{
 		UnitTypeStatistics mergedStats = new UnitTypeStatistics();
+		mergedStats.type = typesToMerge[0];
 		
 		for (Unit.Type type : typesToMerge)
 			mergedStats.mergeWith(stats.get(type));
@@ -703,26 +708,51 @@ public class UnitParser implements SourceParser
 	{
 		int[] lengths = unitTypeStats.lengths.stream().mapToInt((x) -> (int)x).toArray();
 		
+		int lengthThreshold = getLengthThreshold(unitTypeStats.type);
+		
 		PackageProperties minProperties = new PackageProperties();
 		minProperties.set("Name", unitTypeStats.minName);
-		minProperties.set("Length", new FrequencyStatistic(unitTypeStats.min, lengths));
+		minProperties.set("Length", new FrequencyStatistic(unitTypeStats.min, lengths, lengthThreshold));
 		if (unitTypeStats.minLocation != null)
 			minProperties.set("Location", unitTypeStats.minLocation);
 		
 		PackageProperties maxProperties = new PackageProperties();
 		maxProperties.set("Name", unitTypeStats.maxName);
-		maxProperties.set("Length", new FrequencyStatistic(unitTypeStats.max, lengths));
+		maxProperties.set("Length", new FrequencyStatistic(unitTypeStats.max, lengths, lengthThreshold));
 		if (unitTypeStats.maxLocation != null)
 			maxProperties.set("Location", unitTypeStats.maxLocation);
 		
 		PackageProperties properties = new PackageProperties();
 		if (includeCount)
 			properties.set("Count", unitTypeStats.count);
-		properties.set("Mean length", new DoubleStatistic(unitTypeStats.mean));
+		properties.set("Mean length", new DoubleStatistic(unitTypeStats.mean, lengthThreshold));
 		properties.set("Shortest", minProperties);
 		properties.set("Longest", maxProperties);
 		
 		return properties;
+	}
+
+
+	private int getLengthThreshold(Unit.Type type)
+	{
+		switch (type)
+		{
+			case File :
+				return Integer.parseInt(settings.get(Constants.SettingKeys.FILE_LENGTH_THRESHOLD));
+			case AnonymousClass :
+			case Class :
+			case InnerClass :
+				return Integer.parseInt(settings.get(Constants.SettingKeys.CLASS_LENGTH_THRESHOLD));
+			case Constructor :
+			case Initialiser :
+			case LocalBlock :
+			case Method :
+			case Statement :
+				return Integer.parseInt(settings.get(Constants.SettingKeys.METHOD_LENGTH_THRESHOLD));
+			case Unknown :
+			default :
+				return -1;
+		}
 	}
 
 

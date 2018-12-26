@@ -2,11 +2,9 @@ package komposten.analyser.backend.util;
 
 public class DoubleStatistic extends Statistic
 {
-	private double value;
-	
-	public DoubleStatistic(double value)
+	public DoubleStatistic(double value, double threshold)
 	{
-		this.value = value;
+		super(value, threshold);
 	}
 	
 

@@ -8,7 +8,6 @@ import java.util.Map.Entry;
 import javax.swing.table.AbstractTableModel;
 
 import komposten.analyser.backend.PackageProperties;
-import komposten.analyser.backend.util.Statistic;
 
 public class StatisticsTableModel extends AbstractTableModel
 {
@@ -88,7 +87,7 @@ public class StatisticsTableModel extends AbstractTableModel
 			case 0 :
 				return String.class;
 			case 1 :
-				return String.class;
+				return Object.class;
 			default :
 				return null;
 		}
@@ -110,7 +109,7 @@ public class StatisticsTableModel extends AbstractTableModel
 			case 0 :
 				return rows.get(rowIndex).getIndentedKey();
 			case 1 :
-				return rows.get(rowIndex).getValueAsString();
+				return rows.get(rowIndex).value;
 			default :
 				return null;
 		}
@@ -138,25 +137,6 @@ public class StatisticsTableModel extends AbstractTableModel
 			String indentString = new String(indentChars);
 			
 			return indentString + key;
-		}
-		
-		
-		String getValueAsString()
-		{
-			if (value instanceof Statistic)
-			{
-				return ((Statistic)value).asReadableString();
-			}
-			else if (value instanceof Float || value instanceof Double)
-			{
-				return String.format("%.02f", value);
-			}
-			else if (value != null)
-			{
-				return value.toString();
-			}
-			
-			return null;
 		}
 	}
 }

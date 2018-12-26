@@ -5,6 +5,7 @@ import java.util.List;
 
 final class UnitTypeStatistics
 {
+	UnitParser.Unit.Type type;
 	double mean;
 	int min;
 	int max;

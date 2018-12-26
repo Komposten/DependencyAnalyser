@@ -2,25 +2,20 @@ package komposten.analyser.backend.util;
 
 public class FrequencyStatistic extends Statistic
 {
-	private int value;
+	private int intValue;
 	private int[] allValues;
 	
-	public FrequencyStatistic(int value, int[] allValues)
+	public FrequencyStatistic(int value, int[] allValues, int threshold)
 	{
-		this.value = value;
+		super(value, threshold);
+		this.intValue = value;
 		this.allValues = allValues;
-	}
-	
-	
-	public int getValue()
-	{
-		return value;
 	}
 	
 	
 	@Override
 	public String asReadableString()
 	{
-		return Integer.toString(value);
+		return Integer.toString(intValue);
 	}
 }

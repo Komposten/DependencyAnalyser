@@ -1,14 +1,14 @@
 package komposten.analyser.backend.util;
 
-public class ProportionStatistic extends Statistic
+public class ProportionStatistic extends DoubleStatistic
 {
-	private double value;
 	private double[] allValues;
 	private double maxValue;
 
-	public ProportionStatistic(double value, double[] allValues)
+	public ProportionStatistic(double value, double[] allValues, double threshold)
 	{
-		this.value = value;
+		super(value, threshold);
+		
 		this.allValues = allValues;
 		for (int i = 0; i < allValues.length; i++)
 			this.maxValue += allValues[i];
