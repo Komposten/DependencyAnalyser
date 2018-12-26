@@ -56,7 +56,6 @@ public class Backend
 				file.getParentFile().mkdirs();
 				file.createNewFile();
 				settings = new AnalyserSettings(file);
-				loadDefaultSettings(true);
 			}
 			catch (IOException e2)
 			{
@@ -65,6 +64,9 @@ public class Backend
 					LogUtils.log(Level.ERROR, Backend.class.getName(), msg2, e2, false);
 			}
 		}
+		
+		loadDefaultSettings(false);
+		
 		settings.addListener(settingChangedListener);
 		listeners = new HashMap<>();
 	}
