@@ -8,6 +8,11 @@
 - UnitParser now uses UnitTypeStatistics objects instead of Object arrays.
 
 ==========
+2018-12-20
+==========
+- Fixed scrolling not working with the mouse over the graph areas.
+
+==========
 2018-12-17
 ==========
 - Fixed clicking an edge in the cycle and class panels de-selecting the selected packages.
