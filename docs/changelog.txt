@@ -12,6 +12,7 @@
 - A package's cycle properties are now grouped under the header "Cycles".
 - Added a threshold for cycle count.
 - A cycle count larger than the cycle limit is now displayed as >[LIMIT].
+- Started adding graphs to the statistics panel (WIP).
 
 ==========
 2018-12-22

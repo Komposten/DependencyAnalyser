@@ -2,14 +2,16 @@ package komposten.analyser.gui.views.statistics;
 
 import java.util.Enumeration;
 
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumn;
 
 import komposten.analyser.backend.PackageData;
+import komposten.analyser.backend.util.Statistic;
 import komposten.analyser.gui.backend.Backend;
 import komposten.analyser.gui.backend.Backend.PropertyChangeListener;
 
@@ -17,7 +19,7 @@ public class StatisticsPanel extends JSplitPane
 {
 	private JScrollPane scrollPane;
 	private JTable table;
-	private JPanel graphPanel;
+	private StatisticsChartPanel graphPanel;
 	private StatisticsTableModel tableModel;
 	
 	public StatisticsPanel(Backend backend)
@@ -31,7 +33,9 @@ public class StatisticsPanel extends JSplitPane
 		tableModel = new StatisticsTableModel();
 		table = new JTable(tableModel);
 		scrollPane = new JScrollPane(table);
-		graphPanel = new JPanel();
+		graphPanel = new StatisticsChartPanel();
+		
+		table.getSelectionModel().addListSelectionListener(selectionListener);
 		
 		prepareTable();
 		
@@ -60,6 +64,24 @@ public class StatisticsPanel extends JSplitPane
 			PackageData packageData = (PackageData) value;
 			
 			tableModel.setProperties(packageData.packageProperties);
+		}
+	};
+	
+	
+	private ListSelectionListener selectionListener = new ListSelectionListener()
+	{
+		@Override
+		public void valueChanged(ListSelectionEvent e)
+		{
+			if (e.getValueIsAdjusting())
+				return;
+			
+			Object value = table.getValueAt(table.getSelectedRow(), 1);
+			
+			if (value instanceof Statistic)
+				graphPanel.display((Statistic)value);
+			else
+				graphPanel.clear();
 		}
 	};
 }

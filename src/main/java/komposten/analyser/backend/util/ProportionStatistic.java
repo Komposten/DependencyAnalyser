@@ -15,6 +15,12 @@ public class ProportionStatistic extends DoubleStatistic
 	}
 	
 	
+	public double[] getAllValues()
+	{
+		return allValues;
+	}
+	
+	
 	@Override
 	public String asReadableString()
 	{

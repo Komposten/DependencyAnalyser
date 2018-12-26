@@ -9,4 +9,10 @@ public class FrequencyStatistic extends IntegerStatistic
 		super(value, threshold);
 		this.allValues = allValues;
 	}
+	
+	
+	public int[] getAllValues()
+	{
+		return allValues;
+	}
 }
