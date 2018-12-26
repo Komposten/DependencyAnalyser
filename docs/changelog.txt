@@ -12,6 +12,9 @@
 - Backend now passes a Settings object to the Analyser instead of analyseComments/Strings booleans.
 - Added threshold values for file, class and method length statistics.
 - Statistics that exceed their threshold values are now marked in red.
+- A package's cycle properties are now grouped under the header "Cycles".
+- Added a threshold for cycle count.
+- A cycle count larger than the cycle limit is now displayed as >[LIMIT].
 
 ==========
 2018-12-20

@@ -78,12 +78,12 @@ public class Analyser
 	}
 	
 	
-	public void analysePackage(PackageData packageData)
+	public void analysePackage(PackageData packageData, Settings settings)
 	{
 		if (analysisRunnable != null && !analysisRunnable.hasFinished())
 			abortAnalysis();
 		
-		analysisRunnable = new PackageAnalysisRunnable(packageData, packages, analysisListener);
+		analysisRunnable = new PackageAnalysisRunnable(packageData, packages, settings, analysisListener);
 		analysisThread.postRunnable(analysisRunnable);
 	}
 	

@@ -37,6 +37,7 @@ public class Backend
 	public Backend()
 	{
 		analyser = new Analyser();
+		analyser.addListener(analysisListener);
 		
 		String settingsFilePath = "data/settings.ini";
 		try
@@ -89,6 +90,8 @@ public class Backend
 			settings.set(Constants.SettingKeys.CLASS_LENGTH_THRESHOLD, Integer.toString(200));
 		if (overwriteExisting || settings.get(Constants.SettingKeys.METHOD_LENGTH_THRESHOLD) == null)
 			settings.set(Constants.SettingKeys.METHOD_LENGTH_THRESHOLD, Integer.toString(200));
+		if (overwriteExisting || settings.get(Constants.SettingKeys.CYCLE_COUNT_THRESHOLD) == null)
+			settings.set(Constants.SettingKeys.CYCLE_COUNT_THRESHOLD, Integer.toString(0));
 	}
 
 
@@ -156,10 +159,14 @@ public class Backend
 		if (packageData != null)
 		{
 			if (packageData.isInCycle && packageData.cycles.isEmpty())
+			{
 				analysePackageCycles(packageData);
-			
-			if (!packageData.isExternal)
-				notifyListeners(SELECTED_PACKAGE, packageData);
+			}
+			else
+			{
+				if (!packageData.isExternal)
+					notifyListeners(SELECTED_PACKAGE, packageData);
+			}
 		}
 	}
 	
@@ -168,7 +175,8 @@ public class Backend
 	{
 		if (packageData != null)
 		{
-			analyser.analysePackage(packageData);
+			analysisListener.currentPackage = packageData;
+			analyser.analysePackage(packageData, settings);
 		}
 	}
 
@@ -223,6 +231,63 @@ public class Backend
 			notifyListeners(settingKey, value);
 		}
 	};
+	
+	
+	private class InternalAnalysisListener implements AnalysisListener
+	{
+		private PackageData currentPackage;
+		
+		@Override
+		public void analysisComplete(AnalysisType analysisType)
+		{
+			notifyPackageSelected(analysisType);
+		}
+		
+		
+		@Override
+		public void analysisPartiallyComplete(AnalysisType analysisType)
+		{
+			notifyPackageSelected(analysisType);
+		}
+
+
+		private void notifyPackageSelected(AnalysisType analysisType)
+		{
+			if (analysisType == AnalysisType.Package)
+			{
+				if (!currentPackage.isExternal)
+					notifyListeners(SELECTED_PACKAGE, currentPackage);
+			}
+		}
+		
+		
+		@Override
+		public void analysisStageChanged(AnalysisStage newStage) { }
+		
+		
+		@Override
+		public void analysisSearchingFolder(File folder) { }
+		
+		
+		@Override
+		public void analysisCurrentCycleCount(int currentCycleCount) { }
+		
+		
+		@Override
+		public void analysisBegun(AnalysisType analysisType, File sourceFolder) { }
+		
+		
+		@Override
+		public void analysisAnalysingPackage(PackageData currentPackage,
+				int packageIndex, int packageCount) { }
+		
+		
+		@Override
+		public void analysisAborted(AnalysisType analysisType) { }
+	}
+	
+	
+	private InternalAnalysisListener analysisListener = new InternalAnalysisListener();
 	
 	
 	public static interface PropertyChangeListener

@@ -222,7 +222,7 @@ public class PackageList extends JList<PackageData>
 		public void propertyChanged(String key, Object value)
 		{
 			if (key.equals(Backend.SELECTED_PACKAGE))
-				setSelectedValue(value, true);
+				SwingUtilities.invokeLater(() -> setSelectedValue(value, true));
 		}
 	};
 	

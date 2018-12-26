@@ -1,5 +1,7 @@
 package komposten.analyser.gui.views;
 
+import javax.swing.SwingUtilities;
+
 import komposten.analyser.backend.PackageData;
 import komposten.analyser.gui.backend.Backend;
 import komposten.analyser.gui.backend.Backend.PropertyChangeListener;
@@ -63,7 +65,7 @@ public abstract class RootedGraphPanel extends GraphPanel<PackageData, Dependenc
 		public void propertyChanged(String key, Object value)
 		{
 			if (key.equals(Backend.SELECTED_PACKAGE))
-				showGraphForPackage((PackageData)value);
+				SwingUtilities.invokeLater(() -> showGraphForPackage((PackageData)value));
 		}
 	};
 }

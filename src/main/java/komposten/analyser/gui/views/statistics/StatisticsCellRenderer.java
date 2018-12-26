@@ -44,7 +44,7 @@ public class StatisticsCellRenderer extends DefaultTableCellRenderer
 		{
 			Statistic stat = (Statistic) value;
 			
-			if (stat.getValue() >= stat.getThreshold())
+			if (stat.getValue() > stat.getThreshold())
 			{
 				if (table.getSelectedRow() == row)
 				{

@@ -24,7 +24,6 @@ import komposten.utilities.tools.Graph.CircuitListener;
 public class FullAnalysisRunnable extends AnalysisRunnable
 {
 	private File sourceFolder;
-	private Settings settings;
 	
 	private GraphCycleFinder cycleFinder;
 	private volatile boolean finished;
@@ -35,9 +34,8 @@ public class FullAnalysisRunnable extends AnalysisRunnable
 
 	public FullAnalysisRunnable(File sourceFolder, Settings settings, AnalysisListener analysisListener)
 	{
-		super(analysisListener);
+		super(analysisListener, settings);
 		this.sourceFolder = sourceFolder;
-		this.settings = settings;
 	}
 	
 	
@@ -259,20 +257,6 @@ public class FullAnalysisRunnable extends AnalysisRunnable
 		else
 		{
 			return null;
-		}
-	}
-
-
-	private void setCyclePropertiesForPackages(List<PackageData> packages)
-	{
-		for (PackageData packageData : packages)
-		{
-			packageData.packageProperties.set("Cycle count", packageData.cycles.size());
-			int longestCycle = 0;
-			for (Cycle cycle : packageData.cycles)
-				if (cycle.getPackages().length > longestCycle)
-					longestCycle = cycle.getPackages().length;
-			packageData.packageProperties.set("Longest cycle", longestCycle);
 		}
 	}
 	

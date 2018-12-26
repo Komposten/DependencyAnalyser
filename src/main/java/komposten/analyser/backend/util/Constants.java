@@ -16,6 +16,7 @@ public class Constants
 		public static final String FILE_LENGTH_THRESHOLD = "fileLengthThreshold";
 		public static final String CLASS_LENGTH_THRESHOLD = "classLengthThreshold";
 		public static final String METHOD_LENGTH_THRESHOLD = "methodLengthThreshold";
+		public static final String CYCLE_COUNT_THRESHOLD = "cycleCountThreshold";
 	}
 	
 	public static final int CYCLE_LIMIT = 100000;

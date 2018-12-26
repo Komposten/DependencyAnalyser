@@ -10,6 +10,7 @@ import komposten.analyser.backend.PackageData;
 import komposten.analyser.backend.analysis.AnalysisListener.AnalysisStage;
 import komposten.analyser.backend.analysis.AnalysisListener.AnalysisType;
 import komposten.analyser.backend.util.Constants;
+import komposten.analyser.tools.Settings;
 import komposten.utilities.tools.Graph.CircuitListener;
 
 public class PackageAnalysisRunnable extends AnalysisRunnable
@@ -20,9 +21,9 @@ public class PackageAnalysisRunnable extends AnalysisRunnable
 	private volatile boolean finished;
 	private volatile boolean abort;
 	
-	public PackageAnalysisRunnable(PackageData packageData, List<PackageData> packageList, AnalysisListener analysisListener)
+	public PackageAnalysisRunnable(PackageData packageData, List<PackageData> packageList, Settings settings, AnalysisListener analysisListener)
 	{
-		super(analysisListener);
+		super(analysisListener, settings);
 		this.packageList = packageList;
 		this.packageData = packageData;
 	}
@@ -66,10 +67,8 @@ public class PackageAnalysisRunnable extends AnalysisRunnable
 		
 		if (cycles != null)
 		{
-			System.out.println("Cycle count in " + packageData + ": " + cycles.size());
-			
 			packageData.cycles.addAll(cycles);
-			setCyclePropertiesForPackage(packageData);
+			setCyclePropertiesForPackage(packageData, Constants.CYCLE_LIMIT);
 			
 			if (cycles.size() >= Constants.CYCLE_LIMIT)
 				analysisListener.analysisPartiallyComplete(AnalysisType.Package);
@@ -116,27 +115,6 @@ public class PackageAnalysisRunnable extends AnalysisRunnable
 	}
 
 
-	private void setCyclePropertiesForPackage(PackageData packageData)
-	{
-		int cycleCount = packageData.cycles.size();
-		String cycleCountString;
-		if (cycleCount <= Constants.CYCLE_LIMIT)
-			cycleCountString = String.valueOf(cycleCount);
-		else
-			cycleCountString = ">" + Constants.CYCLE_LIMIT;
-			
-		int longestCycle = 0;
-		for (Cycle cycle : packageData.cycles)
-		{
-			if (cycle.getPackages().length > longestCycle)
-				longestCycle = cycle.getPackages().length;
-		}
-		
-		packageData.packageProperties.set("Cycle count", cycleCountString);
-		packageData.packageProperties.set("Longest cycle", longestCycle);
-	}
-	
-	
 	private CircuitListener circuitListener = new CircuitListener()
 	{
 		@Override
