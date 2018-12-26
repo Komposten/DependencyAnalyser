@@ -23,6 +23,7 @@ import komposten.analyser.backend.util.Constants;
 import komposten.analyser.backend.util.DoubleStatistic;
 import komposten.analyser.backend.util.FrequencyStatistic;
 import komposten.analyser.backend.util.SourceUtil;
+import komposten.analyser.tools.Settings;
 import komposten.utilities.data.IntPair;
 
 public class UnitParser implements SourceParser
@@ -86,6 +87,8 @@ public class UnitParser implements SourceParser
 	private Matcher blockMatcher;
 	private Matcher statementMatcher;
 	
+	private Settings settings;
+	
 	private StringBuilder fileContent;
 	private List<IntPair> bracketList;
 	
@@ -98,8 +101,10 @@ public class UnitParser implements SourceParser
 	private Map<Unit.Type, UnitTypeStatistics> statsMap;
 	
 
-	public UnitParser()
+	public UnitParser(Settings settings)
 	{
+		this.settings = settings;
+		
 		bracketList = new LinkedList<>();
 		bracketPairList = new ArrayList<>();
 		fileUnitList = new LinkedList<>();
@@ -723,7 +728,7 @@ public class UnitParser implements SourceParser
 
 	public static void main(String[] args)
 	{
-		UnitParser p = new UnitParser();
+		UnitParser p = new UnitParser(null);
 		
 		File file = new File("src/main/java/komposten/analyser/backend/parsers/UnitParser.java");
 		p.nextFile(file);

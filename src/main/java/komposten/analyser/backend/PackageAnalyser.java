@@ -10,14 +10,15 @@ import java.util.List;
 import komposten.analyser.backend.parsers.DependencyParser;
 import komposten.analyser.backend.parsers.SourceParser;
 import komposten.analyser.backend.parsers.UnitParser;
+import komposten.analyser.backend.util.Constants;
 import komposten.analyser.backend.util.SourceUtil;
+import komposten.analyser.tools.Settings;
 import komposten.utilities.logging.Level;
 import komposten.utilities.logging.LogUtils;
 
 public class PackageAnalyser
 {
-	private boolean analyseComments;
-	private boolean analyseStrings;
+	private Settings settings;
 	
 	private PackageData currentPackage;
 	private List<PackageData> internalPackages;
@@ -25,12 +26,10 @@ public class PackageAnalyser
 	private List<SourceParser> parsers;
 	
 	
-	public PackageAnalyser(boolean analyseComments, boolean analyseStrings)
+	public PackageAnalyser(Settings settings)
 	{
-		this.analyseComments = analyseComments;
-		this.analyseStrings = analyseStrings;
-		
-		parsers = new ArrayList<>();
+		this.settings = settings;
+		this.parsers = new ArrayList<>();
 	}
 	
 	
@@ -67,7 +66,7 @@ public class PackageAnalyser
 	{
 		parsers.clear();
 		parsers.add(new DependencyParser(currentPackage, internalPackages));
-		parsers.add(new UnitParser());
+		parsers.add(new UnitParser(settings));
 	}
 	
 
@@ -79,6 +78,8 @@ public class PackageAnalyser
 		}
 		
 		int lineNo = 0;
+		boolean analyseStrings = settings.getBoolean(Constants.SettingKeys.ANALYSE_STRINGS);
+		boolean analyseComments = settings.getBoolean(Constants.SettingKeys.ANALYSE_COMMENTS);
 		
 		try (BufferedReader reader = new BufferedReader(new FileReader(file)))
 		{

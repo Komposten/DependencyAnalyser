@@ -17,14 +17,14 @@ import komposten.analyser.backend.analysis.AnalysisListener.AnalysisStage;
 import komposten.analyser.backend.analysis.AnalysisListener.AnalysisType;
 import komposten.analyser.backend.util.Constants;
 import komposten.analyser.backend.util.SourceUtil;
+import komposten.analyser.tools.Settings;
 import komposten.utilities.tools.ExtensionFileFilter;
 import komposten.utilities.tools.Graph.CircuitListener;
 
 public class FullAnalysisRunnable extends AnalysisRunnable
 {
 	private File sourceFolder;
-	private boolean analyseComments;
-	private boolean analyseStrings;
+	private Settings settings;
 	
 	private GraphCycleFinder cycleFinder;
 	private volatile boolean finished;
@@ -33,12 +33,11 @@ public class FullAnalysisRunnable extends AnalysisRunnable
 	private List<PackageData> packages;
 
 
-	public FullAnalysisRunnable(File sourceFolder, boolean analyseComments, boolean analyseStrings, AnalysisListener analysisListener)
+	public FullAnalysisRunnable(File sourceFolder, Settings settings, AnalysisListener analysisListener)
 	{
 		super(analysisListener);
 		this.sourceFolder = sourceFolder;
-		this.analyseComments = analyseComments;
-		this.analyseStrings = analyseStrings;
+		this.settings = settings;
 	}
 	
 	
@@ -208,7 +207,7 @@ public class FullAnalysisRunnable extends AnalysisRunnable
 
 	private void analysePackageDependencies(List<PackageData> packages)
 	{
-		PackageAnalyser analyser = new PackageAnalyser(analyseComments, analyseStrings);
+		PackageAnalyser analyser = new PackageAnalyser(settings);
 		
 		int i = 1;
 		for (PackageData data : packages)

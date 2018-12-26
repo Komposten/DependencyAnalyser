@@ -10,6 +10,7 @@
 - Moved all setting keys to Constants.SettingKeys.
 - Backend now creates default settings for settings that are missing.
 - Added setting keys for file, class and method length thresholds.
+- Backend now passes a Settings object to the Analyser instead of analyseComments/Strings booleans.
 
 ==========
 2018-12-20

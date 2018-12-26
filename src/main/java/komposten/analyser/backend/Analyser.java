@@ -8,6 +8,7 @@ import komposten.analyser.backend.analysis.AnalysisListener;
 import komposten.analyser.backend.analysis.AnalysisRunnable;
 import komposten.analyser.backend.analysis.FullAnalysisRunnable;
 import komposten.analyser.backend.analysis.PackageAnalysisRunnable;
+import komposten.analyser.tools.Settings;
 
 
 /**
@@ -58,13 +59,13 @@ public class Analyser
 	}
 	
 	
-	public void analyseSource(String sourceFolder, boolean analyseComments, boolean analyseStrings)
+	public void analyseSource(String sourceFolder, Settings settings)
 	{
-		analyseSource(new File(sourceFolder), analyseComments, analyseStrings);
+		analyseSource(new File(sourceFolder), settings);
 	}
 	
 	
-	public void analyseSource(File sourceFolder, boolean analyseComments, boolean analyseStrings)
+	public void analyseSource(File sourceFolder, Settings settings)
 	{
 		if (!sourceFolder.exists() || !sourceFolder.isDirectory())
 			throw new IllegalArgumentException("\"" + sourceFolder.getPath() + "\" does not exist or is not a folder!");
@@ -72,7 +73,7 @@ public class Analyser
 		if (analysisRunnable != null && !analysisRunnable.hasFinished())
 			abortAnalysis();
 		
-		analysisRunnable = new FullAnalysisRunnable(sourceFolder, analyseComments, analyseStrings, analysisListener);
+		analysisRunnable = new FullAnalysisRunnable(sourceFolder, settings, analysisListener);
 		analysisThread.postRunnable(analysisRunnable);
 	}
 	
