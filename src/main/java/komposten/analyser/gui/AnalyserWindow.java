@@ -16,7 +16,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 import komposten.analyser.backend.PackageData;
 import komposten.analyser.backend.analysis.AnalysisListener;
 import komposten.analyser.backend.util.Constants;
-import komposten.analyser.gui.backend.AnalyserSettings;
 import komposten.analyser.gui.backend.Backend;
 import komposten.analyser.gui.menubar.AnalyserMenuBar;
 import komposten.utilities.logging.Level;
@@ -51,7 +50,7 @@ public class AnalyserWindow extends JFrame
 		setLocationRelativeTo(null);
 		setVisible(true);
 		
-		if (backend.getSettings().getBoolean(AnalyserSettings.REMEMBER_LAST_PROJECT) == true)
+		if (backend.getSettings().getBoolean(Constants.SettingKeys.REMEMBER_LAST_PROJECT) == true)
 			loadLastProject();
 	}
 	
@@ -72,7 +71,7 @@ public class AnalyserWindow extends JFrame
 
 	private void loadLastProject()
 	{
-		String lastProjectPath = backend.getSettings().get(AnalyserSettings.LAST_OPENED_PROJECT);
+		String lastProjectPath = backend.getSettings().get(Constants.SettingKeys.LAST_OPENED_PROJECT);
 		
 		backend.analyseFolder(lastProjectPath);
 	}
@@ -166,7 +165,7 @@ public class AnalyserWindow extends JFrame
 		public void analysisComplete(AnalysisType analysisType)
 		{
 			if (analysisType == AnalysisType.Full)
-				backend.getSettings().set(AnalyserSettings.LAST_OPENED_PROJECT, lastAnalysedSource.getPath());
+				backend.getSettings().set(Constants.SettingKeys.LAST_OPENED_PROJECT, lastAnalysedSource.getPath());
 			
 			Runnable runnable = new Runnable()
 			{

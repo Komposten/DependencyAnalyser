@@ -4,6 +4,20 @@ import java.util.Arrays;
 
 public class Constants
 {
+	public static class SettingKeys
+	{
+		public static final String LAST_OPENED_DIRECTORY = "lastOpenDir";
+		public static final String LAST_OPENED_PROJECT = "lastOpenedProj";
+		public static final String REMEMBER_LAST_PROJECT = "rememberLastProj";
+		public static final String REMEMBER_LAST_DIRECTORY = "rememberLastDir";
+		public static final String RECENT_PROJECTS = "recent";
+		public static final String ANALYSE_COMMENTS = "analyseComments";
+		public static final String ANALYSE_STRINGS = "analyseStrings";
+		public static final String FILE_LENGTH_THRESHOLD = "fileLengthThreshold";
+		public static final String CLASS_LENGTH_THRESHOLD = "classLengthThreshold";
+		public static final String METHOD_LENGTH_THRESHOLD = "methodLengthThreshold";
+	}
+	
 	public static final int CYCLE_LIMIT = 100000;
 	public static final String FILE_EXTENSION = ".java";
 

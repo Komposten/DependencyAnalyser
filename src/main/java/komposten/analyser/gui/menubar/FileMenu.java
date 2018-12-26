@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import javax.swing.JMenu;
 
-import komposten.analyser.gui.backend.AnalyserSettings;
+import komposten.analyser.backend.util.Constants;
 import komposten.analyser.gui.backend.Backend;
 import komposten.analyser.gui.backend.Backend.PropertyChangeListener;
 
@@ -35,14 +35,14 @@ public class FileMenu extends JMenu
 		addSeparator();
 		add(itemExit);
 		
-		backend.addPropertyChangeListener(listener, AnalyserSettings.RECENT_PROJECTS);
+		backend.addPropertyChangeListener(listener, Constants.SettingKeys.RECENT_PROJECTS);
 	}
 
 	
 	private void addRecentItems()
 	{
 		recentItems = new ArrayList<RecentItem>();
-		String[] recent = backend.getSettings().getArray(AnalyserSettings.RECENT_PROJECTS);
+		String[] recent = backend.getSettings().getArray(Constants.SettingKeys.RECENT_PROJECTS);
 		
 		addItems(recent);
 	}

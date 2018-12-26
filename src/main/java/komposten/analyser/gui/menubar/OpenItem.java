@@ -10,7 +10,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 
-import komposten.analyser.gui.backend.AnalyserSettings;
+import komposten.analyser.backend.util.Constants;
 import komposten.analyser.gui.backend.Backend;
 
 public class OpenItem extends AbstractMenuItem
@@ -33,7 +33,7 @@ public class OpenItem extends AbstractMenuItem
 		Boolean old = UIManager.getBoolean("FileChooser.readOnly");  
 	  UIManager.put("FileChooser.readOnly", Boolean.TRUE);  
 	  
-	  String location = backend.getSettings().get(AnalyserSettings.LAST_OPENED_DIRECTORY);
+	  String location = backend.getSettings().get(Constants.SettingKeys.LAST_OPENED_DIRECTORY);
 		fileChooser = new JFileChooser(location);
 		
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -60,7 +60,7 @@ public class OpenItem extends AbstractMenuItem
 			File currentDirectory = fileChooser.getCurrentDirectory();
 			File selectedFile = fileChooser.getSelectedFile();
 			
-			backend.getSettings().set(AnalyserSettings.LAST_OPENED_DIRECTORY, currentDirectory.getPath());
+			backend.getSettings().set(Constants.SettingKeys.LAST_OPENED_DIRECTORY, currentDirectory.getPath());
 			backend.getSettings().updateRecentList(selectedFile.getPath());
 			backend.analyseFolder(selectedFile);
 		}

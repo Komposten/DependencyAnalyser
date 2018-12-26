@@ -7,6 +7,9 @@
 - Added Statistic, FrequencyStatistic and ProportionStatistic.
 - UnitParser now uses UnitTypeStatistics objects instead of Object arrays.
 - Added DoubleStatistic.
+- Moved all setting keys to Constants.SettingKeys.
+- Backend now creates default settings for settings that are missing.
+- Added setting keys for file, class and method length thresholds.
 
 ==========
 2018-12-20

@@ -10,6 +10,7 @@ import komposten.analyser.backend.Analyser;
 import komposten.analyser.backend.Edge;
 import komposten.analyser.backend.PackageData;
 import komposten.analyser.backend.analysis.AnalysisListener;
+import komposten.analyser.backend.util.Constants;
 import komposten.analyser.tools.Settings;
 import komposten.analyser.tools.Settings.SettingChangeListener;
 import komposten.utilities.logging.Level;
@@ -55,6 +56,7 @@ public class Backend
 				file.getParentFile().mkdirs();
 				file.createNewFile();
 				settings = new AnalyserSettings(file);
+				loadDefaultSettings(true);
 			}
 			catch (IOException e2)
 			{
@@ -67,6 +69,26 @@ public class Backend
 		listeners = new HashMap<>();
 	}
 	
+
+
+	private void loadDefaultSettings(boolean overwriteExisting)
+	{
+		if (overwriteExisting || settings.get(Constants.SettingKeys.RECENT_PROJECTS) == null)
+			settings.set(Constants.SettingKeys.RECENT_PROJECTS, new String[0]);
+		if (overwriteExisting || settings.get(Constants.SettingKeys.REMEMBER_LAST_PROJECT) == null)
+			settings.set(Constants.SettingKeys.REMEMBER_LAST_PROJECT, Boolean.toString(false));
+		if (overwriteExisting || settings.get(Constants.SettingKeys.ANALYSE_COMMENTS) == null)
+			settings.set(Constants.SettingKeys.ANALYSE_COMMENTS, Boolean.toString(false));
+		if (overwriteExisting || settings.get(Constants.SettingKeys.ANALYSE_STRINGS) == null)
+			settings.set(Constants.SettingKeys.ANALYSE_STRINGS, Boolean.toString(false));
+		if (overwriteExisting || settings.get(Constants.SettingKeys.FILE_LENGTH_THRESHOLD) == null)
+			settings.set(Constants.SettingKeys.FILE_LENGTH_THRESHOLD, Integer.toString(200));
+		if (overwriteExisting || settings.get(Constants.SettingKeys.CLASS_LENGTH_THRESHOLD) == null)
+			settings.set(Constants.SettingKeys.CLASS_LENGTH_THRESHOLD, Integer.toString(200));
+		if (overwriteExisting || settings.get(Constants.SettingKeys.METHOD_LENGTH_THRESHOLD) == null)
+			settings.set(Constants.SettingKeys.METHOD_LENGTH_THRESHOLD, Integer.toString(200));
+	}
+
 
 
 	/**
