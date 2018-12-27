@@ -63,7 +63,10 @@ public class StatisticsPanel extends JSplitPane
 		{
 			PackageData packageData = (PackageData) value;
 			
+			int selectionIndex = table.getSelectionModel().getMinSelectionIndex();
 			tableModel.setProperties(packageData.packageProperties);
+			if (selectionIndex != -1)
+				table.getSelectionModel().setSelectionInterval(selectionIndex, selectionIndex);
 		}
 	};
 	
@@ -73,7 +76,7 @@ public class StatisticsPanel extends JSplitPane
 		@Override
 		public void valueChanged(ListSelectionEvent e)
 		{
-			if (e.getValueIsAdjusting())
+			if (e.getValueIsAdjusting() || table.getSelectedRow() < 0)
 				return;
 			
 			Object value = table.getValueAt(table.getSelectedRow(), 1);

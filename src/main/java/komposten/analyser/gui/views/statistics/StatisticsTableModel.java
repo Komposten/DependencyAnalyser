@@ -20,10 +20,14 @@ public class StatisticsTableModel extends AbstractTableModel
 	}
 	
 	
+	/**
+	 * Sets the properties to create the table rows from. This calls
+	 * {@link #fireTableDataChanged()}, which (among other things) clears the 
+	 * current selection.
+	 */
 	public void setProperties(PackageProperties properties)
 	{
-		this.rows = new ArrayList<>(properties.count());
-		
+		this.rows = new ArrayList<>();
 		addRows(properties, 0);
 		
 		fireTableDataChanged();

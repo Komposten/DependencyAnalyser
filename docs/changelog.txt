@@ -1,7 +1,8 @@
 ==========
 2018-12-27
 ==========
-- Reworked the histogram in StatisticsChartPanel into its own class (HistogramChart), based on a custom-built XYBarChart.
+- Reworked the histogram in StatisticsChartPanel into its custom JFreeChart class (HistogramChart).
+- Fixed a crash when a row is selected in the statistics table and the package is switched.
 
 ==========
 2018-12-26
