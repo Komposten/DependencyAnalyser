@@ -7,9 +7,12 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.statistics.HistogramDataset;
+import org.jfree.data.xy.DefaultIntervalXYDataset;
+import org.jfree.data.xy.IntervalXYDataset;
 
 import komposten.analyser.backend.util.FrequencyStatistic;
 import komposten.analyser.backend.util.ProportionStatistic;
@@ -19,16 +22,14 @@ public class StatisticsChartPanel extends JPanel
 {
 	private ChartPanel chartPanel;
 	private DefaultPieDataset pieDataset;
-	private HistogramDataset barDataset;
 	private JFreeChart pieChart;
-	private JFreeChart barChart;
+	private HistogramChart barChart;
 
 	public StatisticsChartPanel()
 	{
 		pieDataset = new DefaultPieDataset();
-		barDataset = new HistogramDataset();
 		pieChart = ChartFactory.createPieChart(null, pieDataset);
-		barChart = ChartFactory.createHistogram(null, null, null, barDataset);
+		barChart = HistogramChart.createChart();
 		chartPanel = new ChartPanel(pieChart, true);
 		chartPanel.setPopupMenu(null);
 		chartPanel.setMouseZoomable(false);
@@ -55,28 +56,25 @@ public class StatisticsChartPanel extends JPanel
 				pieDataset.setValue(Integer.valueOf(i), values[i]);
 			}
 			
+			//CURRENT 2: Create a pie chart class similar to the HistogramChart to make it easier to edit.
 			chartPanel.setChart(pieChart);
 		}
 		else if (statistic instanceof FrequencyStatistic)
 		{
 			FrequencyStatistic fStatistic = (FrequencyStatistic) statistic;
 			
-			int[] values = fStatistic.getAllValues();
-			double[] dValues = new double[values.length];
-			for (int i = 0; i < values.length; i++)
-			{
-				dValues[i] = values[i];
-			}
+			HistogramData data = new HistogramData(10, fStatistic.getAllValues());
 			
-			barDataset = new HistogramDataset();
-			barDataset.addSeries("series", dValues, 10);
-			((XYPlot)barChart.getPlot()).setDataset(barDataset);
+			barChart.setData(data);
+			barChart.setTitle("Frequencies of lengths");
+			barChart.setAxisTitles("Length (in lines)", "Frequency");
 			chartPanel.setChart(barChart);
+			
+			//CURRENT 3: Crash when selecting a row in the table and then choosing a different package.
+			//CURRENT Highlight the bar containing the selected value. See https://stackoverflow.com/a/4953004
 		}
 		
-		chartPanel.getChart().setTitle("Title");
 		chartPanel.setVisible(true);
-		chartPanel.repaint();
 	}
 	
 	

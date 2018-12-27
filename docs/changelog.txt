@@ -1,4 +1,9 @@
 ==========
+2018-12-27
+==========
+- Reworked the histogram in StatisticsChartPanel into its own class (HistogramChart), based on a custom-built XYBarChart.
+
+==========
 2018-12-26
 ==========
 - Added Statistic, FrequencyStatistic and ProportionStatistic.
