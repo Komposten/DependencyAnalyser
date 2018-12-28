@@ -4,6 +4,7 @@
 - Made the Statistics serialisable.
 - Added serialVersionUIDs to the histogram classes.
 - Removed the legend from HistogramChart.
+- Added a highlight to the bar containing the selected value for the histograms.
 
 ==========
 2018-12-27

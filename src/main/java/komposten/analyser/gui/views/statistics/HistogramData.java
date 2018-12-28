@@ -101,6 +101,10 @@ public class HistogramData implements Serializable
 	}
 	
 	
+	/**
+	 * @return The index for the x-value to highlight, or -1 if there should be no
+	 *         highlight.
+	 */
 	public int getHighlightedXValue()
 	{
 		return highlightedXValue;

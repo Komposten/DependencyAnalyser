@@ -1,5 +1,7 @@
 package komposten.analyser.gui.views.statistics;
 
+import java.awt.Color;
+import java.awt.Paint;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +35,7 @@ public class HistogramChart extends JFreeChart
 	{
 		ValueAxis domainAxis = new NumberAxis();
 		ValueAxis rangeAxis = new NumberAxis();
-		XYBarRenderer renderer = new XYBarRenderer();
+		XYBarRenderer renderer = new BarRenderer(dataset);
 		
 		return new XYPlot(dataset, domainAxis, rangeAxis, renderer);
 	}
@@ -154,6 +156,30 @@ public class HistogramChart extends JFreeChart
 		{
 			return dataSeries.size();
 		}
-
+	}
+	
+	
+	private static class BarRenderer extends XYBarRenderer
+	{
+		private HistogramDataset dataset;
+		
+		
+		public BarRenderer(HistogramDataset dataset)
+		{
+			this.dataset = dataset;
+		}
+		
+		
+		@Override
+		public Paint getItemPaint(int row, int column)
+		{
+			//CURRENT Create a complete set of colours to use for multiple series (with highlights)
+			//				to use instead of the default!
+			int highlightedBar = dataset.dataSeries.get(row).getHighlightedXValue();
+			
+			if (highlightedBar == column)
+				return Color.GREEN;
+			return super.getItemPaint(row, column);
+		}
 	}
 }

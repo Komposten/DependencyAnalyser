@@ -63,7 +63,7 @@ public class StatisticsChartPanel extends JPanel
 		{
 			FrequencyStatistic fStatistic = (FrequencyStatistic) statistic;
 			
-			HistogramData data = new HistogramData(10, fStatistic.getAllValues());
+			HistogramData data = new HistogramData(10, fStatistic.getAllValues(), (int)Math.round(fStatistic.getValue()));
 			
 			barChart.setData(data);
 			barChart.setTitle("Frequencies of lengths");
@@ -71,7 +71,6 @@ public class StatisticsChartPanel extends JPanel
 			chartPanel.setChart(barChart);
 			
 			//CURRENT 3: Crash when selecting a row in the table and then choosing a different package.
-			//CURRENT Highlight the bar containing the selected value. See https://stackoverflow.com/a/4953004
 		}
 		
 		chartPanel.setVisible(true);
