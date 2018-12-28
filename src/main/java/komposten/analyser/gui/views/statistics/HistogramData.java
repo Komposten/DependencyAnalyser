@@ -16,7 +16,7 @@ public class HistogramData implements Serializable
 
 	public HistogramData(int bins)
 	{
-		this(bins, null);
+		this(bins, new int[0]);
 	}
 	
 	
@@ -35,6 +35,12 @@ public class HistogramData implements Serializable
 	
 	public void setData(int[] values, int highlighted)
 	{
+		if (values.length == 0)
+		{
+			clear();
+			return;
+		}
+		
 		Arrays.sort(values);
 		
 		int min = values[0];
@@ -71,6 +77,15 @@ public class HistogramData implements Serializable
 		yValues = frequencies;
 		highlightedXValue = highlightedBin;
 		binWidth = binW;
+	}
+	
+	
+	public void clear()
+	{
+		xValues = new double[0];
+		yValues = new int[0];
+		highlightedXValue = 0;
+		binWidth = 0;
 	}
 	
 	
