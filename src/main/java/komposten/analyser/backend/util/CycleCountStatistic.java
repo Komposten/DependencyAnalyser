@@ -2,6 +2,8 @@ package komposten.analyser.backend.util;
 
 public class CycleCountStatistic extends IntegerStatistic
 {
+	private static final long serialVersionUID = 0L;
+	
 	private int cycleLimit;
 
 

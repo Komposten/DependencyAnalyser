@@ -2,6 +2,8 @@ package komposten.analyser.backend.util;
 
 public class ProportionStatistic extends DoubleStatistic
 {
+	private static final long serialVersionUID = 0L;
+	
 	private double[] allValues;
 	private double maxValue;
 

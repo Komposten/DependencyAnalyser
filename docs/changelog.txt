@@ -1,4 +1,10 @@
 ==========
+2018-12-28
+==========
+- Made the Statistics serialisable.
+- Added serialVersionUIDs to the histogram classes. 
+
+==========
 2018-12-27
 ==========
 - Reworked the histogram in StatisticsChartPanel into its custom JFreeChart class (HistogramChart).

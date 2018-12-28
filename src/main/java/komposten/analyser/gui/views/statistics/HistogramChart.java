@@ -14,6 +14,8 @@ import org.jfree.data.xy.AbstractIntervalXYDataset;
 
 public class HistogramChart extends JFreeChart
 {
+	private static final long serialVersionUID = 0L;
+	
 	private XYPlot plot;
 	private HistogramDataset dataset;
 	
@@ -60,6 +62,8 @@ public class HistogramChart extends JFreeChart
 
 	private static class HistogramDataset extends AbstractIntervalXYDataset
 	{
+		private static final long serialVersionUID = 0L;
+		
 		private Map<Comparable<?>, Integer> seriesIndices = new HashMap<>();
 		private Map<Integer, Comparable<?>> seriesKeys = new HashMap<>();
 		private List<HistogramData> dataSeries = new ArrayList<>();

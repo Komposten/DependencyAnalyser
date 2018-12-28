@@ -2,6 +2,8 @@ package komposten.analyser.backend.util;
 
 public class IntegerStatistic extends DoubleStatistic
 {
+	private static final long serialVersionUID = 0L;
+	
 	protected int intValue;
 
 	public IntegerStatistic(int value, int threshold)

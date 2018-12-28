@@ -1,6 +1,8 @@
 package komposten.analyser.backend.util;
 
-public abstract class Statistic
+import java.io.Serializable;
+
+public abstract class Statistic implements Serializable
 {
 	protected double value;
 	protected double threshold;

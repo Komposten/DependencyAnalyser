@@ -2,6 +2,8 @@ package komposten.analyser.backend.util;
 
 public class DoubleStatistic extends Statistic
 {
+	private static final long serialVersionUID = 0L;
+	
 	public DoubleStatistic(double value, double threshold)
 	{
 		super(value, threshold);

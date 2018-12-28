@@ -1,9 +1,12 @@
 package komposten.analyser.gui.views.statistics;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
-public class HistogramData
+public class HistogramData implements Serializable
 {
+	private static final long serialVersionUID = 0L;
+	
 	private int bins;
 	private double[] xValues;
 	private int[] yValues;
