@@ -41,7 +41,7 @@ public class HistogramChart extends JFreeChart
 
 	private HistogramChart(XYPlot plot, HistogramDataset dataset)
 	{
-		super(plot);
+		super(null, DEFAULT_TITLE_FONT, plot, false);
 		this.plot = plot;
 		this.dataset = dataset;
 	}

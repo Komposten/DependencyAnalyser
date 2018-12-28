@@ -2,7 +2,8 @@
 2018-12-28
 ==========
 - Made the Statistics serialisable.
-- Added serialVersionUIDs to the histogram classes. 
+- Added serialVersionUIDs to the histogram classes.
+- Removed the legend from HistogramChart.
 
 ==========
 2018-12-27
