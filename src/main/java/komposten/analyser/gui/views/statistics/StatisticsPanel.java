@@ -1,5 +1,6 @@
 package komposten.analyser.gui.views.statistics;
 
+import java.awt.Dimension;
 import java.util.Enumeration;
 
 import javax.swing.JScrollPane;
@@ -24,6 +25,7 @@ public class StatisticsPanel extends JSplitPane
 	
 	public StatisticsPanel(Backend backend)
 	{
+		//NEXT_TASK Clicking on e.g. the "Longest method" header or name should also draw the graph.
 		//NEXT_TASK Add a graph to the right panel, which visualises any selected row with a Statistic in.
 		//			Use embedded JavaFX chart, or JFreeChart? Advantage with JFreeChart: can be exported.
 		//NEXT_TASK Differentiate between "package statistics" and "global statistics".
@@ -36,6 +38,7 @@ public class StatisticsPanel extends JSplitPane
 		graphPanel = new StatisticsChartPanel();
 		
 		table.getSelectionModel().addListSelectionListener(selectionListener);
+		scrollPane.setMinimumSize(new Dimension(200, table.getMinimumSize().height));
 		
 		prepareTable();
 		
