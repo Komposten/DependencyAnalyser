@@ -33,17 +33,10 @@ public class GraphCycleFinder
 		{
 			if (abort)
 				return;
-			if (nodes.get(i).getSuccessorNodes().length > -1) //XXX Debug-code!
-				nodeList.add(nodes.get(i));
+			nodeList.add(nodes.get(i));
 		}
 		
-		System.out.println("*** Analysing " + nodeList.size() + " nodes... ***");
-		
 		adjacencyLists = new int[nodeList.size()][];
-		
-		int totalEdges = 0;
-		int highestEdgeCount = 0;
-		
 		
 		for (int i = 0; i < nodeList.size(); i++)
 		{
@@ -51,43 +44,14 @@ public class GraphCycleFinder
 				return;
 			GraphNode node = nodeList.get(i);
 			
-			List<GraphNode> validSuccessors = new ArrayList<>(); //XXX Debug-code!
+			adjacencyLists[i] = new int[node.getSuccessorNodes().length];
 			
-			for (GraphNode successor : node.getSuccessorNodes())
+			for (int j = 0; j < node.getSuccessorNodes().length; j++)
 			{
-				if (nodeList.contains(successor))
-					validSuccessors.add(successor);
-			}
-			
-			adjacencyLists[i] = new int[validSuccessors.size()];
-			
-			for (int j = 0; j < validSuccessors.size(); j++)
-			{
-				totalEdges++;
-				int successorIndex = nodeList.indexOf(validSuccessors.get(j));
+				int successorIndex = nodeList.indexOf(node.getSuccessorNodes()[j]);
 				adjacencyLists[i][j] = successorIndex;
 			}
-			
-			if (validSuccessors.size() > highestEdgeCount)
-				highestEdgeCount = validSuccessors.size();
-			
-//			adjacencyLists[i] = new int[node.getSuccessorNodes().length];
-//			
-//			for (int j = 0; j < node.getSuccessorNodes().length; j++)
-//			{
-//				totalEdges++;
-//				int successorIndex = nodeList.indexOf(node.getSuccessorNodes()[j]);
-//				adjacencyLists[i][j] = successorIndex;
-//			}
-//			
-//			if (node.getSuccessorNodes().length > highestEdgeCount)
-//				highestEdgeCount = node.getSuccessorNodes().length;
 		}
-		
-		System.out.format("Total edge count: %d\n", totalEdges);
-		System.out.format("Highest edge count: %d\n", highestEdgeCount);
-		System.out.format("Mean edge count: %.02f\n", (totalEdges / (float)nodeList.size()));
-//		System.exit(1);
 	}
 	
 	

@@ -35,7 +35,8 @@ public class Analyser
 
 	public Analyser()
 	{
-		listeners = new ArrayList<AnalysisListener>();
+		packages = new ArrayList<>();
+		listeners = new ArrayList<>();
 		createThread();
 	}
 
