@@ -7,12 +7,7 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.general.DefaultPieDataset;
-import org.jfree.data.statistics.HistogramDataset;
-import org.jfree.data.xy.DefaultIntervalXYDataset;
-import org.jfree.data.xy.IntervalXYDataset;
 
 import komposten.analyser.backend.util.FrequencyStatistic;
 import komposten.analyser.backend.util.ProportionStatistic;
@@ -56,7 +51,7 @@ public class StatisticsChartPanel extends JPanel
 				pieDataset.setValue(Integer.valueOf(i), values[i]);
 			}
 			
-			//CURRENT 2: Create a pie chart class similar to the HistogramChart to make it easier to edit.
+			//LATER StatisticsChartPanel; Create a pie chart class similar to the HistogramChart to make it easier to edit.
 			chartPanel.setChart(pieChart);
 		}
 		else if (statistic instanceof FrequencyStatistic)
@@ -69,8 +64,6 @@ public class StatisticsChartPanel extends JPanel
 			barChart.setTitle("Frequencies of lengths");
 			barChart.setAxisTitles("Length (in lines)", "Frequency");
 			chartPanel.setChart(barChart);
-			
-			//CURRENT 3: Crash when selecting a row in the table and then choosing a different package.
 		}
 		
 		chartPanel.setVisible(true);

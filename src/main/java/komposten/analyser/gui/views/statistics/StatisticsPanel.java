@@ -25,9 +25,7 @@ public class StatisticsPanel extends JSplitPane
 	
 	public StatisticsPanel(Backend backend)
 	{
-		//NEXT_TASK Clicking on e.g. the "Longest method" header or name should also draw the graph.
-		//NEXT_TASK Add a graph to the right panel, which visualises any selected row with a Statistic in.
-		//			Use embedded JavaFX chart, or JFreeChart? Advantage with JFreeChart: can be exported.
+		//CURRENT Clicking on e.g. the "Longest method" header or name should also draw the graph.
 		//NEXT_TASK Differentiate between "package statistics" and "global statistics".
 		//NEXT_TASK Support class/file statistics? (For the class panel.)
 		backend.addPropertyChangeListener(propertyListener, Backend.SELECTED_PACKAGE);
