@@ -26,7 +26,6 @@ public class StatisticsPanel extends JSplitPane
 	
 	public StatisticsPanel(Backend backend)
 	{
-		//CURRENT Clicking on e.g. the "Longest method" header or name should also draw the graph.
 		//NEXT_TASK Differentiate between "package statistics" and "global statistics".
 		//NEXT_TASK Support class/file statistics? (For the class panel.)
 		backend.addPropertyChangeListener(propertyListener, Backend.SELECTED_PACKAGE);
@@ -86,7 +85,7 @@ public class StatisticsPanel extends JSplitPane
 			if (value instanceof Statistic)
 				graphPanel.display((Statistic)value);
 			else if (value instanceof StatisticLink<?>)
-				graphPanel.display(((StatisticLink<?>)value).getTarget());
+				graphPanel.display(((StatisticLink<?>)value).getLinkTarget());
 			else
 				graphPanel.clear();
 		}

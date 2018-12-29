@@ -20,6 +20,8 @@ import java.util.regex.Pattern;
 import komposten.analyser.backend.PackageData;
 import komposten.analyser.backend.PackageProperties;
 import komposten.analyser.backend.statistics.FrequencyStatistic;
+import komposten.analyser.backend.statistics.SimpleStatisticLink;
+import komposten.analyser.backend.statistics.Statistic;
 import komposten.analyser.backend.statistics.StatisticLink;
 import komposten.analyser.backend.util.Constants;
 import komposten.analyser.backend.util.SourceUtil;
@@ -713,17 +715,17 @@ public class UnitParser implements SourceParser
 		FrequencyStatistic maxLengthStatistic = new FrequencyStatistic(unitTypeStats.max, lengths, lengthThreshold);
 		FrequencyStatistic meanLengthStatistic = new FrequencyStatistic(unitTypeStats.mean, lengths, lengthThreshold);
 		
-		PackageProperties minProperties = new PackageProperties();
-		minProperties.set("Name", new StatisticLink<String>(unitTypeStats.minName, minLengthStatistic));
+		StatisticPackageProperties minProperties = new StatisticPackageProperties(minLengthStatistic);
+		minProperties.set("Name", new SimpleStatisticLink<String>(unitTypeStats.minName, minLengthStatistic));
 		minProperties.set("Length", minLengthStatistic);
 		if (unitTypeStats.minLocation != null)
-			minProperties.set("Location", new StatisticLink<String>(unitTypeStats.minLocation, minLengthStatistic));
+			minProperties.set("Location", new SimpleStatisticLink<String>(unitTypeStats.minLocation, minLengthStatistic));
 		
-		PackageProperties maxProperties = new PackageProperties();
-		maxProperties.set("Name", new StatisticLink<String>(unitTypeStats.maxName, maxLengthStatistic));
+		StatisticPackageProperties maxProperties = new StatisticPackageProperties(maxLengthStatistic);
+		maxProperties.set("Name", new SimpleStatisticLink<String>(unitTypeStats.maxName, maxLengthStatistic));
 		maxProperties.set("Length", maxLengthStatistic);
 		if (unitTypeStats.maxLocation != null)
-			maxProperties.set("Location", new StatisticLink<String>(unitTypeStats.maxLocation, maxLengthStatistic));
+			maxProperties.set("Location", new SimpleStatisticLink<String>(unitTypeStats.maxLocation, maxLengthStatistic));
 		
 		PackageProperties properties = new PackageProperties();
 		if (includeCount)
@@ -940,6 +942,31 @@ public class UnitParser implements SourceParser
 		public BlockUnit(String name, Unit parent)
 		{
 			super(name, parent);
+		}
+	}
+	
+	
+	private static class StatisticPackageProperties extends PackageProperties implements StatisticLink<Object>
+	{
+		private Statistic target;
+		
+		public StatisticPackageProperties(Statistic target)
+		{
+			this.target = target;
+		}
+		
+		
+		@Override
+		public Object getValue()
+		{
+			return this;
+		}
+		
+		
+		@Override
+		public Statistic getLinkTarget()
+		{
+			return target;
 		}
 	}
 }

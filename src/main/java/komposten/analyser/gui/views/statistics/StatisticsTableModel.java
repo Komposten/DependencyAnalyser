@@ -43,7 +43,7 @@ public class StatisticsTableModel extends AbstractTableModel
 			
 			if (value instanceof PackageProperties)
 			{
-				rows.add(new Row(key, "", indent));
+				rows.add(new Row(key, value, indent));
 				addRows((PackageProperties)value, indent+1);
 			}
 			else

@@ -7,6 +7,7 @@
 - Graphs are now also displayed for mean unit lengths.
 - Moved all Statistic classes to a separate package.
 - Added StatisticLink so that relevant graphs can be displayed when related rows are selected (e.g. selecting the name of the longest class shows the length histogram).
+- Selecting the "Longest" and "Shortest" headers now also display the related length histograms.
 
 ==========
 2018-12-28

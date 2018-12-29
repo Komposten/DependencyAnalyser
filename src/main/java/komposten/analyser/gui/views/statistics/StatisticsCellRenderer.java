@@ -10,6 +10,7 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import komposten.analyser.backend.PackageProperties;
 import komposten.analyser.backend.statistics.Statistic;
 
 public class StatisticsCellRenderer extends DefaultTableCellRenderer
@@ -25,9 +26,16 @@ public class StatisticsCellRenderer extends DefaultTableCellRenderer
 		
 		label.setBorder(new CompoundBorder(label.getBorder(), new EmptyBorder(2, 2, 2, 2)));
 		
-		if (column == 0 && table.getValueAt(row, 1).equals(""))
+		if (table.getValueAt(row, 1) instanceof PackageProperties)
 		{
-			component.setFont(component.getFont().deriveFont(Font.BOLD));
+			if (column == 0)
+			{
+				component.setFont(component.getFont().deriveFont(Font.BOLD));
+			}
+			else
+			{
+				label.setText("");
+			}
 		}
 
 		if (table.getSelectedRow() == row)
