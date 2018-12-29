@@ -12,7 +12,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumn;
 
 import komposten.analyser.backend.PackageData;
-import komposten.analyser.backend.util.Statistic;
+import komposten.analyser.backend.statistics.Statistic;
 import komposten.analyser.gui.backend.Backend;
 import komposten.analyser.gui.backend.Backend.PropertyChangeListener;
 

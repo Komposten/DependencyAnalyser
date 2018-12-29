@@ -1,4 +1,4 @@
-package komposten.analyser.backend.util;
+package komposten.analyser.backend.statistics;
 
 import java.io.Serializable;
 

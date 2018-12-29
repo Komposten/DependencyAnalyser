@@ -5,6 +5,7 @@
 - Replaced HisogramChart's BarRenderer's GradientXYBarPainter with a StandardXYBarPainter.
 - Added a 2-width outline to HistogramChart's bars.
 - Graphs are now also displayed for mean unit lengths.
+- Moved all Statistic classes to a separate package.
 
 ==========
 2018-12-28

@@ -5,8 +5,8 @@ import java.util.List;
 import komposten.analyser.backend.Cycle;
 import komposten.analyser.backend.PackageData;
 import komposten.analyser.backend.PackageProperties;
+import komposten.analyser.backend.statistics.CycleCountStatistic;
 import komposten.analyser.backend.util.Constants;
-import komposten.analyser.backend.util.CycleCountStatistic;
 import komposten.analyser.tools.Settings;
 
 public abstract class AnalysisRunnable implements Runnable

@@ -1,4 +1,4 @@
-package komposten.analyser.backend.util;
+package komposten.analyser.backend.statistics;
 
 public class ProportionStatistic extends DoubleStatistic
 {

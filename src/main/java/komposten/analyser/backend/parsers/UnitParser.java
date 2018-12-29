@@ -19,8 +19,8 @@ import java.util.regex.Pattern;
 
 import komposten.analyser.backend.PackageData;
 import komposten.analyser.backend.PackageProperties;
+import komposten.analyser.backend.statistics.FrequencyStatistic;
 import komposten.analyser.backend.util.Constants;
-import komposten.analyser.backend.util.FrequencyStatistic;
 import komposten.analyser.backend.util.SourceUtil;
 import komposten.analyser.tools.Settings;
 import komposten.utilities.data.IntPair;

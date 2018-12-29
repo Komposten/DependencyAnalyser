@@ -10,7 +10,7 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import komposten.analyser.backend.util.Statistic;
+import komposten.analyser.backend.statistics.Statistic;
 
 public class StatisticsCellRenderer extends DefaultTableCellRenderer
 {

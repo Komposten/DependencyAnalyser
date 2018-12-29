@@ -9,9 +9,9 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.general.DefaultPieDataset;
 
-import komposten.analyser.backend.util.FrequencyStatistic;
-import komposten.analyser.backend.util.ProportionStatistic;
-import komposten.analyser.backend.util.Statistic;
+import komposten.analyser.backend.statistics.FrequencyStatistic;
+import komposten.analyser.backend.statistics.ProportionStatistic;
+import komposten.analyser.backend.statistics.Statistic;
 
 public class StatisticsChartPanel extends JPanel
 {
