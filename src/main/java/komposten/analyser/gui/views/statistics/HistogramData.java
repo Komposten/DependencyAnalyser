@@ -69,7 +69,7 @@ public class HistogramData implements Serializable
 			
 			frequencies[bin]++;
 			
-			if (highlighted == value)
+			if (highlighted == value || (highlighted > binPositions[bin]))
 				highlightedBin = bin;
 		}
 		
