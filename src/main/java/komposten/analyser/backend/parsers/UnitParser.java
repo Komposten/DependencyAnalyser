@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 import komposten.analyser.backend.PackageData;
 import komposten.analyser.backend.PackageProperties;
 import komposten.analyser.backend.statistics.FrequencyStatistic;
+import komposten.analyser.backend.statistics.StatisticLink;
 import komposten.analyser.backend.util.Constants;
 import komposten.analyser.backend.util.SourceUtil;
 import komposten.analyser.tools.Settings;
@@ -705,26 +706,29 @@ public class UnitParser implements SourceParser
 	
 	private PackageProperties createUnitSummaryProperty(UnitTypeStatistics unitTypeStats, boolean includeCount)
 	{
-		int[] lengths = unitTypeStats.lengths.stream().mapToInt((x) -> (int)x).toArray();
+		int[] lengths = unitTypeStats.lengths.stream().mapToInt((x) -> x).toArray();
 		
 		int lengthThreshold = getLengthThreshold(unitTypeStats.type);
+		FrequencyStatistic minLengthStatistic = new FrequencyStatistic(unitTypeStats.min, lengths, lengthThreshold);
+		FrequencyStatistic maxLengthStatistic = new FrequencyStatistic(unitTypeStats.max, lengths, lengthThreshold);
+		FrequencyStatistic meanLengthStatistic = new FrequencyStatistic(unitTypeStats.mean, lengths, lengthThreshold);
 		
 		PackageProperties minProperties = new PackageProperties();
-		minProperties.set("Name", unitTypeStats.minName);
-		minProperties.set("Length", new FrequencyStatistic(unitTypeStats.min, lengths, lengthThreshold));
+		minProperties.set("Name", new StatisticLink<String>(unitTypeStats.minName, minLengthStatistic));
+		minProperties.set("Length", minLengthStatistic);
 		if (unitTypeStats.minLocation != null)
-			minProperties.set("Location", unitTypeStats.minLocation);
+			minProperties.set("Location", new StatisticLink<String>(unitTypeStats.minLocation, minLengthStatistic));
 		
 		PackageProperties maxProperties = new PackageProperties();
-		maxProperties.set("Name", unitTypeStats.maxName);
-		maxProperties.set("Length", new FrequencyStatistic(unitTypeStats.max, lengths, lengthThreshold));
+		maxProperties.set("Name", new StatisticLink<String>(unitTypeStats.maxName, maxLengthStatistic));
+		maxProperties.set("Length", maxLengthStatistic);
 		if (unitTypeStats.maxLocation != null)
-			maxProperties.set("Location", unitTypeStats.maxLocation);
+			maxProperties.set("Location", new StatisticLink<String>(unitTypeStats.maxLocation, maxLengthStatistic));
 		
 		PackageProperties properties = new PackageProperties();
 		if (includeCount)
 			properties.set("Count", unitTypeStats.count);
-		properties.set("Mean length", new FrequencyStatistic(unitTypeStats.mean, lengths, lengthThreshold));
+		properties.set("Mean length", meanLengthStatistic);
 		properties.set("Shortest", minProperties);
 		properties.set("Longest", maxProperties);
 		

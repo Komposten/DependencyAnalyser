@@ -13,6 +13,7 @@ import javax.swing.table.TableColumn;
 
 import komposten.analyser.backend.PackageData;
 import komposten.analyser.backend.statistics.Statistic;
+import komposten.analyser.backend.statistics.StatisticLink;
 import komposten.analyser.gui.backend.Backend;
 import komposten.analyser.gui.backend.Backend.PropertyChangeListener;
 
@@ -84,6 +85,8 @@ public class StatisticsPanel extends JSplitPane
 			
 			if (value instanceof Statistic)
 				graphPanel.display((Statistic)value);
+			else if (value instanceof StatisticLink<?>)
+				graphPanel.display(((StatisticLink<?>)value).getTarget());
 			else
 				graphPanel.clear();
 		}
