@@ -1,4 +1,9 @@
 ==========
+2018-12-29
+==========
+- Fixed null pointer dereference in PackageList if a filter was applied before a project was loaded.
+
+==========
 2018-12-20
 ==========
 - Fixed scrolling not working with the mouse over the graph areas.
