@@ -25,7 +25,7 @@ public class StatisticsChartPanel extends JPanel
 		pieDataset = new DefaultPieDataset();
 		pieChart = ChartFactory.createPieChart(null, pieDataset);
 		barChart = HistogramChart.createChart();
-		chartPanel = new ChartPanel(pieChart, true);
+		chartPanel = new ChartPanel(null, true);
 		chartPanel.setPopupMenu(null);
 		chartPanel.setMouseZoomable(false);
 		chartPanel.removeMouseListener(chartPanel);
@@ -65,13 +65,11 @@ public class StatisticsChartPanel extends JPanel
 			barChart.setAxisTitles("Length (in lines)", "Frequency");
 			chartPanel.setChart(barChart);
 		}
-		
-		chartPanel.setVisible(true);
 	}
 	
 	
 	public void clear()
 	{
-		chartPanel.setVisible(false);
+		chartPanel.setChart(null);
 	}
 }
