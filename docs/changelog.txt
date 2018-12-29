@@ -1,4 +1,11 @@
 ==========
+2018-12-29
+==========
+- Configured the paints used by HistogramChart's BarRenderer (paint, fill paint, outline paint, and highlight paints).
+- Replaced HisogramChart's BarRenderer's GradientXYBarPainter with a StandardXYBarPainter.
+- Added a 2-width outline to HistogramChart's bars.
+
+==========
 2018-12-28
 ==========
 - Made the Statistics serialisable.
