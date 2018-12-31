@@ -1,6 +1,7 @@
 package komposten.analyser.gui.views.files;
 
 import java.awt.BorderLayout;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -150,21 +151,21 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 			String sourceClass = entry.getKey();
 			String[] targetClasses = entry.getValue();
 
-			addVertex(sourceClass, isSource, dependency.source);
+			addVertex(sourceClass, dependency.classToFileMap.get(sourceClass), isSource, dependency.source);
 			
 			for (String targetClass : targetClasses)
 			{
-				addVertex(targetClass, !isSource, dependency.target);
+				addVertex(targetClass, null, !isSource, dependency.target);
 			}
 		}
 	}
 
 
-	private void addVertex(String className, boolean isSource, PackageData packageData)
+	private void addVertex(String className, File classFile, boolean isSource, PackageData packageData)
 	{
 		if (!vertices.containsKey(className))
 		{
-			ClassVertex vertex = new ClassVertex(packageData, className, null);
+			ClassVertex vertex = new ClassVertex(packageData, className, classFile);
 			vertices.put(className, vertex);
 			
 			jGraph.getModel().beginUpdate();
@@ -540,6 +541,8 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 	@Override
 	protected void selectionChanged(Object[] newSelection)
 	{
+		List<File> selectedFiles = new ArrayList<>();
+		
 		if (newSelection.length > 0)
 		{
 			List<Object> activeCells = new ArrayList<>();
@@ -553,27 +556,41 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 				else if (cell == lane2 || cell == lane2Label)
 					lane2Selected = true;
 				else if (((mxICell)cell).isVertex())
+				{
 					activeCells.add(cell);
+					ClassVertex vertex = (ClassVertex) ((mxICell)cell).getValue();
+					selectedFiles.add(vertex.file);
+				}
 			}
 	
 			if (lane1Selected)
 			{
 				for (int i = 0; i < lane1.getChildCount(); i++)
 				{
-					activeCells.add(lane1.getChildAt(i));
+					mxICell child = lane1.getChildAt(i);
+					activeCells.add(child);
+					
+					if (child.getValue() instanceof ClassVertex)
+						selectedFiles.add(((ClassVertex)child.getValue()).file);
 				}
 			}
 			if (lane2Selected)
 			{
 				for (int i = 0; i < lane2.getChildCount(); i++)
 				{
-					activeCells.add(lane2.getChildAt(i));
+					mxICell child = lane2.getChildAt(i);
+					activeCells.add(child);
+					
+					if (child.getValue() instanceof ClassVertex)
+						selectedFiles.add(((ClassVertex)child.getValue()).file);
 				}
 			}
 			
 			setActiveCells(activeCells);
 			refreshGraph(false);
 		}
+		
+		backend.setSelectedFiles(selectedFiles.toArray(new File[selectedFiles.size()]));
 	}
 
 

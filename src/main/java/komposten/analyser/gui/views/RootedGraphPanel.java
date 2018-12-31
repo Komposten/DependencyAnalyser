@@ -1,6 +1,11 @@
 package komposten.analyser.gui.views;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.SwingUtilities;
+
+import com.mxgraph.model.mxICell;
 
 import komposten.analyser.backend.PackageData;
 import komposten.analyser.gui.backend.Backend;
@@ -56,6 +61,27 @@ public abstract class RootedGraphPanel extends GraphPanel<PackageData, Dependenc
 	{
 		rootPackage = null;
 		super.clearGraph();
+	}
+	
+	
+	protected PackageData[] getPackagesFromSelection(Object[] selection)
+	{
+		List<PackageData> packages = new ArrayList<>();
+		
+		for (Object object : selection)
+		{
+			if (((mxICell)object).isVertex())
+			{
+				PackageData data = (PackageData) ((mxICell)object).getValue();
+				packages.add(data);
+			}
+		}
+		
+		if (!packages.isEmpty())
+			return packages.toArray(new PackageData[packages.size()]);
+		else
+			return new PackageData[] { rootPackage };
+	
 	}
 	
 	

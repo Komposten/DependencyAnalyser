@@ -2,6 +2,9 @@
 2018-12-31
 ==========
 - Replaced Dependency.filesWithDependency with Dependency.classToFileMap.
+- Added setSelectedPackages() and setSelectedFiles() to Backend + event keys for these two.
+- The graphs now trigger setSelectedPackages/Files() when vertices are selected (not double-clicked).
+- The statistics panel now changes its content depending when graph vertices are (de-)selected.
 
 ==========
 2018-12-29

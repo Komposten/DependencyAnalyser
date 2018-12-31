@@ -21,7 +21,7 @@ public class StatisticsTabPanel extends JTabbedPane
 		setPreferredSize(new Dimension(getPreferredSize().width, 200));
 		setMinimumSize(new Dimension(getPreferredSize().width, 200));
 		
-		add("Project statistics", globalStatistics);
+//		add("Project statistics", globalStatistics);
 		add("Package statistics", packageStatistics);
 	}
 }

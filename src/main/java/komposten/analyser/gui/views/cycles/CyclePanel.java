@@ -83,6 +83,8 @@ public class CyclePanel extends RootedGraphPanel
 			setActiveCells(newSelection);
 			refreshGraph(false);
 		}
+		
+		backend.setSelectedPackages(getPackagesFromSelection(newSelection));
 	}
 	
 	

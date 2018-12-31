@@ -1,6 +1,7 @@
 package komposten.analyser.gui.views.statistics;
 
 import java.awt.Dimension;
+import java.io.File;
 import java.util.Enumeration;
 
 import javax.swing.JScrollPane;
@@ -12,6 +13,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumn;
 
 import komposten.analyser.backend.PackageData;
+import komposten.analyser.backend.PackageProperties;
 import komposten.analyser.backend.statistics.Statistic;
 import komposten.analyser.backend.statistics.StatisticLink;
 import komposten.analyser.gui.backend.Backend;
@@ -26,9 +28,9 @@ public class StatisticsPanel extends JSplitPane
 	
 	public StatisticsPanel(Backend backend)
 	{
+		//CURRENT 2: Add a header that clarifies what the statistics belong to (e.g. a package/class name, or "4 packages").
 		//NEXT_TASK Differentiate between "package statistics" and "global statistics".
-		//NEXT_TASK Support class/file statistics? (For the class panel.)
-		backend.addPropertyChangeListener(propertyListener, Backend.SELECTED_PACKAGE);
+		backend.addPropertyChangeListener(propertyListener, Backend.SELECTED_PACKAGE, Backend.SELECTED_PACKAGES, Backend.SELECTED_FILES);
 		
 		tableModel = new StatisticsTableModel();
 		table = new JTable(tableModel);
@@ -59,15 +61,57 @@ public class StatisticsPanel extends JSplitPane
 	
 	private PropertyChangeListener propertyListener = new PropertyChangeListener()
 	{
+		private void setTableData(PackageProperties properties)
+		{
+			int selectionIndex = table.getSelectionModel().getMinSelectionIndex();
+			tableModel.setProperties(properties);
+			if (selectionIndex != -1)
+				table.getSelectionModel().setSelectionInterval(selectionIndex, selectionIndex);
+		}
+		
+		
 		@Override
 		public void propertyChanged(String key, Object value)
 		{
-			PackageData packageData = (PackageData) value;
-			
-			int selectionIndex = table.getSelectionModel().getMinSelectionIndex();
-			tableModel.setProperties(packageData.packageProperties);
-			if (selectionIndex != -1)
-				table.getSelectionModel().setSelectionInterval(selectionIndex, selectionIndex);
+			if (key.equals(Backend.SELECTED_PACKAGE))
+			{
+				PackageData packageData = (PackageData) value;
+				
+				setTableData(packageData.packageProperties);
+			}
+			else if (key.equals(Backend.SELECTED_PACKAGES))
+			{
+				PackageData[] array = (PackageData[]) value;
+				
+				if (array.length == 1)
+				{
+					setTableData(array[0].packageProperties);
+				}
+				else
+				{
+					PackageProperties properties = new PackageProperties();
+					properties.set("Multiple packages selected", array.length);
+					setTableData(properties);
+				}
+			}
+			else if (key.equals(Backend.SELECTED_FILES))
+			{
+				File[] array = (File[]) value;
+				
+				if (array.length == 1)
+				{
+					//CURRENT Finish this part. Should somehow access the correct package and get the class stats from that.
+					PackageProperties properties = new PackageProperties();
+					properties.set("Selected file", (array[0] != null ? array[0].getName() : ""));
+					setTableData(properties);
+				}
+				else
+				{
+					PackageProperties properties = new PackageProperties();
+					properties.set("Multiple files selected", array.length);
+					setTableData(properties);
+				}
+			}
 		}
 	};
 	

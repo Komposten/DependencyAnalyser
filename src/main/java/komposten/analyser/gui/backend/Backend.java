@@ -19,6 +19,8 @@ import komposten.utilities.logging.LogUtils;
 public class Backend
 {
 	public static final String SELECTED_PACKAGE = "selectedPackage";
+	public static final String SELECTED_PACKAGES = "selectedPackages";
+	public static final String SELECTED_FILES = "selectedFiles";
 	public static final String SELECTED_UNIDIRECTIONAL_EDGE = "selectedUniEdge";
 	public static final String SELECTED_BIDIRECTIONAL_EDGE = "selectedBiEdge";
 	/**
@@ -167,6 +169,24 @@ public class Backend
 				if (!packageData.isExternal)
 					notifyListeners(SELECTED_PACKAGE, packageData);
 			}
+		}
+	}
+	
+	
+	public void setSelectedPackages(PackageData[] packageDatas)
+	{
+		if (packageDatas != null)
+		{
+			notifyListeners(SELECTED_PACKAGES, packageDatas);
+		}
+	}
+	
+	
+	public void setSelectedFiles(File[] files)
+	{
+		if (files != null)
+		{
+			notifyListeners(SELECTED_FILES, files);
 		}
 	}
 	
