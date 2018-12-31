@@ -17,7 +17,7 @@ import komposten.utilities.logging.LogUtils;
 
 public class Backend
 {
-	public static final String SELECTED_PACKAGE = "selectedPackage";
+	public static final String NEW_ACTIVE_PACKAGE = "activePackageChanged";
 	public static final String SELECTED_UNIDIRECTIONAL_EDGE = "selectedUniEdge";
 	public static final String SELECTED_BIDIRECTIONAL_EDGE = "selectedBiEdge";
 	/**
@@ -127,7 +127,7 @@ public class Backend
 	}
 	
 	
-	public void setSelectedPackage(PackageData packageData)
+	public void setActivePackage(PackageData packageData)
 	{
 		if (packageData != null)
 		{
@@ -135,7 +135,7 @@ public class Backend
 				analysePackageCycles(packageData);
 			
 			if (!packageData.isExternal)
-				notifyListeners(SELECTED_PACKAGE, packageData);
+				notifyListeners(NEW_ACTIVE_PACKAGE, packageData);
 		}
 	}
 	

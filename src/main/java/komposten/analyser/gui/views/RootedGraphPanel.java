@@ -13,7 +13,7 @@ public abstract class RootedGraphPanel extends GraphPanel<PackageData, Dependenc
 	{
 		super(backend, DependencyEdge.class);
 		
-		backend.addPropertyChangeListener(propertyChangeListener, Backend.SELECTED_PACKAGE);
+		backend.addPropertyChangeListener(propertyChangeListener, Backend.NEW_ACTIVE_PACKAGE);
 	}
 	
 	
@@ -62,7 +62,7 @@ public abstract class RootedGraphPanel extends GraphPanel<PackageData, Dependenc
 		@Override
 		public void propertyChanged(String key, Object value)
 		{
-			if (key.equals(Backend.SELECTED_PACKAGE))
+			if (key.equals(Backend.NEW_ACTIVE_PACKAGE))
 				showGraphForPackage((PackageData)value);
 		}
 	};

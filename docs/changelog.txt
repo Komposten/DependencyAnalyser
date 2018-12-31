@@ -1,4 +1,10 @@
 ==========
+2018-12-31
+==========
+- Renamed Backend.setSelectedPackage() to setActivePackage().
+- Renamed Backend.SELECTED_PACKAGE to NEW_ACTIVE_PACKAGE.
+
+==========
 2018-12-29
 ==========
 - Fixed null pointer dereference in PackageList if a filter was applied before a project was loaded.
