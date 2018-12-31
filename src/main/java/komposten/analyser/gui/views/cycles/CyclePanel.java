@@ -94,7 +94,7 @@ public class CyclePanel extends RootedGraphPanel
 		for (Dependency dependency : packageData.dependencies)
 		{
 			message.append("Files pointing to \"" + dependency.target.fullName + "\"");
-			for (File file : dependency.filesWithDependency)
+			for (File file : dependency.classToFileMap.values())
 				message.append("\n" + file.getName());
 			
 			message.append('\n');

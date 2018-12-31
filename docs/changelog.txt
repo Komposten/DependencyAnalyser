@@ -1,4 +1,9 @@
 ==========
+2018-12-31
+==========
+- Replaced Dependency.filesWithDependency with Dependency.classToFileMap.
+
+==========
 2018-12-29
 ==========
 - Configured the paints used by HistogramChart's BarRenderer (paint, fill paint, outline paint, and highlight paints).

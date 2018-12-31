@@ -38,7 +38,6 @@ class DependencyTest
 	{
 		assertEquals(source, dependency.source);
 		assertEquals(target, dependency.target);
-		assertArrayEquals(new File[0], dependency.filesWithDependency);
 		assertEquals(0, dependency.classDependencies.size());
 	}
 
@@ -56,7 +55,7 @@ class DependencyTest
 				};
 		dependency.addClass(file, references);
 		
-		assertArrayEquals(new File[] { file }, dependency.filesWithDependency);
+		assertArrayEquals(new File[] { file }, dependency.classToFileMap.values().toArray(new File[1]));
 		assertTrue(dependency.classDependencies.containsKey(classNameQualified), "the class was not added to dependency map!");
 		assertArrayEquals(references, dependency.classDependencies.get(classNameQualified));
 	}
@@ -84,7 +83,9 @@ class DependencyTest
 				};
 		dependency.addClass(file2, references);
 		
-		assertArrayEquals(new File[] { file, file2 }, dependency.filesWithDependency);
+		assertEquals(2, dependency.classToFileMap.size());
+		assertTrue(dependency.classToFileMap.containsValue(file));
+		assertTrue(dependency.classToFileMap.containsValue(file2));
 		assertTrue(dependency.classDependencies.containsKey(classNameQualified), "the class was not added to dependency map!");
 		assertArrayEquals(references, dependency.classDependencies.get(classNameQualified));
 	}

@@ -18,7 +18,7 @@ public class Dependency implements Serializable
 {
 	public PackageData target;
 	public PackageData source;
-	public File[] filesWithDependency;
+	public Map<String, File> classToFileMap;
 	public Map<String, String[]> classDependencies;
 	
 
@@ -26,22 +26,16 @@ public class Dependency implements Serializable
 	{
 		this.target = target;
 		this.source = source;
-		this.filesWithDependency = new File[0];
+		this.classToFileMap = new HashMap<>();
 		this.classDependencies = new HashMap<>();
 	}
 	
 	
 	public void addClass(File classFile, String[] classesReferenced)
 	{
-		int newLength = filesWithDependency.length + 1;
-
-		File[] newArray = Arrays.copyOf(filesWithDependency, newLength);
-		newArray[newLength-1] = classFile;
-		
-		filesWithDependency = newArray;
-		
 		String className = source.fullName + "." + FileOperations.getNameWithoutExtension(classFile);
 		classDependencies.put(className, classesReferenced);
+		classToFileMap.put(className, classFile);
 	}
 	
 	
@@ -79,16 +73,14 @@ public class Dependency implements Serializable
 		
 		if (includeDependingFiles)
 		{
-			builder.append("[");
-			for (int i = 0; i < filesWithDependency.length; i++)
+			String[] array = new String[classToFileMap.size()];
+			int i = 0;
+			for (Map.Entry<String, File> entry : classToFileMap.entrySet())
 			{
-				File file = filesWithDependency[i];
-				builder.append(file.getName());
-				
-				if (i < filesWithDependency.length-1)
-					builder.append(", ");
+				array[i] = entry.getValue().getName();
 			}
-			builder.append("]");
+			
+			builder.append(Arrays.toString(array));
 		}
 		
 		return builder.toString();
