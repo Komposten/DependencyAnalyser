@@ -3,7 +3,10 @@ package komposten.analyser.backend;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import komposten.analyser.backend.GraphCycleFinder.GraphNode;
 
@@ -16,8 +19,9 @@ public class PackageData implements GraphCycleFinder.GraphNode, Serializable, Ve
 {
 	public final File folder;
 	public final String fullName;
+
+	private Map<String, File> sourceFilesByName;
 	
-	public File[] sourceFiles;
 	public Dependency[] dependencies;
 	public boolean isExternal;
 	public boolean isInCycle;
@@ -32,16 +36,16 @@ public class PackageData implements GraphCycleFinder.GraphNode, Serializable, Ve
 	
 	public PackageData(String fullName)
 	{
-		this.fullName = fullName;
-		this.folder = null;
+		this(fullName, null, null);
 	}
 	
 	
 	public PackageData(String fullName, File folder, File[] sourceFiles)
 	{
 		this.folder = folder;
-		this.sourceFiles = sourceFiles;
 		this.fullName = fullName;
+		
+		setSourceFiles(sourceFiles);
 	}
 	
 	
@@ -53,6 +57,38 @@ public class PackageData implements GraphCycleFinder.GraphNode, Serializable, Ve
 			nodes[i] = dependencies[i].target;
 		
 		return nodes;
+	}
+	
+	
+	public File getSourceFileByName(String fileName)
+	{
+		return sourceFilesByName.get(fileName);
+	}
+	
+	
+	public void setSourceFiles(File[] sourceFiles)
+	{
+		sourceFilesByName = new HashMap<>();
+		
+		if (sourceFiles != null)
+		{
+			for (File file : sourceFiles)
+				sourceFilesByName.put(file.getName(), file);
+		}
+	}
+	
+	
+	public void setSourceFiles(Collection<File> sourceFiles)
+	{
+		sourceFilesByName = new HashMap<>();
+		for (File file : sourceFiles)
+			sourceFilesByName.put(file.getName(), file);
+	}
+	
+	
+	public Collection<File> getSourceFiles()
+	{
+		return sourceFilesByName.values();
 	}
 	
 	

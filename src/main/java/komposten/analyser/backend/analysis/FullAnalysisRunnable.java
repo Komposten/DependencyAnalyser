@@ -5,7 +5,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import komposten.analyser.backend.Cycle;
@@ -155,9 +156,10 @@ public class FullAnalysisRunnable extends AnalysisRunnable
 			{
 				PackageData original = outputList.get(outputList.indexOf(data));
 				
-				File[] files = Arrays.copyOf(original.sourceFiles, original.sourceFiles.length + data.sourceFiles.length);
-				System.arraycopy(data.sourceFiles, 0, files, original.sourceFiles.length, data.sourceFiles.length);
-				original.sourceFiles = files;
+				Collection<File> files = new LinkedList<>(original.getSourceFiles());
+				files.addAll(data.getSourceFiles());
+				
+				original.setSourceFiles(files);
 			}
 		}
 	}
