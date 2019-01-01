@@ -93,7 +93,6 @@ public class FullAnalysisRunnable extends AnalysisRunnable
 		
 		if (cycles != null)
 		{
-			System.out.println("Cycle count: " + cycles.size());
 			//NEXT_TASK Analyser's AnalysisListener should retrieve the package data from this runnable when analysisComplete() is called, before propagating the event.
 			analysisListener.analysisComplete(AnalysisType.Full);
 		}

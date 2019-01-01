@@ -99,7 +99,6 @@ public class GraphCycleFinder
 			
 			if (!cycleResult.wasAborted || resultIfAborted)
 			{
-				System.out.println("Creating cycle list!");
 				cycles = createCycleList(cycleResult.data, resultIfAborted);
 				
 				if (abort)

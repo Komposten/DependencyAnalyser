@@ -392,7 +392,6 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 		layoutEdges();
 
 		jGraph.refresh();
-		System.out.println(graphPanel.getGraph().getView().getState(lane1).getStyle());
 	}
 	
 	
