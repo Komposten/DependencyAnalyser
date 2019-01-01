@@ -82,6 +82,7 @@ public class PackageAnalyser
 		{
 			boolean lastEndedInComment = false;
 			String line = "";
+			String strippedLine = "";
 			
 			while ((line = reader.readLine()) != null)
 			{
@@ -91,13 +92,26 @@ public class PackageAnalyser
 					continue;
 				
 				StringBuilder builder = new StringBuilder(line);
-				lastEndedInComment = SourceUtil.removeComments(builder, lastEndedInComment, analyseStrings, analyseComments);
+				boolean lineEndsInComment = SourceUtil.removeComments(builder, lastEndedInComment, analyseStrings, analyseComments);
+				
+				if (!analyseComments && !analyseStrings)
+				{
+					strippedLine = builder.toString();
+				}
+				else
+				{
+					StringBuilder builder2 = new StringBuilder(line);
+					SourceUtil.removeComments(builder2, lastEndedInComment);
+					strippedLine = builder2.toString();
+				}
 				
 				line = builder.toString();
+				lastEndedInComment = lineEndsInComment;
+				
 				
 				for (SourceParser parser : parsers)
 				{
-					parser.parseLine(line);
+					parser.parseLine(line, strippedLine);
 				}
 			}
 			

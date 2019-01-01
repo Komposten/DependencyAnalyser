@@ -18,9 +18,10 @@ public interface SourceParser
 	/**
 	 * Causes the parser to parse the specified string.
 	 * 
-	 * @param line
+	 * @param line The code string to parse. May contain comments and strings.
+	 * @param strippedLine The code string to parse, with all comments and strings stripped out.
 	 */
-	public void parseLine(String line);
+	public void parseLine(String line, String strippedLine);
 
 
 	/**

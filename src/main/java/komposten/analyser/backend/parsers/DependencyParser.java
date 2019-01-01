@@ -55,7 +55,7 @@ public class DependencyParser implements SourceParser
 
 
 	@Override
-	public void parseLine(String line)
+	public void parseLine(String line, String strippedLine)
 	{
 		List<String> dependenciesOnLine = getReferencesOnLine(line);
 		
