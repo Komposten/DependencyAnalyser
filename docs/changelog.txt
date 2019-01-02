@@ -5,6 +5,9 @@
 - Updated komposten-utils to a new version to fix a potential exception in PackageData.
 - Replaced usage of "class" in Dependency and DependencyParser with "compilation unit".
 - Made StatisticLink serialisable.
+- De-selecting all packages in the DependencyPanel or CyclePanel will now reset the StatisticsPanel to the root package.
+- De-selecting all packages in the ClassPanel no longer changes the StatisticsPanel to "Multiple files selected: 0".
+- Fixed an exception when selecting the pool cell in the ClassPanel.
 
 ==========
 2019-01-01

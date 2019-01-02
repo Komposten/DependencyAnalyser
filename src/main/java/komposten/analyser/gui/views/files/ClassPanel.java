@@ -551,7 +551,9 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 			
 			for (Object cell : newSelection)
 			{
-				if (cell == lane1 || cell == lane1Label)
+				if (cell == pool)
+					lane1Selected = lane2Selected = true;
+				else if (cell == lane1 || cell == lane1Label)
 					lane1Selected = true;
 				else if (cell == lane2 || cell == lane2Label)
 					lane2Selected = true;

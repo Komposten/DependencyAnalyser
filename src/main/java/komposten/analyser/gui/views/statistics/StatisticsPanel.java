@@ -61,6 +61,8 @@ public class StatisticsPanel extends JSplitPane
 	
 	private PropertyChangeListener propertyListener = new PropertyChangeListener()
 	{
+		private PackageData lastActivePackage;
+		
 		private void setTableData(PackageProperties properties)
 		{
 			int selectionIndex = table.getSelectionModel().getMinSelectionIndex();
@@ -75,15 +77,19 @@ public class StatisticsPanel extends JSplitPane
 		{
 			if (key.equals(Backend.NEW_ACTIVE_PACKAGE))
 			{
-				PackageData packageData = (PackageData) value;
+				lastActivePackage = (PackageData) value;
 				
-				setTableData(packageData.packageProperties);
+				setTableData(lastActivePackage.packageProperties);
 			}
 			else if (key.equals(Backend.SELECTED_PACKAGES))
 			{
 				PackageData[] array = (PackageData[]) value;
 				
-				if (array.length == 1)
+				if (array.length == 0)
+				{
+					setTableData(lastActivePackage.packageProperties);
+				}
+				else if (array.length == 1)
 				{
 					setTableData(array[0].packageProperties);
 				}
@@ -105,7 +111,7 @@ public class StatisticsPanel extends JSplitPane
 					properties.set("Selected file", (array[0] != null ? array[0].getName() : ""));
 					setTableData(properties);
 				}
-				else
+				else if (array.length >= 2)
 				{
 					PackageProperties properties = new PackageProperties();
 					properties.set("Multiple files selected", array.length);
