@@ -7,6 +7,7 @@
 - Fixed an issue with a vertex in ClassPanel being selected twice if it and its lane were both selected.
 - DependencyParser is now consistent in using compilation unit names without package prefixes.
 - ClassPanel no longer displays fully qualified names for the compilation units.
+- Renamed the tab for the ClassPanel to "Compilation units" to reflect what it actually displays.
 
 ==========
 2019-01-01
