@@ -136,8 +136,6 @@ public class DependencyParser implements SourceParser
 			// (i.e. p.A points to p.B, but p.B does not point back).
 			if (targetPackage.equals(sourcePackage))
 				continue;
-
-			String[] targetClassNames = entry.getValue();
 			
 			Dependency dependency = dependenciesByTarget.get(targetPackage);
 			if (dependency == null)
@@ -155,6 +153,12 @@ public class DependencyParser implements SourceParser
 				}
 				
 				dependenciesByTarget.put(targetPackage, dependency);
+			}
+
+			String[] targetClassNames = entry.getValue();
+			for (int i = 0; i < targetClassNames.length; i++)
+			{
+				targetClassNames[i] = targetClassNames[i].substring(targetClassNames[i].lastIndexOf('.')+1);
 			}
 			
 			dependency.addReferences(sourceName, targetClassNames);

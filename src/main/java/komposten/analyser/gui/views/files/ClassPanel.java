@@ -5,10 +5,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.SwingConstants;
 
@@ -163,11 +165,12 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 
 	private void addVertex(String className, boolean isSource, PackageData packageData)
 	{
-		if (!vertices.containsKey(className))
+		String fullyQualifiedName = getFullyQualifiedName(className, packageData);
+		if (!vertices.containsKey(fullyQualifiedName))
 		{
 			File classFile = packageData.getCompilationUnitByName(className);
 			ClassVertex vertex = new ClassVertex(packageData, className, classFile);
-			vertices.put(className, vertex);
+			vertices.put(fullyQualifiedName, vertex);
 			
 			jGraph.getModel().beginUpdate();
 			try
@@ -192,6 +195,13 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 				jGraph.getModel().endUpdate();
 			}
 		}
+	}
+
+
+	private String getFullyQualifiedName(String className, PackageData packageData)
+	{
+		String fullyQualifiedName = packageData.fullName + "." + className;
+		return fullyQualifiedName;
 	}
 
 
@@ -226,10 +236,10 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 			String sourceName = entry.getKey();
 			String[] targetNames = entry.getValue();
 
-			ClassVertex sourceVertex = vertices.get(sourceName);
+			ClassVertex sourceVertex = vertices.get(getFullyQualifiedName(sourceName, dependency.source));
 			for (String targetName : targetNames)
 			{
-				ClassVertex targetVertex = vertices.get(targetName);
+				ClassVertex targetVertex = vertices.get(getFullyQualifiedName(targetName, dependency.target));
 				addEdge(sourceVertex, targetVertex);
 			}
 		}
@@ -355,7 +365,10 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 		jGraph.updateCellSize(lane1Label);
 		jGraph.updateCellSize(lane2Label);
 
-		FloatPair[] laneSizes = layoutClasses(lane1Label.getGeometry().getHeight() + 10);
+		double lane1LabelH = lane1Label.getGeometry().getHeight();
+		double lane1LabelW = lane1Label.getGeometry().getWidth();
+		double lane2LabelW = lane2Label.getGeometry().getWidth();
+		FloatPair[] laneSizes = layoutClasses(lane1LabelH + 10, lane1LabelW, lane2LabelW);
 		FloatPair lane1Size = laneSizes[0];
 		FloatPair lane2Size = laneSizes[1];
 		
@@ -397,12 +410,12 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 	}
 	
 	
-	private FloatPair[] layoutClasses(double minY)
+	private FloatPair[] layoutClasses(double minY, double minLane1Width, double minLane2Width)
 	{
 		jGraph.getModel().beginUpdate();
 		
-		double lane1Width = 0;
-		double lane2Width = 0;
+		double lane1Width = minLane1Width;
+		double lane2Width = minLane2Width;
 		double laneHeight = 0;
 		double margin = 10;
 		double spacing = 10;
@@ -545,7 +558,7 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 		
 		if (newSelection.length > 0)
 		{
-			List<Object> activeCells = new ArrayList<>();
+			Set<Object> activeCells = new HashSet<>();
 			boolean lane1Selected = false;
 			boolean lane2Selected = false;
 			

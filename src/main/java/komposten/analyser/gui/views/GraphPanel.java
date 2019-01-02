@@ -1,6 +1,7 @@
 package komposten.analyser.gui.views;
 
 import java.awt.BorderLayout;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -69,9 +70,9 @@ public abstract class GraphPanel<V extends Vertex, E extends Edge> extends JPane
 		activeCells = cells;
 	}
 	
-	protected void setActiveCells(List<Object> cless)
+	protected void setActiveCells(Collection<Object> cells)
 	{
-		setActiveCells(cless.toArray(new Object[cless.size()]));
+		setActiveCells(cells.toArray(new Object[cells.size()]));
 	}
 	
 	public Object[] getActiveCells()
