@@ -5,10 +5,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.SwingConstants;
 
@@ -543,7 +545,7 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 	{
 		if (newSelection.length > 0)
 		{
-			List<Object> activeCells = new ArrayList<>();
+			Set<Object> activeCells = new HashSet<>();
 			boolean lane1Selected = false;
 			boolean lane2Selected = false;
 			
