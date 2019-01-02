@@ -67,7 +67,7 @@ public class StatisticsPanel extends JSplitPane
 		{
 			int selectionIndex = table.getSelectionModel().getMinSelectionIndex();
 			tableModel.setProperties(properties);
-			if (selectionIndex != -1)
+			if (selectionIndex != -1 && selectionIndex < table.getRowCount())
 				table.getSelectionModel().setSelectionInterval(selectionIndex, selectionIndex);
 		}
 		

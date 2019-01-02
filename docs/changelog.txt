@@ -13,6 +13,7 @@
 - De-selecting all packages in the DependencyPanel or CyclePanel will now reset the StatisticsPanel to the root package.
 - De-selecting all packages in the ClassPanel no longer changes the StatisticsPanel to "Multiple files selected: 0".
 - Fixed an exception when selecting the pool cell in the ClassPanel.
+- Fixed an ArrayIndexOutOfBoundsException in StatisticsPanel that occurred when selecting a package with less data.
 
 ==========
 2019-01-01
