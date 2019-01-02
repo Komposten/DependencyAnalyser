@@ -365,7 +365,10 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 		jGraph.updateCellSize(lane1Label);
 		jGraph.updateCellSize(lane2Label);
 
-		FloatPair[] laneSizes = layoutClasses(lane1Label.getGeometry().getHeight() + 10);
+		double lane1LabelH = lane1Label.getGeometry().getHeight();
+		double lane1LabelW = lane1Label.getGeometry().getWidth();
+		double lane2LabelW = lane2Label.getGeometry().getWidth();
+		FloatPair[] laneSizes = layoutClasses(lane1LabelH + 10, lane1LabelW, lane2LabelW);
 		FloatPair lane1Size = laneSizes[0];
 		FloatPair lane2Size = laneSizes[1];
 		
@@ -407,12 +410,12 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 	}
 	
 	
-	private FloatPair[] layoutClasses(double minY)
+	private FloatPair[] layoutClasses(double minY, double minLane1Width, double minLane2Width)
 	{
 		jGraph.getModel().beginUpdate();
 		
-		double lane1Width = 0;
-		double lane2Width = 0;
+		double lane1Width = minLane1Width;
+		double lane2Width = minLane2Width;
 		double laneHeight = 0;
 		double margin = 10;
 		double spacing = 10;

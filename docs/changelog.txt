@@ -8,6 +8,7 @@
 - DependencyParser is now consistent in using compilation unit names without package prefixes.
 - ClassPanel no longer displays fully qualified names for the compilation units.
 - Renamed the tab for the ClassPanel to "Compilation units" to reflect what it actually displays.
+- ClassPanel's lanes now factor in their labels when calculating widths.
 
 ==========
 2019-01-01
