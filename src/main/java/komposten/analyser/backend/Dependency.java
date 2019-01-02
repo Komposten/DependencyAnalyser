@@ -1,12 +1,10 @@
 package komposten.analyser.backend;
 
-import java.io.File;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-
-import komposten.utilities.tools.FileOperations;
 
 /**
  * A class that describes a directed dependency from one package ({@link #source}) to another ({@link #target}).
@@ -18,30 +16,26 @@ public class Dependency implements Serializable
 {
 	public PackageData target;
 	public PackageData source;
-	public Map<String, File> classToFileMap;
-	public Map<String, String[]> classDependencies;
+	public Map<String, String[]> byCompilationUnit;
 	
 
 	public Dependency(PackageData target, PackageData source)
 	{
 		this.target = target;
 		this.source = source;
-		this.classToFileMap = new HashMap<>();
-		this.classDependencies = new HashMap<>();
+		this.byCompilationUnit = new HashMap<>();
 	}
 	
 	
-	public void addClass(File classFile, String[] classesReferenced)
+	public void addReferences(String sourceUnit, String[] targetUnits)
 	{
-		String className = source.fullName + "." + FileOperations.getNameWithoutExtension(classFile);
-		classDependencies.put(className, classesReferenced);
-		classToFileMap.put(className, classFile);
+		byCompilationUnit.put(sourceUnit, targetUnits);
 	}
 	
 	
 	/**
 	 * Returns a string representation of this Dependency in the following format:
-	 * <pre>target[dependingFiles]</pre>.
+	 * <pre>target[depending compilation units]</pre>.
 	 */
 	@Override
 	public String toString()
@@ -73,14 +67,16 @@ public class Dependency implements Serializable
 		
 		if (includeDependingFiles)
 		{
-			String[] array = new String[classToFileMap.size()];
-			int i = 0;
-			for (Map.Entry<String, File> entry : classToFileMap.entrySet())
+			builder.append("[");
+			List<String> units = new LinkedList<>(byCompilationUnit.keySet());
+			for (int i = 0; i < units.size(); i++)
 			{
-				array[i] = entry.getValue().getName();
+				builder.append(units.get(i));
+				
+				if (i < units.size()-1)
+					builder.append(", ");
 			}
-			
-			builder.append(Arrays.toString(array));
+			builder.append("]");
 		}
 		
 		return builder.toString();

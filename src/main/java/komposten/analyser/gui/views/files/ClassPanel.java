@@ -146,25 +146,28 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 	private void addVerticesForDependency(Dependency dependency, PackageData lane1Package)
 	{
 		boolean isSource = dependency.source == lane1Package;
-		for (Entry<String, String[]> entry : dependency.classDependencies.entrySet())
+		for (Entry<String, String[]> entry : dependency.byCompilationUnit.entrySet())
 		{
 			String sourceClass = entry.getKey();
 			String[] targetClasses = entry.getValue();
 
-			addVertex(sourceClass, dependency.classToFileMap.get(sourceClass), isSource, dependency.source);
+			addVertex(sourceClass, isSource, dependency.source);
 			
 			for (String targetClass : targetClasses)
 			{
-				addVertex(targetClass, null, !isSource, dependency.target);
+				addVertex(targetClass, !isSource, dependency.target);
 			}
 		}
 	}
 
 
-	private void addVertex(String className, File classFile, boolean isSource, PackageData packageData)
+	private void addVertex(String className, boolean isSource, PackageData packageData)
 	{
+		System.out.println(className);
+		
 		if (!vertices.containsKey(className))
 		{
+			File classFile = packageData.getCompilationUnitByName(className);
 			ClassVertex vertex = new ClassVertex(packageData, className, classFile);
 			vertices.put(className, vertex);
 			
@@ -220,15 +223,15 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 
 	private void addEdgesForDependency(Dependency dependency)
 	{
-		for (Entry<String, String[]> entry : dependency.classDependencies.entrySet())
+		for (Entry<String, String[]> entry : dependency.byCompilationUnit.entrySet())
 		{
-			String sourceClass = entry.getKey();
-			String[] targetClasses = entry.getValue();
+			String sourceName = entry.getKey();
+			String[] targetNames = entry.getValue();
 
-			ClassVertex sourceVertex = vertices.get(sourceClass);
-			for (String targetClass : targetClasses)
+			ClassVertex sourceVertex = vertices.get(sourceName);
+			for (String targetName : targetNames)
 			{
-				ClassVertex targetVertex = vertices.get(targetClass);
+				ClassVertex targetVertex = vertices.get(targetName);
 				addEdge(sourceVertex, targetVertex);
 			}
 		}
@@ -393,7 +396,6 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 		layoutEdges();
 
 		jGraph.refresh();
-		System.out.println(graphPanel.getGraph().getView().getState(lane1).getStyle());
 	}
 	
 	

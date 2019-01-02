@@ -2,7 +2,6 @@ package komposten.analyser.gui.views.cycles;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.io.File;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -96,8 +95,8 @@ public class CyclePanel extends RootedGraphPanel
 		for (Dependency dependency : packageData.dependencies)
 		{
 			message.append("Files pointing to \"" + dependency.target.fullName + "\"");
-			for (File file : dependency.classToFileMap.values())
-				message.append("\n" + file.getName());
+			for (String compilationUnit : dependency.byCompilationUnit.keySet())
+				message.append("\n" + compilationUnit);
 			
 			message.append('\n');
 			message.append('\n');

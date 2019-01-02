@@ -144,13 +144,12 @@ public class UnitParser implements SourceParser
 
 
 	@Override
-	public void parseLine(String line)
+	public void parseLine(String line, String strippedLine)
 	{
-		//NEXT_TASK 5: Require that comments and strings be removed before calling this. Maybe have that as a per-parser setting?
 		currentLineNumber++;
 		
 		int offset = fileContent.length();
-		fileContent.append(line).append("\n");
+		fileContent.append(strippedLine).append("\n");
 		bracketList.addAll(findBrackets(fileContent, offset));
 	}
 	
@@ -778,7 +777,8 @@ public class UnitParser implements SourceParser
 			{
 				StringBuilder builder = new StringBuilder(line);
 				commentOnLastLine = SourceUtil.removeComments(builder, commentOnLastLine, false, false);
-				p.parseLine(builder.toString().trim());
+				line = builder.toString().trim();
+				p.parseLine(line, line);
 			}
 			
 			p.postFile();

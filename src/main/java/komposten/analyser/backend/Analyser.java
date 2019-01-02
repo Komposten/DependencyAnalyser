@@ -101,7 +101,7 @@ public class Analyser
 		for (PackageData data : packages)
 		{
 			System.out.println(data.fullName);
-			for (File file : data.sourceFiles)
+			for (File file : data.getCompilationUnits())
 				System.out.println("--" + file.getName());
 		}
 	}

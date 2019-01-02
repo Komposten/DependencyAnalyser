@@ -50,7 +50,7 @@ public class PackageAnalyser
 		
 		createParsers();
 		
-		for (File sourceFile : packageData.sourceFiles)
+		for (File sourceFile : packageData.getCompilationUnits())
 		{
 			analyseFile(sourceFile);
 		}
@@ -85,23 +85,40 @@ public class PackageAnalyser
 		{
 			boolean lastEndedInComment = false;
 			String line = "";
+			String strippedLine = "";
 			
 			while ((line = reader.readLine()) != null)
 			{
 				lineNo++;
 				line = line.trim();
-				
+
 				if (!line.isEmpty())
 				{
 					StringBuilder builder = new StringBuilder(line);
-					lastEndedInComment = SourceUtil.removeComments(builder, lastEndedInComment, analyseStrings, analyseComments);
-					
-					line = builder.toString().trim();
+					boolean lineEndsInComment = SourceUtil.removeComments(builder, lastEndedInComment, analyseStrings, analyseComments);
+
+					if (!analyseComments && !analyseStrings)
+					{
+						strippedLine = builder.toString();
+					}
+					else
+					{
+						StringBuilder builder2 = new StringBuilder(line);
+						SourceUtil.removeComments(builder2, lastEndedInComment);
+						strippedLine = builder2.toString();
+					}
+
+					line = builder.toString();
+					lastEndedInComment = lineEndsInComment;
 				}
-				
+				else
+				{
+					strippedLine = line;
+				}
+
 				for (SourceParser parser : parsers)
 				{
-					parser.parseLine(line);
+					parser.parseLine(line, strippedLine);
 				}
 			}
 			

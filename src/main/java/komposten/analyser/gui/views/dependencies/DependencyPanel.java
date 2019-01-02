@@ -146,7 +146,7 @@ public class DependencyPanel extends RootedGraphPanel
 	@Override
 	protected void vertexDoubleClicked(PackageData packageData)
 	{
-		backend.setSelectedPackage(packageData);
+		backend.setActivePackage(packageData);
 	}
 	
 	

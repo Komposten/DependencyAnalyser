@@ -38,7 +38,7 @@ class DependencyTest
 	{
 		assertEquals(source, dependency.source);
 		assertEquals(target, dependency.target);
-		assertEquals(0, dependency.classDependencies.size());
+		assertEquals(0, dependency.byCompilationUnit.size());
 	}
 
 
@@ -46,18 +46,15 @@ class DependencyTest
 	void addClass()
 	{
 		String className = "File3_1";
-		String classNameQualified = source.fullName + "." + className;
-		File file = new File(source.folder.getPath() + "/" + className + ".jav");
 		String[] references = new String[]
 				{
 						"File4_1",
 						"File4_2"
 				};
-		dependency.addClass(file, references);
+		dependency.addReferences(className, references);
 		
-		assertArrayEquals(new File[] { file }, dependency.classToFileMap.values().toArray(new File[1]));
-		assertTrue(dependency.classDependencies.containsKey(classNameQualified), "the class was not added to dependency map!");
-		assertArrayEquals(references, dependency.classDependencies.get(classNameQualified));
+		assertTrue(dependency.byCompilationUnit.containsKey(className), "the class was not added to dependency map!");
+		assertArrayEquals(references, dependency.byCompilationUnit.get(className));
 	}
 	
 	
@@ -65,39 +62,32 @@ class DependencyTest
 	void addClass_twoClasses()
 	{
 		String className = "File3_1";
-		String classNameQualified = source.fullName + "." + className;
-		File file = new File(source.folder.getPath(), className + ".jav");
 		String[] references = new String[]
 				{
 						"File4_1",
 						"File4_2"
 				};
-		dependency.addClass(file, references);
+		dependency.addReferences(className, references);
 		
 		className = "File3_2";
-		classNameQualified = source.fullName + "." + className;
-		File file2 = new File(source.folder.getPath(), className + ".jav");
 		references = new String[]
 				{
 						"File 2_1"
 				};
-		dependency.addClass(file2, references);
+		dependency.addReferences(className, references);
 		
-		assertEquals(2, dependency.classToFileMap.size());
-		assertTrue(dependency.classToFileMap.containsValue(file));
-		assertTrue(dependency.classToFileMap.containsValue(file2));
-		assertTrue(dependency.classDependencies.containsKey(classNameQualified), "the class was not added to dependency map!");
-		assertArrayEquals(references, dependency.classDependencies.get(classNameQualified));
+		assertTrue(dependency.byCompilationUnit.containsKey(className), "the second class was not added to dependency map!");
+		assertArrayEquals(references, dependency.byCompilationUnit.get(className));
 	}
 	
 	
 	@Test
 	void toString_noArgs()
 	{
-		dependency.addClass(new File(source.folder, "File3_1.jav"), null);
+		dependency.addReferences("File3_1", null);
 		
 		String actual = dependency.toString();
-		String expected = "testpackages.package4[File3_1.jav]";
+		String expected = "testpackages.package4[File3_1]";
 		
 		assertEquals(expected, actual);
 	}
@@ -106,10 +96,10 @@ class DependencyTest
 	@Test
 	void toString_includeAll()
 	{
-		dependency.addClass(new File(source.folder, "File3_1.jav"), null);
+		dependency.addReferences("File3_1", null);
 		
 		String actual = dependency.toString(true, true, true);
-		String expected = "testpackages.package3-->testpackages.package4[File3_1.jav]";
+		String expected = "testpackages.package3-->testpackages.package4[File3_1]";
 		
 		assertEquals(expected, actual);
 	}
@@ -118,14 +108,14 @@ class DependencyTest
 	@Test
 	void toString_remainingCombinations()
 	{
-		dependency.addClass(new File(source.folder, "File3_1.jav"), null);
+		dependency.addReferences("File3_1", null);
 		
 		String actual = dependency.toString(true, true, false);
 		String expected = "testpackages.package3-->testpackages.package4";
 		assertEquals(expected, actual);
 		
 		actual = dependency.toString(true, false, true);
-		expected = "testpackages.package3[File3_1.jav]";
+		expected = "testpackages.package3[File3_1]";
 		assertEquals(expected, actual);
 		
 		actual = dependency.toString(true, false, false);
@@ -133,7 +123,7 @@ class DependencyTest
 		assertEquals(expected, actual);
 		
 		actual = dependency.toString(false, true, true);
-		expected = "testpackages.package4[File3_1.jav]";
+		expected = "testpackages.package4[File3_1]";
 		assertEquals(expected, actual);
 		
 		actual = dependency.toString(false, true, false);
@@ -141,7 +131,7 @@ class DependencyTest
 		assertEquals(expected, actual);
 		
 		actual = dependency.toString(false, false, true);
-		expected = "[File3_1.jav]";
+		expected = "[File3_1]";
 		assertEquals(expected, actual);
 		
 		actual = dependency.toString(false, false, false);

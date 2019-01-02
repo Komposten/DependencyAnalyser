@@ -1,6 +1,22 @@
 ==========
+2019-01-02
+==========
+- Replaced "sourceFiles" in PackageData.sourceFilesByName (and related methods) with "compilationUnit".
+- Updated komposten-utils to a new version to fix a potential exception in PackageData.
+- Replaced usage of "class" in Dependency and DependencyParser with "compilation unit".
+
+==========
+2019-01-01
+==========
+- Replaced PackageData.sourceFiles with PackageData.sourceFilesByName.
+- Added setSourceFiles(File[]), setSourceFiles(Collection<File>), getSourceFiles() and getSourceFileByName(String) to PackageData.
+
+==========
 2018-12-31
 ==========
+- Renamed Backend.setSelectedPackage() to setActivePackage().
+- Renamed Backend.SELECTED_PACKAGE to NEW_ACTIVE_PACKAGE.
+- Added a parameter to SourceParser.parseLine() with a string that is always stripped of comments and strings.
 - Replaced Dependency.filesWithDependency with Dependency.classToFileMap.
 - Added setSelectedPackages() and setSelectedFiles() to Backend + event keys for these two.
 - The graphs now trigger setSelectedPackages/Files() when vertices are selected (not double-clicked).

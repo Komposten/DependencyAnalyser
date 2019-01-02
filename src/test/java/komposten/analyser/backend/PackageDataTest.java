@@ -3,10 +3,16 @@ package komposten.analyser.backend;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -112,6 +118,72 @@ class PackageDataTest
 	void equals_differentClass_false()
 	{
 		assertFalse(source.equals(dependency1), "should not be equal to object of different class!");
+	}
+	
+	
+	@Nested
+	static class FileTests
+	{
+		File[] files;
+		PackageData data1;
+		PackageData data2;
+		
+		@BeforeEach
+		void setUp()
+		{
+			files = new File[]
+					{
+							new File("file1"),
+							new File("file2"),
+							new File("file3")
+					};
+			
+			data1 = new PackageData("data1");
+			data2 = new PackageData("data2", null, files);
+		}
+
+		
+		@Test
+		void getSourceFiles_noFiles_empty()
+		{
+			assertNotNull(data1.getCompilationUnits());
+			assertTrue(data1.getCompilationUnits().isEmpty());
+		}
+		
+		
+		@Test
+		void setSourceFiles_fromArray()
+		{
+			data1.setCompilationUnits(files);
+			
+			assertNotNull(data1.getCompilationUnits());
+			assertEquals(3, data1.getCompilationUnits().size());
+		}
+		
+		
+		@Test
+		void setSourceFiles_fromCollection()
+		{
+			Collection<File> fileCollection = Arrays.asList(files);
+			data1.setCompilationUnits(fileCollection);
+			
+			assertNotNull(data1.getCompilationUnits());
+			assertEquals(3, data1.getCompilationUnits().size());
+		}
+		
+		
+		@Test
+		void getSourceFileByName_existingFile()
+		{
+			assertEquals(files[1], data2.getCompilationUnitByName("file2"));
+		}
+		
+		
+		@Test
+		void getSourceFileByName_invalidFile_null()
+		{
+			assertNull(data2.getCompilationUnitByName("iDontExist"));
+		}
 	}
 	
 	

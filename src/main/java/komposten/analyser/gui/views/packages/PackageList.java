@@ -40,7 +40,7 @@ public class PackageList extends JList<PackageData>
 		this.backend = backend;
 		
 		backend.addAnalysisListener(analysisListener);
-		backend.addPropertyChangeListener(propertyChangeListener, Backend.SELECTED_PACKAGE);
+		backend.addPropertyChangeListener(propertyChangeListener, Backend.NEW_ACTIVE_PACKAGE);
 		
 		listModel = new DefaultListModel<PackageData>();
 		
@@ -59,7 +59,7 @@ public class PackageList extends JList<PackageData>
 	
 	private void notifyPackageSelected(PackageData packageData)
 	{
-		backend.setSelectedPackage(packageData);
+		backend.setActivePackage(packageData);
 	}
 	
 	
@@ -221,7 +221,7 @@ public class PackageList extends JList<PackageData>
 		@Override
 		public void propertyChanged(String key, Object value)
 		{
-			if (key.equals(Backend.SELECTED_PACKAGE))
+			if (key.equals(Backend.NEW_ACTIVE_PACKAGE))
 				SwingUtilities.invokeLater(() -> setSelectedValue(value, true));
 		}
 	};
