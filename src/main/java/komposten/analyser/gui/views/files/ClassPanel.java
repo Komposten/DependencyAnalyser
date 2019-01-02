@@ -163,8 +163,6 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 
 	private void addVertex(String className, boolean isSource, PackageData packageData)
 	{
-		System.out.println(className);
-		
 		if (!vertices.containsKey(className))
 		{
 			File classFile = packageData.getCompilationUnitByName(className);
