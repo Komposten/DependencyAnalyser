@@ -4,6 +4,7 @@
 - Replaced "sourceFiles" in PackageData.sourceFilesByName (and related methods) with "compilationUnit".
 - Updated komposten-utils to a new version to fix a potential exception in PackageData.
 - Replaced usage of "class" in Dependency and DependencyParser with "compilation unit".
+- Made StatisticLink serialisable.
 
 ==========
 2019-01-01

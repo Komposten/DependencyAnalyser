@@ -2,6 +2,8 @@ package komposten.analyser.backend.statistics;
 
 public class SimpleStatisticLink<T> implements StatisticLink<T>
 {
+	private static final long serialVersionUID = 0L;
+	
 	private T value;
 	private Statistic target;
 

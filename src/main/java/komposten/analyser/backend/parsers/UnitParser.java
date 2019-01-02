@@ -948,6 +948,8 @@ public class UnitParser implements SourceParser
 	
 	private static class StatisticPackageProperties extends PackageProperties implements StatisticLink<Object>
 	{
+		private static final long serialVersionUID = 0L;
+		
 		private Statistic target;
 		
 		public StatisticPackageProperties(Statistic target)
