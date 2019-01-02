@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import komposten.analyser.backend.GraphCycleFinder.GraphNode;
+import komposten.utilities.tools.FileOperations;
 
 /**
  * A class used by {@link Analyser} to store data about a package and its dependencies. 
@@ -20,7 +21,7 @@ public class PackageData implements GraphCycleFinder.GraphNode, Serializable, Ve
 	public final File folder;
 	public final String fullName;
 
-	private Map<String, File> sourceFilesByName;
+	private Map<String, File> compilationUnitsByName;
 	
 	public Dependency[] dependencies;
 	public boolean isExternal;
@@ -45,7 +46,7 @@ public class PackageData implements GraphCycleFinder.GraphNode, Serializable, Ve
 		this.folder = folder;
 		this.fullName = fullName;
 		
-		setSourceFiles(sourceFiles);
+		setCompilationUnits(sourceFiles);
 	}
 	
 	
@@ -60,35 +61,50 @@ public class PackageData implements GraphCycleFinder.GraphNode, Serializable, Ve
 	}
 	
 	
-	public File getSourceFileByName(String fileName)
+	public File getCompilationUnitByName(String name)
 	{
-		return sourceFilesByName.get(fileName);
+		return compilationUnitsByName.get(name);
 	}
 	
 	
-	public void setSourceFiles(File[] sourceFiles)
+	public void setCompilationUnits(File[] sourceFiles)
 	{
-		sourceFilesByName = new HashMap<>();
+		compilationUnitsByName = new HashMap<>();
 		
 		if (sourceFiles != null)
 		{
 			for (File file : sourceFiles)
-				sourceFilesByName.put(file.getName(), file);
+			{
+				addCompilationUnit(file);
+			}
 		}
 	}
 	
 	
-	public void setSourceFiles(Collection<File> sourceFiles)
+	public void setCompilationUnits(Collection<File> sourceFiles)
 	{
-		sourceFilesByName = new HashMap<>();
-		for (File file : sourceFiles)
-			sourceFilesByName.put(file.getName(), file);
+		compilationUnitsByName = new HashMap<>();
+		
+		if (sourceFiles != null)
+		{
+			for (File file : sourceFiles)
+			{
+				addCompilationUnit(file);
+			}
+		}
+	}
+
+
+	private void addCompilationUnit(File file)
+	{
+		String unitName = FileOperations.getNameWithoutExtension(file, true);
+		compilationUnitsByName.put(unitName, file);
 	}
 	
 	
-	public Collection<File> getSourceFiles()
+	public Collection<File> getCompilationUnits()
 	{
-		return sourceFilesByName.values();
+		return compilationUnitsByName.values();
 	}
 	
 	

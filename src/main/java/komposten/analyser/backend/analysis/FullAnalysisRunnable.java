@@ -155,10 +155,10 @@ public class FullAnalysisRunnable extends AnalysisRunnable
 			{
 				PackageData original = outputList.get(outputList.indexOf(data));
 				
-				Collection<File> files = new LinkedList<>(original.getSourceFiles());
-				files.addAll(data.getSourceFiles());
+				Collection<File> files = new LinkedList<>(original.getCompilationUnits());
+				files.addAll(data.getCompilationUnits());
 				
-				original.setSourceFiles(files);
+				original.setCompilationUnits(files);
 			}
 		}
 	}

@@ -50,7 +50,7 @@ public class PackageAnalyser
 		
 		createParsers();
 		
-		for (File sourceFile : packageData.getSourceFiles())
+		for (File sourceFile : packageData.getCompilationUnits())
 		{
 			analyseFile(sourceFile);
 		}

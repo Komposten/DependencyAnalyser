@@ -146,18 +146,18 @@ class PackageDataTest
 		@Test
 		void getSourceFiles_noFiles_empty()
 		{
-			assertNotNull(data1.getSourceFiles());
-			assertTrue(data1.getSourceFiles().isEmpty());
+			assertNotNull(data1.getCompilationUnits());
+			assertTrue(data1.getCompilationUnits().isEmpty());
 		}
 		
 		
 		@Test
 		void setSourceFiles_fromArray()
 		{
-			data1.setSourceFiles(files);
+			data1.setCompilationUnits(files);
 			
-			assertNotNull(data1.getSourceFiles());
-			assertEquals(3, data1.getSourceFiles().size());
+			assertNotNull(data1.getCompilationUnits());
+			assertEquals(3, data1.getCompilationUnits().size());
 		}
 		
 		
@@ -165,24 +165,24 @@ class PackageDataTest
 		void setSourceFiles_fromCollection()
 		{
 			Collection<File> fileCollection = Arrays.asList(files);
-			data1.setSourceFiles(fileCollection);
+			data1.setCompilationUnits(fileCollection);
 			
-			assertNotNull(data1.getSourceFiles());
-			assertEquals(3, data1.getSourceFiles().size());
+			assertNotNull(data1.getCompilationUnits());
+			assertEquals(3, data1.getCompilationUnits().size());
 		}
 		
 		
 		@Test
 		void getSourceFileByName_existingFile()
 		{
-			assertEquals(files[1], data2.getSourceFileByName("file2"));
+			assertEquals(files[1], data2.getCompilationUnitByName("file2"));
 		}
 		
 		
 		@Test
 		void getSourceFileByName_invalidFile_null()
 		{
-			assertNull(data2.getSourceFileByName("iDontExist"));
+			assertNull(data2.getCompilationUnitByName("iDontExist"));
 		}
 	}
 	

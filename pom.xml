@@ -27,7 +27,7 @@
 		<dependency>
 			<groupId>komposten.utilities</groupId>
 			<artifactId>utilities</artifactId>
-			<version>20181106</version>
+			<version>20190102</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jgrapht</groupId>

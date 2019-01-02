@@ -1,4 +1,10 @@
 ==========
+2019-01-02
+==========
+- Replaced "sourceFiles" in PackageData.sourceFilesByName (and related methods) with "compilationUnit".
+- Updated komposten-utils to a new version to fix a potential exception in PackageData.
+
+==========
 2019-01-01
 ==========
 - Replaced PackageData.sourceFiles with PackageData.sourceFilesByName.
