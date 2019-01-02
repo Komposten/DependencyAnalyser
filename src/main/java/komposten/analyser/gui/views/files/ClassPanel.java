@@ -165,11 +165,12 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 
 	private void addVertex(String className, boolean isSource, PackageData packageData)
 	{
-		if (!vertices.containsKey(className))
+		String fullyQualifiedName = getFullyQualifiedName(className, packageData);
+		if (!vertices.containsKey(fullyQualifiedName))
 		{
 			File classFile = packageData.getCompilationUnitByName(className);
 			ClassVertex vertex = new ClassVertex(packageData, className, classFile);
-			vertices.put(className, vertex);
+			vertices.put(fullyQualifiedName, vertex);
 			
 			jGraph.getModel().beginUpdate();
 			try
@@ -194,6 +195,13 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 				jGraph.getModel().endUpdate();
 			}
 		}
+	}
+
+
+	private String getFullyQualifiedName(String className, PackageData packageData)
+	{
+		String fullyQualifiedName = packageData.fullName + "." + className;
+		return fullyQualifiedName;
 	}
 
 
@@ -228,10 +236,10 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 			String sourceName = entry.getKey();
 			String[] targetNames = entry.getValue();
 
-			ClassVertex sourceVertex = vertices.get(sourceName);
+			ClassVertex sourceVertex = vertices.get(getFullyQualifiedName(sourceName, dependency.source));
 			for (String targetName : targetNames)
 			{
-				ClassVertex targetVertex = vertices.get(targetName);
+				ClassVertex targetVertex = vertices.get(getFullyQualifiedName(targetName, dependency.target));
 				addEdge(sourceVertex, targetVertex);
 			}
 		}

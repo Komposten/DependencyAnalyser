@@ -5,6 +5,8 @@
 - Updated komposten-utils to a new version to fix a potential exception in PackageData.
 - Replaced usage of "class" in Dependency and DependencyParser with "compilation unit".
 - Fixed an issue with a vertex in ClassPanel being selected twice if it and its lane were both selected.
+- DependencyParser is now consistent in using compilation unit names without package prefixes.
+- ClassPanel no longer displays fully qualified names for the compilation units.
 
 ==========
 2019-01-01
