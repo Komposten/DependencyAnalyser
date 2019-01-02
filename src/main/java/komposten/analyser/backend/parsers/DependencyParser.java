@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 
 import komposten.analyser.backend.Dependency;
 import komposten.analyser.backend.PackageData;
+import komposten.utilities.tools.FileOperations;
 
 public class DependencyParser implements SourceParser
 {
@@ -122,10 +123,11 @@ public class DependencyParser implements SourceParser
 	private Collection<Dependency> createDependenciesFromReferences(Map<String, String[]> referencesByPackage)
 	{
 		Map<PackageData, Dependency> dependenciesByTarget = new HashMap<>();
+		String sourceName = FileOperations.getNameWithoutExtension(sourceFile, true);
+		
 		for (Entry<String, String[]> entry : referencesByPackage.entrySet())
 		{
 			String targetPackageName = entry.getKey();
-			String[] targetClassNames = entry.getValue();
 			PackageData targetPackage = getPackageDataFromName(targetPackageName);
 
 			// Skip self-references (i.e. loops) since they are misleading.
@@ -134,6 +136,8 @@ public class DependencyParser implements SourceParser
 			// (i.e. p.A points to p.B, but p.B does not point back).
 			if (targetPackage.equals(sourcePackage))
 				continue;
+
+			String[] targetClassNames = entry.getValue();
 			
 			Dependency dependency = dependenciesByTarget.get(targetPackage);
 			if (dependency == null)
@@ -153,7 +157,7 @@ public class DependencyParser implements SourceParser
 				dependenciesByTarget.put(targetPackage, dependency);
 			}
 			
-			dependency.addClass(sourceFile, targetClassNames);
+			dependency.addReferences(sourceName, targetClassNames);
 		}
 		
 		return dependenciesByTarget.values();

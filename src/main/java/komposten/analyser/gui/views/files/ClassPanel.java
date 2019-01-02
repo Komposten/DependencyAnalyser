@@ -1,6 +1,7 @@
 package komposten.analyser.gui.views.files;
 
 import java.awt.BorderLayout;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -145,7 +146,7 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 	private void addVerticesForDependency(Dependency dependency, PackageData lane1Package)
 	{
 		boolean isSource = dependency.source == lane1Package;
-		for (Entry<String, String[]> entry : dependency.classDependencies.entrySet())
+		for (Entry<String, String[]> entry : dependency.byCompilationUnit.entrySet())
 		{
 			String sourceClass = entry.getKey();
 			String[] targetClasses = entry.getValue();
@@ -162,9 +163,12 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 
 	private void addVertex(String className, boolean isSource, PackageData packageData)
 	{
+		System.out.println(className);
+		
 		if (!vertices.containsKey(className))
 		{
-			ClassVertex vertex = new ClassVertex(packageData, className, null);
+			File classFile = packageData.getCompilationUnitByName(className);
+			ClassVertex vertex = new ClassVertex(packageData, className, classFile);
 			vertices.put(className, vertex);
 			
 			jGraph.getModel().beginUpdate();
@@ -219,15 +223,15 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 
 	private void addEdgesForDependency(Dependency dependency)
 	{
-		for (Entry<String, String[]> entry : dependency.classDependencies.entrySet())
+		for (Entry<String, String[]> entry : dependency.byCompilationUnit.entrySet())
 		{
-			String sourceClass = entry.getKey();
-			String[] targetClasses = entry.getValue();
+			String sourceName = entry.getKey();
+			String[] targetNames = entry.getValue();
 
-			ClassVertex sourceVertex = vertices.get(sourceClass);
-			for (String targetClass : targetClasses)
+			ClassVertex sourceVertex = vertices.get(sourceName);
+			for (String targetName : targetNames)
 			{
-				ClassVertex targetVertex = vertices.get(targetClass);
+				ClassVertex targetVertex = vertices.get(targetName);
 				addEdge(sourceVertex, targetVertex);
 			}
 		}

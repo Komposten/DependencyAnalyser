@@ -1,12 +1,10 @@
 package komposten.analyser.backend;
 
-import java.io.File;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-
-import komposten.utilities.tools.FileOperations;
 
 /**
  * A class that describes a directed dependency from one package ({@link #source}) to another ({@link #target}).
@@ -18,36 +16,26 @@ public class Dependency implements Serializable
 {
 	public PackageData target;
 	public PackageData source;
-	public File[] filesWithDependency;
-	public Map<String, String[]> classDependencies;
+	public Map<String, String[]> byCompilationUnit;
 	
 
 	public Dependency(PackageData target, PackageData source)
 	{
 		this.target = target;
 		this.source = source;
-		this.filesWithDependency = new File[0];
-		this.classDependencies = new HashMap<>();
+		this.byCompilationUnit = new HashMap<>();
 	}
 	
 	
-	public void addClass(File classFile, String[] classesReferenced)
+	public void addReferences(String sourceUnit, String[] targetUnits)
 	{
-		int newLength = filesWithDependency.length + 1;
-
-		File[] newArray = Arrays.copyOf(filesWithDependency, newLength);
-		newArray[newLength-1] = classFile;
-		
-		filesWithDependency = newArray;
-		
-		String className = source.fullName + "." + FileOperations.getNameWithoutExtension(classFile);
-		classDependencies.put(className, classesReferenced);
+		byCompilationUnit.put(sourceUnit, targetUnits);
 	}
 	
 	
 	/**
 	 * Returns a string representation of this Dependency in the following format:
-	 * <pre>target[dependingFiles]</pre>.
+	 * <pre>target[depending compilation units]</pre>.
 	 */
 	@Override
 	public String toString()
@@ -80,12 +68,12 @@ public class Dependency implements Serializable
 		if (includeDependingFiles)
 		{
 			builder.append("[");
-			for (int i = 0; i < filesWithDependency.length; i++)
+			List<String> units = new LinkedList<>(byCompilationUnit.keySet());
+			for (int i = 0; i < units.size(); i++)
 			{
-				File file = filesWithDependency[i];
-				builder.append(file.getName());
+				builder.append(units.get(i));
 				
-				if (i < filesWithDependency.length-1)
+				if (i < units.size()-1)
 					builder.append(", ");
 			}
 			builder.append("]");
