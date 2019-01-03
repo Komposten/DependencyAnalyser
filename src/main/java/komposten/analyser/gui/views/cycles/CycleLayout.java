@@ -43,6 +43,7 @@ public class CycleLayout extends mxCircleLayout
 		}
 		
 		resolveOverlaps(vertices, vertexBodies, left + r, top + r);
+		ensurePositiveCoordinatesForAllCells(vertexBodies);
 	}
 
 
@@ -75,8 +76,6 @@ public class CycleLayout extends mxCircleLayout
 				}
 			}
 		}
-		
-		ensurePositiveCoordinatesForAllCells(vertexBodies);
 	}
 
 
@@ -114,8 +113,9 @@ public class CycleLayout extends mxCircleLayout
 			lowestY = Math.min(mxRectangle.getY(), lowestY);
 		}
 		
+		Object[] oldSelection = graph.getSelectionCells();
 		graph.selectAll();
 		graph.moveCells(graph.getSelectionCells(), lowestX < 0 ? -lowestX : 0, lowestY < 0 ? -lowestY : 0);
-		graph.clearSelection();
+		graph.setSelectionCells(oldSelection);
 	}
 }

@@ -1,6 +1,7 @@
 ==========
 2019-01-03
 ==========
+- Fixed CycleLayout clearing the selection when run.
 - Fixed a null pointer dereference when selecting a package in a graph and then changing active package.
 
 ==========
