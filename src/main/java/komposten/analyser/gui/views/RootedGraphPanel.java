@@ -79,9 +79,10 @@ public abstract class RootedGraphPanel extends GraphPanel<PackageData, Dependenc
 		
 		if (!packages.isEmpty())
 			return packages.toArray(new PackageData[packages.size()]);
-		else
+		else if (rootPackage != null)
 			return new PackageData[] { rootPackage };
-	
+		else
+			return new PackageData[0];
 	}
 	
 	
