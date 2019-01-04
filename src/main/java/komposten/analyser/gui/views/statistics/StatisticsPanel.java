@@ -70,6 +70,14 @@ public class StatisticsPanel extends JSplitPane
 			if (selectionIndex != -1 && selectionIndex < table.getRowCount())
 				table.getSelectionModel().setSelectionInterval(selectionIndex, selectionIndex);
 		}
+
+
+		private void setTableData(String label, Object value)
+		{
+			PackageProperties properties = new PackageProperties();
+			properties.set(label, value);
+			setTableData(properties);
+		}
 		
 		
 		@Override
@@ -91,13 +99,18 @@ public class StatisticsPanel extends JSplitPane
 				}
 				else if (array.length == 1)
 				{
-					setTableData(array[0].packageProperties);
+					if (!array[0].isExternal)
+					{
+						setTableData(array[0].packageProperties);
+					}
+					else
+					{
+						setTableData("External package", array[0].fullName);
+					}
 				}
 				else
 				{
-					PackageProperties properties = new PackageProperties();
-					properties.set("Multiple packages selected", array.length);
-					setTableData(properties);
+					setTableData("Multiple packages selected", array.length);
 				}
 			}
 			else if (key.equals(Backend.SELECTED_COMPILATION_UNITS))
@@ -108,25 +121,29 @@ public class StatisticsPanel extends JSplitPane
 				{
 					String unitName = (String) array[0][0];
 					PackageData unitPackage = (PackageData) array[0][1];
-					File unitFile = unitPackage.getCompilationUnitByName(unitName);
-					PackageProperties unitProperties = unitPackage.fileProperties.get(unitFile);
 					
-					if (unitProperties != null)
+					if (!unitPackage.isExternal)
 					{
-						setTableData(unitProperties);
+						File unitFile = unitPackage.getCompilationUnitByName(unitName);
+						PackageProperties unitProperties = unitPackage.fileProperties.get(unitFile);
+						
+						if (unitProperties != null)
+						{
+							setTableData(unitProperties);
+						}
+						else
+						{
+							setTableData("No data for unit", array[0][0]);
+						}
 					}
 					else
 					{
-						PackageProperties properties = new PackageProperties();
-						properties.set("No data for unit", array[0][0]);
-						setTableData(properties);
+						setTableData("External unit", array[0][0]);
 					}
 				}
 				else if (array.length >= 2)
 				{
-					PackageProperties properties = new PackageProperties();
-					properties.set("Multiple units selected", array.length);
-					setTableData(properties);
+					setTableData("Multiple units selected", array.length);
 				}
 			}
 		}

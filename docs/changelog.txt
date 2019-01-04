@@ -6,6 +6,7 @@
 - Backend.setSelectedCompilationUnits() now takes an array of String-PackageData pairs.
 - StatisticsPanel now displays the statistics for selected compilation units.
 - Added documentation for Backend.SELECTED_PACKAGES and Backend.SELECTED_COMPILATION_UNITS.
+- StatisticsPanel now displays "External unit/package" if an external unit or package is selected.
 
 ==========
 2019-01-03
