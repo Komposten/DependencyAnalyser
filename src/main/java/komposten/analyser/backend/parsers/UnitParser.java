@@ -571,7 +571,7 @@ public class UnitParser implements SourceParser
 		
 		properties.set("File stats", createUnitSummaryProperty(fileStats, true));
 		properties.set("Class stats", createUnitSummaryProperty(classStats, true));
-		properties.set("Method stats", createUnitSummaryProperty(methodStats, false));
+		properties.set("Method stats", createUnitSummaryProperty(methodStats, true));
 		
 		return properties;
 	}
@@ -587,7 +587,7 @@ public class UnitParser implements SourceParser
 		PackageProperties properties = new PackageProperties();
 		properties.set("File length", fileUnit.endLine - fileUnit.startLine + 1);
 		properties.set("Class stats", createUnitSummaryProperty(classStats, true));
-		properties.set("Method stats", createUnitSummaryProperty(methodStats, false));
+		properties.set("Method stats", createUnitSummaryProperty(methodStats, true));
 		
 		return properties;
 	}
