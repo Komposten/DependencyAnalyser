@@ -10,6 +10,7 @@ public class HistogramData implements Serializable
 	private int bins;
 	private double[] xValues;
 	private int[] yValues;
+	private int maxYValue;
 	private double binWidth;
 	private int highlightedXValue;
 
@@ -35,19 +36,26 @@ public class HistogramData implements Serializable
 	
 	public void setData(int[] values, int highlighted)
 	{
+		clear();
+		
 		if (values.length == 0)
 		{
-			clear();
 			return;
 		}
 		
 		Arrays.sort(values);
 		
-		int min = values[0];
-		int max = values[values.length-1];
-		int span = max-min;
+		double min = values[0];
+		int span = values[values.length-1]-values[0]; //Not using max-min here to avoid rounding errors.
 		
+		int bins = this.bins;
 		double binW = span/(double)bins;
+		
+		if (span == 0)
+		{
+			binW = 1;
+			min = min + binW/2 - (binW*bins)/2;
+		}
 		
 		double[] binPositions = new double[bins];
 		
@@ -69,6 +77,9 @@ public class HistogramData implements Serializable
 			
 			frequencies[bin]++;
 			
+			if (frequencies[bin] > maxYValue)
+				maxYValue = frequencies[bin];
+			
 			if (highlighted == value || (highlighted > binPositions[bin]))
 				highlightedBin = bin;
 		}
@@ -84,6 +95,7 @@ public class HistogramData implements Serializable
 	{
 		xValues = new double[0];
 		yValues = new int[0];
+		maxYValue = 0;
 		highlightedXValue = 0;
 		binWidth = 0;
 	}
@@ -95,9 +107,33 @@ public class HistogramData implements Serializable
 	}
 	
 	
+	public double getMinXValue()
+	{
+		return xValues[0];
+	}
+	
+	
+	public double getMaxXValue()
+	{
+		return xValues[xValues.length-1] + binWidth;
+	}
+	
+	
 	public int[] getYValues()
 	{
 		return yValues;
+	}
+	
+	
+	public double getMinYValue()
+	{
+		return 0;
+	}
+	
+	
+	public double getMaxYValue()
+	{
+		return maxYValue;
 	}
 	
 	

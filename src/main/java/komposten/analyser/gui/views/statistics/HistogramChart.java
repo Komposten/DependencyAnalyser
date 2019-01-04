@@ -55,6 +55,20 @@ public class HistogramChart extends JFreeChart
 	public void setData(HistogramData data)
 	{
 		dataset.addSeries("data", data);
+		
+		double startX = dataset.getStartX().doubleValue();
+		double endX = dataset.getEndX().doubleValue();
+		double minY = dataset.getMinY().doubleValue();
+		double maxY = dataset.getMaxY().doubleValue();
+		
+		double xRange = endX - startX;
+		
+		plot.getDomainAxis().setLowerBound(startX - xRange * 0.05);
+		plot.getDomainAxis().setUpperBound(endX + xRange * 0.05);
+		plot.getRangeAxis().setLowerBound(minY);
+		plot.getRangeAxis().setUpperBound(maxY * 1.05);
+		
+		fireChartChanged();
 	}
 	
 	
@@ -72,6 +86,16 @@ public class HistogramChart extends JFreeChart
 		private Map<Comparable<?>, Integer> seriesIndices = new HashMap<>();
 		private Map<Integer, Comparable<?>> seriesKeys = new HashMap<>();
 		private List<HistogramData> dataSeries = new ArrayList<>();
+		
+		private double startX;
+		private double endX;
+		private double minY;
+		private double maxY;
+		
+		
+		{
+			recalculateRangeValues();
+		}
 
 
 		/**
@@ -87,13 +111,44 @@ public class HistogramChart extends JFreeChart
 				seriesIndices.put(key, dataSeries.size());
 				seriesKeys.put(dataSeries.size(), key);
 				dataSeries.add(data);
+
+				updateRangeValuesFromData(data);
 			}
 			else
 			{
 				dataSeries.set(index, data);
+				
+				recalculateRangeValues();
 			}
 
 			fireDatasetChanged();
+		}
+
+
+		private void recalculateRangeValues()
+		{
+			startX = Double.POSITIVE_INFINITY;
+			endX = Double.NEGATIVE_INFINITY;
+			minY = Double.POSITIVE_INFINITY;
+			maxY = Double.NEGATIVE_INFINITY;
+			
+			for (HistogramData data : dataSeries)
+			{
+				updateRangeValuesFromData(data);
+			}
+		}
+
+
+		private void updateRangeValuesFromData(HistogramData data)
+		{
+			if (data.getMinXValue() < startX)
+				startX = data.getMinXValue();
+			if (data.getMaxXValue() > endX)
+				endX = data.getMaxXValue();
+			if (data.getMinYValue() < minY)
+				minY = data.getMinYValue();
+			if (data.getMaxYValue() > maxY)
+				maxY = data.getMaxYValue();
 		}
 
 
@@ -109,6 +164,18 @@ public class HistogramChart extends JFreeChart
 		{
 			return seriesKeys.get(series);
 		}
+		
+		
+		public Number getStartX()
+		{
+			return startX;
+		}
+		
+		
+		public Number getEndX()
+		{
+			return endX;
+		}
 
 
 		@Override
@@ -116,7 +183,19 @@ public class HistogramChart extends JFreeChart
 		{
 			return dataSeries.get(series).getXValues()[item];
 		}
-
+		
+		
+		public Number getMinY()
+		{
+			return minY;
+		}
+		
+		
+		public Number getMaxY()
+		{
+			return maxY;
+		}
+		
 
 		@Override
 		public Number getEndX(int series, int item)
