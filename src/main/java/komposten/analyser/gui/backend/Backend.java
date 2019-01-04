@@ -19,7 +19,18 @@ import komposten.utilities.logging.LogUtils;
 public class Backend
 {
 	public static final String NEW_ACTIVE_PACKAGE = "activePackageChanged";
+	/**
+	 * Triggered when one or more packages are selected in a graph displaying
+	 * packages.<br />
+	 * The event value is an array of {@link PackageData} objects.
+	 */
 	public static final String SELECTED_PACKAGES = "selectedPackages";
+	/**
+	 * Triggered when one or more compilation units are selected in a graph
+	 * displaying compilation units.<br />
+	 * The event value is an array of String-PackageData pairs (as 2-length
+	 * Object arrays).
+	 */
 	public static final String SELECTED_COMPILATION_UNITS = "selectedFiles";
 	public static final String SELECTED_UNIDIRECTIONAL_EDGE = "selectedUniEdge";
 	public static final String SELECTED_BIDIRECTIONAL_EDGE = "selectedBiEdge";
