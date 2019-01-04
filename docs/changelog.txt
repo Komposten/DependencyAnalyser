@@ -7,6 +7,7 @@
 - StatisticsPanel now displays the statistics for selected compilation units.
 - Added documentation for Backend.SELECTED_PACKAGES and Backend.SELECTED_COMPILATION_UNITS.
 - StatisticsPanel now displays "External unit/package" if an external unit or package is selected.
+- UnitParser now adds "Count: 0" instead of mean, min and max data for missing unit types.
 
 ==========
 2019-01-03

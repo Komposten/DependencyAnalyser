@@ -707,6 +707,17 @@ public class UnitParser implements SourceParser
 	
 	private PackageProperties createUnitSummaryProperty(UnitTypeStatistics unitTypeStats, boolean includeCount)
 	{
+		PackageProperties properties = new PackageProperties();
+		
+		if (unitTypeStats.minName == null && unitTypeStats.maxName == null)
+		{
+			properties.set("Count", 0);
+			return properties;
+		}
+
+		if (includeCount)
+			properties.set("Count", unitTypeStats.count);
+		
 		int[] lengths = unitTypeStats.lengths.stream().mapToInt((x) -> x).toArray();
 		
 		int lengthThreshold = getLengthThreshold(unitTypeStats.type);
@@ -726,9 +737,6 @@ public class UnitParser implements SourceParser
 		if (unitTypeStats.maxLocation != null)
 			maxProperties.set("Location", new SimpleStatisticLink<String>(unitTypeStats.maxLocation, maxLengthStatistic));
 		
-		PackageProperties properties = new PackageProperties();
-		if (includeCount)
-			properties.set("Count", unitTypeStats.count);
 		properties.set("Mean length", meanLengthStatistic);
 		properties.set("Shortest", minProperties);
 		properties.set("Longest", maxProperties);
