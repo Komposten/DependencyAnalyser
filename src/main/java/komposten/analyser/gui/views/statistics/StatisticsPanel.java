@@ -30,7 +30,7 @@ public class StatisticsPanel extends JSplitPane
 	{
 		//CURRENT 2: Add a header that clarifies what the statistics belong to (e.g. a package/class name, or "4 packages").
 		//NEXT_TASK Differentiate between "package statistics" and "global statistics".
-		backend.addPropertyChangeListener(propertyListener, Backend.NEW_ACTIVE_PACKAGE, Backend.SELECTED_PACKAGES, Backend.SELECTED_FILES);
+		backend.addPropertyChangeListener(propertyListener, Backend.NEW_ACTIVE_PACKAGE, Backend.SELECTED_PACKAGES, Backend.SELECTED_COMPILATION_UNITS);
 		
 		tableModel = new StatisticsTableModel();
 		table = new JTable(tableModel);
@@ -100,7 +100,7 @@ public class StatisticsPanel extends JSplitPane
 					setTableData(properties);
 				}
 			}
-			else if (key.equals(Backend.SELECTED_FILES))
+			else if (key.equals(Backend.SELECTED_COMPILATION_UNITS))
 			{
 				File[] array = (File[]) value;
 				

@@ -1,4 +1,10 @@
 ==========
+2019-01-04
+==========
+- Renamed Backend.setSelectedFiles() to setSelectedCompilationUnits.
+- Renamed Backend.SELECTED_FILES to SELECTED_COMPILATION_UNITS.
+
+==========
 2019-01-03
 ==========
 - Fixed CycleLayout clearing the selection when run.

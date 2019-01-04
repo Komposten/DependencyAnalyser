@@ -20,7 +20,7 @@ public class Backend
 {
 	public static final String NEW_ACTIVE_PACKAGE = "activePackageChanged";
 	public static final String SELECTED_PACKAGES = "selectedPackages";
-	public static final String SELECTED_FILES = "selectedFiles";
+	public static final String SELECTED_COMPILATION_UNITS = "selectedFiles";
 	public static final String SELECTED_UNIDIRECTIONAL_EDGE = "selectedUniEdge";
 	public static final String SELECTED_BIDIRECTIONAL_EDGE = "selectedBiEdge";
 	/**
@@ -182,11 +182,11 @@ public class Backend
 	}
 	
 	
-	public void setSelectedFiles(File[] files)
+	public void setSelectedCompilationUnits(File[] files)
 	{
 		if (files != null)
 		{
-			notifyListeners(SELECTED_FILES, files);
+			notifyListeners(SELECTED_COMPILATION_UNITS, files);
 		}
 	}
 	

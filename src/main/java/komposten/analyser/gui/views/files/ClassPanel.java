@@ -605,7 +605,7 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 			refreshGraph(false);
 		}
 		
-		backend.setSelectedFiles(selectedFiles.toArray(new File[selectedFiles.size()]));
+		backend.setSelectedCompilationUnits(selectedFiles.toArray(new File[selectedFiles.size()]));
 	}
 
 
