@@ -25,6 +25,8 @@ public class AnalyserPanel extends JPanel
 		JSplitPane splitPaneV = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true, panelGraphs, panelStats);
 		JSplitPane splitPaneH = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, panelPackages, splitPaneV);
 		
+		splitPaneV.setResizeWeight(1);
+		
 		add(splitPaneH, BorderLayout.CENTER);
 	}
 	

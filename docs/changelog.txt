@@ -10,6 +10,8 @@
 - UnitParser now adds "Count: 0" instead of mean, min and max data for missing unit types.
 - HistogramChart now sets the axis range manually.
 - HistogramData now handles single-value datasets better.
+- The split panes are now sized so the left and bottom panels are at their minimum sizes at start-up.
+- Updated the minimum sizes of the graph and statistics table panels.
 
 ==========
 2019-01-03

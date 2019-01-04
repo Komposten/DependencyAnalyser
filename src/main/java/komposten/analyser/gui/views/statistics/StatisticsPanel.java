@@ -38,7 +38,7 @@ public class StatisticsPanel extends JSplitPane
 		graphPanel = new StatisticsChartPanel();
 		
 		table.getSelectionModel().addListSelectionListener(selectionListener);
-		scrollPane.setMinimumSize(new Dimension(200, table.getMinimumSize().height));
+		scrollPane.setMinimumSize(new Dimension(285, table.getMinimumSize().height));
 		
 		prepareTable();
 		

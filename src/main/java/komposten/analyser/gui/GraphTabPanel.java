@@ -29,7 +29,7 @@ public class GraphTabPanel extends JTabbedPane
 		add("Cycles", panelCycles);
 		add("Compilation units", panelClasses);
 
-		setMinimumSize(new Dimension(500, getMinimumSize().height));
+		setMinimumSize(new Dimension(500, 200));
 	}
 	
 	
