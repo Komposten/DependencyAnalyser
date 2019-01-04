@@ -3,6 +3,8 @@
 ==========
 - Renamed Backend.setSelectedFiles() to setSelectedCompilationUnits.
 - Renamed Backend.SELECTED_FILES to SELECTED_COMPILATION_UNITS.
+- Backend.setSelectedCompilationUnits() now takes an array of String-PackageData pairs.
+- StatisticsPanel now displays the statistics for selected compilation units.
 
 ==========
 2019-01-03

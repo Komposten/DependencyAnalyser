@@ -102,19 +102,30 @@ public class StatisticsPanel extends JSplitPane
 			}
 			else if (key.equals(Backend.SELECTED_COMPILATION_UNITS))
 			{
-				File[] array = (File[]) value;
+				Object[][] array = (Object[][]) value;
 				
 				if (array.length == 1)
 				{
-					//CURRENT Finish this part. Should somehow access the correct package and get the class stats from that.
-					PackageProperties properties = new PackageProperties();
-					properties.set("Selected file", (array[0] != null ? array[0].getName() : ""));
-					setTableData(properties);
+					String unitName = (String) array[0][0];
+					PackageData unitPackage = (PackageData) array[0][1];
+					File unitFile = unitPackage.getCompilationUnitByName(unitName);
+					PackageProperties unitProperties = unitPackage.fileProperties.get(unitFile);
+					
+					if (unitProperties != null)
+					{
+						setTableData(unitProperties);
+					}
+					else
+					{
+						PackageProperties properties = new PackageProperties();
+						properties.set("No data for unit", array[0][0]);
+						setTableData(properties);
+					}
 				}
 				else if (array.length >= 2)
 				{
 					PackageProperties properties = new PackageProperties();
-					properties.set("Multiple files selected", array.length);
+					properties.set("Multiple units selected", array.length);
 					setTableData(properties);
 				}
 			}

@@ -182,11 +182,11 @@ public class Backend
 	}
 	
 	
-	public void setSelectedCompilationUnits(File[] files)
+	public void setSelectedCompilationUnits(Object[][] compilationUnits)
 	{
-		if (files != null)
+		if (compilationUnits != null)
 		{
-			notifyListeners(SELECTED_COMPILATION_UNITS, files);
+			notifyListeners(SELECTED_COMPILATION_UNITS, compilationUnits);
 		}
 	}
 	

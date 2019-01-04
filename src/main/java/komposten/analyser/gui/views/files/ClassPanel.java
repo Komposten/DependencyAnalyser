@@ -554,7 +554,7 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 	@Override
 	protected void selectionChanged(Object[] newSelection)
 	{
-		List<File> selectedFiles = new ArrayList<>();
+		List<Object[]> selectedUnits = new ArrayList<>();
 		
 		if (newSelection.length > 0)
 		{
@@ -574,7 +574,7 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 				{
 					activeCells.add(cell);
 					ClassVertex vertex = (ClassVertex) ((mxICell)cell).getValue();
-					selectedFiles.add(vertex.file);
+					selectedUnits.add(new Object[] { vertex.name, vertex.packageData });
 				}
 			}
 	
@@ -586,7 +586,10 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 					activeCells.add(child);
 					
 					if (child.getValue() instanceof ClassVertex)
-						selectedFiles.add(((ClassVertex)child.getValue()).file);
+					{
+						ClassVertex vertex = (ClassVertex)child.getValue();
+						selectedUnits.add(new Object[] { vertex.name, vertex.packageData });
+					}
 				}
 			}
 			if (lane2Selected)
@@ -597,7 +600,10 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 					activeCells.add(child);
 					
 					if (child.getValue() instanceof ClassVertex)
-						selectedFiles.add(((ClassVertex)child.getValue()).file);
+					{
+						ClassVertex vertex = (ClassVertex)child.getValue();
+						selectedUnits.add(new Object[] { vertex.name, vertex.packageData });
+					}
 				}
 			}
 			
@@ -605,7 +611,7 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 			refreshGraph(false);
 		}
 		
-		backend.setSelectedCompilationUnits(selectedFiles.toArray(new File[selectedFiles.size()]));
+		backend.setSelectedCompilationUnits(selectedUnits.toArray(new Object[selectedUnits.size()][]));
 	}
 
 
