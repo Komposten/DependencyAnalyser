@@ -78,97 +78,105 @@ public class StatisticsPanel extends JSplitPane
 	public void setDataFrom(Object object)
 	{
 		if (object instanceof PackageData)
-			setDataFrom(Backend.NEW_ACTIVE_PACKAGE, object);
+			newActivePackage((PackageData) object);
 		else if (object instanceof PackageData[])
-			setDataFrom(Backend.SELECTED_PACKAGES, object);
+			newPackageSelection((PackageData[]) object);
 		else if (object instanceof Object[][])
-			setDataFrom(Backend.SELECTED_COMPILATION_UNITS, object);
+			newCompilationUnitSelection((Object[][]) object);
 	}
 	
 	
 	private void setDataFrom(String eventKey, Object value)
 	{
 		if (eventKey.equals(Backend.NEW_ACTIVE_PACKAGE))
-		{
-			lastActivePackage = (PackageData) value;
-			
-			setTableData(lastActivePackage.packageProperties);
-			tableHeader.setText(lastActivePackage.fullName);
-		}
+			newActivePackage((PackageData) value);
 		else if (eventKey.equals(Backend.SELECTED_PACKAGES))
+			newPackageSelection((PackageData[]) value);
+		else if (eventKey.equals(Backend.SELECTED_COMPILATION_UNITS))
+			newCompilationUnitSelection((Object[][]) value);
+	}
+
+
+	private void newActivePackage(PackageData value)
+	{
+		lastActivePackage = value;
+		
+		setTableData(lastActivePackage.packageProperties);
+		tableHeader.setText(lastActivePackage.fullName);
+	}
+
+
+	private void newPackageSelection(PackageData[] selectedPackages)
+	{
+		if (selectedPackages.length == 0)
 		{
-			PackageData[] array = (PackageData[]) value;
-			
-			if (array.length == 0)
+			if (lastActivePackage != null)
+				setTableData(lastActivePackage.packageProperties);
+		}
+		else if (selectedPackages.length == 1)
+		{
+			if (!selectedPackages[0].isExternal)
 			{
-				if (lastActivePackage != null)
-					setTableData(lastActivePackage.packageProperties);
+				setTableData(selectedPackages[0].packageProperties);
+				tableHeader.setText(selectedPackages[0].fullName);
 			}
-			else if (array.length == 1)
+			else
 			{
-				if (!array[0].isExternal)
+				setTableDataMissing("External resource");
+				tableHeader.setText(selectedPackages[0].fullName);
+			}
+		}
+		else
+		{
+			setTableDataMissing("Multiple selected");
+			tableHeader.setText(selectedPackages.length + " packages");
+		}
+	}
+
+
+	private void newCompilationUnitSelection(Object[][] selectedUnits)
+	{
+		if (selectedUnits.length == 0)
+		{
+			setTableData(new PackageProperties());
+			tableHeader.setText("No selection");
+		}
+		else if (selectedUnits.length == 1)
+		{
+			String unitName = (String) selectedUnits[0][0];
+			PackageData unitPackage = (PackageData) selectedUnits[0][1];
+
+			String labelText = String.format("<html><span style=\"font-size: 80%%\">%s</span>.%s</html>", unitPackage.fullName, unitName);
+			tableHeader.setText(labelText);
+			
+			if (!unitPackage.isExternal)
+			{
+				File unitFile = unitPackage.getCompilationUnitByName(unitName);
+				PackageProperties unitProperties = unitPackage.fileProperties.get(unitFile);
+				
+				
+				if (unitProperties != null)
 				{
-					setTableData(array[0].packageProperties);
-					tableHeader.setText(array[0].fullName);
+					setTableData(unitProperties);
 				}
 				else
 				{
-					setTableDataMissing("External resource");
-					tableHeader.setText(array[0].fullName);
+					setTableDataMissing("Missing file");
 				}
 			}
 			else
 			{
-				setTableDataMissing("Multiple selected");
-				tableHeader.setText(array.length + " packages");
+				setTableDataMissing("External resource");
 			}
 		}
-		else if (eventKey.equals(Backend.SELECTED_COMPILATION_UNITS))
+		else if (selectedUnits.length >= 2)
 		{
-			Object[][] array = (Object[][]) value;
-			
-			if (array.length == 0)
-			{
-				setTableData(new PackageProperties());
-				tableHeader.setText("No selection");
-			}
-			else if (array.length == 1)
-			{
-				String unitName = (String) array[0][0];
-				PackageData unitPackage = (PackageData) array[0][1];
-
-				String labelText = String.format("<html><span style=\"font-size: 80%%\">%s</span>.%s</html>", unitPackage.fullName, unitName);
-				tableHeader.setText(labelText);
-				
-				if (!unitPackage.isExternal)
-				{
-					File unitFile = unitPackage.getCompilationUnitByName(unitName);
-					PackageProperties unitProperties = unitPackage.fileProperties.get(unitFile);
-					
-					
-					if (unitProperties != null)
-					{
-						setTableData(unitProperties);
-					}
-					else
-					{
-						setTableDataMissing("Missing file");
-					}
-				}
-				else
-				{
-					setTableDataMissing("External resource");
-				}
-			}
-			else if (array.length >= 2)
-			{
-				setTableDataMissing("Multiple selected");
-				tableHeader.setText(array.length + " units");
-			}
+			setTableDataMissing("Multiple selected");
+			tableHeader.setText(selectedUnits.length + " units");
 		}
 	}
-	
-	
+
+
 	private void setTableData(PackageProperties properties)
 	{
 		int selectionIndex = table.getSelectionModel().getMinSelectionIndex();
