@@ -59,6 +59,7 @@ public abstract class GraphPanel<V extends Vertex, E extends Edge> extends JPane
 	protected abstract void vertexDoubleClicked(V vertex);
 	protected abstract void edgeDoubleClicked(E edge, boolean isBidirectional);
 	protected abstract void selectionChanged(Object[] newSelection);
+	public abstract Object getSelectedVertices();
 	
 
 	/**

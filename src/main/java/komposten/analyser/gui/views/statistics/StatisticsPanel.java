@@ -31,9 +31,12 @@ public class StatisticsPanel extends JSplitPane
 	private JLabel tableHeader;
 	private StatisticsChartPanel graphPanel;
 	private StatisticsTableModel tableModel;
+
+	private PackageData lastActivePackage;
 	
 	public StatisticsPanel(Backend backend)
 	{
+		//CURRENT Update the table when GraphTabPanel switches tab. The table should reflect the selection of the current tab.
 		backend.addPropertyChangeListener(propertyListener, Backend.NEW_ACTIVE_PACKAGE, Backend.SELECTED_PACKAGES, Backend.SELECTED_COMPILATION_UNITS);
 		
 		tableModel = new StatisticsTableModel();
@@ -72,105 +75,128 @@ public class StatisticsPanel extends JSplitPane
 	}
 	
 	
+	public void setDataFrom(Object object)
+	{
+		if (object instanceof PackageData)
+			setDataFrom(Backend.NEW_ACTIVE_PACKAGE, object);
+		else if (object instanceof PackageData[])
+			setDataFrom(Backend.SELECTED_PACKAGES, object);
+		else if (object instanceof Object[][])
+			setDataFrom(Backend.SELECTED_COMPILATION_UNITS, object);
+	}
+	
+	
+	private void setDataFrom(String eventKey, Object value)
+	{
+		if (eventKey.equals(Backend.NEW_ACTIVE_PACKAGE))
+		{
+			lastActivePackage = (PackageData) value;
+			
+			setTableData(lastActivePackage.packageProperties);
+			tableHeader.setText(lastActivePackage.fullName);
+		}
+		else if (eventKey.equals(Backend.SELECTED_PACKAGES))
+		{
+			PackageData[] array = (PackageData[]) value;
+			
+			if (array.length == 0)
+			{
+				if (lastActivePackage != null)
+					setTableData(lastActivePackage.packageProperties);
+			}
+			else if (array.length == 1)
+			{
+				if (!array[0].isExternal)
+				{
+					setTableData(array[0].packageProperties);
+					tableHeader.setText(array[0].fullName);
+				}
+				else
+				{
+					setTableDataMissing("External resource");
+					tableHeader.setText(array[0].fullName);
+				}
+			}
+			else
+			{
+				setTableDataMissing("Multiple selected");
+				tableHeader.setText(array.length + " packages");
+			}
+		}
+		else if (eventKey.equals(Backend.SELECTED_COMPILATION_UNITS))
+		{
+			Object[][] array = (Object[][]) value;
+			
+			if (array.length == 0)
+			{
+				setTableData(new PackageProperties());
+				tableHeader.setText("No selection");
+			}
+			else if (array.length == 1)
+			{
+				String unitName = (String) array[0][0];
+				PackageData unitPackage = (PackageData) array[0][1];
+
+				String labelText = String.format("<html><span style=\"font-size: 80%%\">%s</span>.%s</html>", unitPackage.fullName, unitName);
+				tableHeader.setText(labelText);
+				
+				if (!unitPackage.isExternal)
+				{
+					File unitFile = unitPackage.getCompilationUnitByName(unitName);
+					PackageProperties unitProperties = unitPackage.fileProperties.get(unitFile);
+					
+					
+					if (unitProperties != null)
+					{
+						setTableData(unitProperties);
+					}
+					else
+					{
+						setTableDataMissing("Missing file");
+					}
+				}
+				else
+				{
+					setTableDataMissing("External resource");
+				}
+			}
+			else if (array.length >= 2)
+			{
+				setTableDataMissing("Multiple selected");
+				tableHeader.setText(array.length + " units");
+			}
+		}
+	}
+	
+	
+	private void setTableData(PackageProperties properties)
+	{
+		int selectionIndex = table.getSelectionModel().getMinSelectionIndex();
+		tableModel.setProperties(properties);
+		if (selectionIndex != -1 && selectionIndex < table.getRowCount())
+			table.getSelectionModel().setSelectionInterval(selectionIndex, selectionIndex);
+	}
+
+
+	private void setTableDataMissing(String reason)
+	{
+		PackageProperties reasonProperties = new PackageProperties();
+		reasonProperties.set("Reason", reason);
+		
+		PackageProperties properties = new PackageProperties();
+		properties.set("No data", reasonProperties);
+		setTableData(properties);
+	}
+	
+	
 	private PropertyChangeListener propertyListener = new PropertyChangeListener()
 	{
-		private PackageData lastActivePackage;
-		
-		private void setTableData(PackageProperties properties)
-		{
-			int selectionIndex = table.getSelectionModel().getMinSelectionIndex();
-			tableModel.setProperties(properties);
-			if (selectionIndex != -1 && selectionIndex < table.getRowCount())
-				table.getSelectionModel().setSelectionInterval(selectionIndex, selectionIndex);
-		}
-
-
-		private void setTableDataMissing(String reason)
-		{
-			PackageProperties reasonProperties = new PackageProperties();
-			reasonProperties.set("Reason", reason);
-			
-			PackageProperties properties = new PackageProperties();
-			properties.set("No data", reasonProperties);
-			setTableData(properties);
-		}
 		
 		
 		@Override
 		public void propertyChanged(String key, Object value)
 		{
-			if (key.equals(Backend.NEW_ACTIVE_PACKAGE))
-			{
-				lastActivePackage = (PackageData) value;
-				
-				setTableData(lastActivePackage.packageProperties);
-				tableHeader.setText(lastActivePackage.fullName);
-			}
-			else if (key.equals(Backend.SELECTED_PACKAGES))
-			{
-				PackageData[] array = (PackageData[]) value;
-				
-				if (array.length == 0)
-				{
-					setTableData(lastActivePackage.packageProperties);
-				}
-				else if (array.length == 1)
-				{
-					if (!array[0].isExternal)
-					{
-						setTableData(array[0].packageProperties);
-						tableHeader.setText(array[0].fullName);
-					}
-					else
-					{
-						setTableDataMissing("External resource");
-						tableHeader.setText(array[0].fullName);
-					}
-				}
-				else
-				{
-					setTableDataMissing("Multiple selected");
-					tableHeader.setText(array.length + " packages");
-				}
-			}
-			else if (key.equals(Backend.SELECTED_COMPILATION_UNITS))
-			{
-				Object[][] array = (Object[][]) value;
-				
-				if (array.length == 1)
-				{
-					String unitName = (String) array[0][0];
-					PackageData unitPackage = (PackageData) array[0][1];
-
-					String labelText = String.format("<html><span style=\"font-size: 80%%\">%s</span>.%s</html>", unitPackage.fullName, unitName);
-					tableHeader.setText(labelText);
-					
-					if (!unitPackage.isExternal)
-					{
-						File unitFile = unitPackage.getCompilationUnitByName(unitName);
-						PackageProperties unitProperties = unitPackage.fileProperties.get(unitFile);
-						
-						
-						if (unitProperties != null)
-						{
-							setTableData(unitProperties);
-						}
-						else
-						{
-							setTableDataMissing("Missing file");
-						}
-					}
-					else
-					{
-						setTableDataMissing("External resource");
-					}
-				}
-				else if (array.length >= 2)
-				{
-					setTableDataMissing("Multiple selected");
-					tableHeader.setText(array.length + " units");
-				}
-			}
+			setDataFrom(key, value);
 		}
 	};
 	

@@ -4,6 +4,7 @@
 - Added a label to StatisticsPanel to list the name of the selected unit.
 - Selecting multiple units, external units, or units with no data now displays "No data" followed by a reason.
 - Removed the StatisticsPanel table header.
+- Changing graph tab now updates the statistics table with the last selection in that tab.
 
 ==========
 2019-01-04

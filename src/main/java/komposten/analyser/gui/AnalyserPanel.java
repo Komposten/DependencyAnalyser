@@ -20,7 +20,7 @@ public class AnalyserPanel extends JPanel
 		
 		panelPackages = new PackagePanel(backend);
 		panelGraphs = new GraphTabPanel(backend);
-		panelStats = new StatisticsTabPanel(backend);
+		panelStats = new StatisticsTabPanel(backend, panelGraphs);
 		
 		JSplitPane splitPaneV = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true, panelGraphs, panelStats);
 		JSplitPane splitPaneH = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, panelPackages, splitPaneV);

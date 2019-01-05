@@ -83,7 +83,14 @@ public class CyclePanel extends RootedGraphPanel
 			refreshGraph(false);
 		}
 		
-		backend.setSelectedPackages(getPackagesFromSelection(newSelection));
+		backend.setSelectedPackages((PackageData[]) getSelectedVertices());
+	}
+	
+	
+	@Override
+	public Object getSelectedVertices()
+	{
+		return getPackagesFromSelection(activeCells);
 	}
 	
 	

@@ -139,7 +139,20 @@ public class DependencyPanel extends RootedGraphPanel
 	@Override
 	protected void selectionChanged(Object[] newSelection)
 	{
-		backend.setSelectedPackages(getPackagesFromSelection(newSelection));
+		if (newSelection.length > 0)
+		{
+			setActiveCells(newSelection);
+			refreshGraph(false);
+		}
+		
+		backend.setSelectedPackages((PackageData[]) getSelectedVertices());
+	}
+	
+	
+	@Override
+	public Object getSelectedVertices()
+	{
+		return getPackagesFromSelection(activeCells);
 	}
 	
 	

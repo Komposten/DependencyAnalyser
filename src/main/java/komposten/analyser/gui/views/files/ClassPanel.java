@@ -554,8 +554,6 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 	@Override
 	protected void selectionChanged(Object[] newSelection)
 	{
-		List<Object[]> selectedUnits = new ArrayList<>();
-		
 		if (newSelection.length > 0)
 		{
 			Set<Object> activeCells = new HashSet<>();
@@ -573,8 +571,6 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 				else if (((mxICell)cell).isVertex())
 				{
 					activeCells.add(cell);
-					ClassVertex vertex = (ClassVertex) ((mxICell)cell).getValue();
-					selectedUnits.add(new Object[] { vertex.name, vertex.packageData });
 				}
 			}
 	
@@ -584,12 +580,6 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 				{
 					mxICell child = lane1.getChildAt(i);
 					activeCells.add(child);
-					
-					if (child.getValue() instanceof ClassVertex)
-					{
-						ClassVertex vertex = (ClassVertex)child.getValue();
-						selectedUnits.add(new Object[] { vertex.name, vertex.packageData });
-					}
 				}
 			}
 			if (lane2Selected)
@@ -598,12 +588,6 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 				{
 					mxICell child = lane2.getChildAt(i);
 					activeCells.add(child);
-					
-					if (child.getValue() instanceof ClassVertex)
-					{
-						ClassVertex vertex = (ClassVertex)child.getValue();
-						selectedUnits.add(new Object[] { vertex.name, vertex.packageData });
-					}
 				}
 			}
 			
@@ -611,7 +595,27 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 			refreshGraph(false);
 		}
 		
-		backend.setSelectedCompilationUnits(selectedUnits.toArray(new Object[selectedUnits.size()][]));
+		backend.setSelectedCompilationUnits((Object[][]) getSelectedVertices());
+	}
+	
+	
+	@Override
+	public Object getSelectedVertices()
+	{
+		List<Object[]> selectedUnits = new ArrayList<>();
+		
+		for (Object object : activeCells)
+		{
+			mxICell cell = (mxICell) object;
+			
+			if (cell.getValue() instanceof ClassVertex)
+			{
+				ClassVertex vertex = (ClassVertex)cell.getValue();
+				selectedUnits.add(new Object[] { vertex.name, vertex.packageData });
+			}
+		}
+		
+		return selectedUnits.toArray(new Object[selectedUnits.size()][]);
 	}
 
 
