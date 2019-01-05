@@ -36,7 +36,6 @@ public class StatisticsPanel extends JSplitPane
 	
 	public StatisticsPanel(Backend backend)
 	{
-		//CURRENT Update the table when GraphTabPanel switches tab. The table should reflect the selection of the current tab.
 		backend.addPropertyChangeListener(propertyListener, Backend.NEW_ACTIVE_PACKAGE, Backend.SELECTED_PACKAGES, Backend.SELECTED_COMPILATION_UNITS);
 		
 		tableModel = new StatisticsTableModel();
