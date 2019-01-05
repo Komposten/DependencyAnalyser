@@ -32,10 +32,10 @@ public class UnitParser implements SourceParser
 {
 	//TODO Split parsers into two groups: IndependentParser (parse data not dependent on Units) and UnitParser. UnitParser does unit matching against lines and then passes that information to a list of parsers which make use of it!
 	//CURRENT UnitParser; Does not match abstract methods/method definitions in interfaces.
-	//FIXME UnitParser; PATTERN_ANONYMOUS_CLASS does not handle Class<Class2>fieldName.
+	//NEXT_TASK UnitParser; PATTERN_ANONYMOUS_CLASS does not handle Class<Class2>fieldName.
 	
 	/** Matches any combination of modifiers (private, protected, public, abstract, static or final). */
-	private static final String MODIFIER = "(?:(?:private|protected|public|abstract|static|final)\\s+)";
+	private static final String MODIFIER = "(?:(?:private|protected|public|abstract|static|final|default)\\s+)";
 	/** Matches any valid Java identifier. */
 	private static final String IDENTIFIER = "[A-Za-z_$][\\w$]*";
 	/** Matches a reference to a Java Type (e.g. <code>java.lang.String</code>) */
