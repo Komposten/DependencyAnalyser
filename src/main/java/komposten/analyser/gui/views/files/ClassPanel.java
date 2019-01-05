@@ -595,7 +595,8 @@ public class ClassPanel extends UnrootedGraphPanel<ClassVertex, ClassEdge>
 			refreshGraph(false);
 		}
 		
-		backend.setSelectedCompilationUnits((Object[][]) getSelectedVertices());
+		if (isVisible())
+			backend.setSelectedCompilationUnits((Object[][]) getSelectedVertices());
 	}
 	
 	

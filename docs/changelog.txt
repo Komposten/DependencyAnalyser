@@ -5,6 +5,7 @@
 - Selecting multiple units, external units, or units with no data now displays "No data" followed by a reason.
 - Removed the StatisticsPanel table header.
 - Changing graph tab now updates the statistics table with the last selection in that tab.
+- The graph panels now only notify Backend of selections if they are visible.
 
 ==========
 2019-01-04

@@ -83,7 +83,8 @@ public class CyclePanel extends RootedGraphPanel
 			refreshGraph(false);
 		}
 		
-		backend.setSelectedPackages((PackageData[]) getSelectedVertices());
+		if (isVisible())
+			backend.setSelectedPackages((PackageData[]) getSelectedVertices());
 	}
 	
 	

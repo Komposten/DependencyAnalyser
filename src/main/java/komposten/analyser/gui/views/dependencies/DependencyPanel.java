@@ -145,7 +145,8 @@ public class DependencyPanel extends RootedGraphPanel
 			refreshGraph(false);
 		}
 		
-		backend.setSelectedPackages((PackageData[]) getSelectedVertices());
+		if (isVisible())
+			backend.setSelectedPackages((PackageData[]) getSelectedVertices());
 	}
 	
 	
