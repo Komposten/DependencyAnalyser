@@ -1,13 +1,18 @@
 package komposten.analyser.gui.views.statistics;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.io.File;
 import java.util.Enumeration;
 
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumn;
@@ -23,13 +28,12 @@ public class StatisticsPanel extends JSplitPane
 {
 	private JScrollPane scrollPane;
 	private JTable table;
+	private JLabel tableHeader;
 	private StatisticsChartPanel graphPanel;
 	private StatisticsTableModel tableModel;
 	
 	public StatisticsPanel(Backend backend)
 	{
-		//CURRENT 2: Add a header that clarifies what the statistics belong to (e.g. a package/class name, or "4 packages").
-		//NEXT_TASK Differentiate between "package statistics" and "global statistics".
 		backend.addPropertyChangeListener(propertyListener, Backend.NEW_ACTIVE_PACKAGE, Backend.SELECTED_PACKAGES, Backend.SELECTED_COMPILATION_UNITS);
 		
 		tableModel = new StatisticsTableModel();
@@ -38,13 +42,22 @@ public class StatisticsPanel extends JSplitPane
 		graphPanel = new StatisticsChartPanel();
 		
 		table.getSelectionModel().addListSelectionListener(selectionListener);
+		table.setTableHeader(null);
 		scrollPane.setMinimumSize(new Dimension(285, table.getMinimumSize().height));
+		
+		tableHeader = new JLabel(" ");
+		tableHeader.setBorder(new EmptyBorder(5, 5, 5, 5));
+		tableHeader.setFont(tableHeader.getFont().deriveFont(Font.BOLD));
+
+		JPanel panelLeft = new JPanel(new BorderLayout());
+		panelLeft.add(tableHeader, BorderLayout.NORTH);
+		panelLeft.add(scrollPane, BorderLayout.CENTER);
 		
 		prepareTable();
 		
 		setContinuousLayout(true);
 		setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-		setLeftComponent(scrollPane);
+		setLeftComponent(panelLeft);
 		setRightComponent(graphPanel);
 	}
 
@@ -72,10 +85,13 @@ public class StatisticsPanel extends JSplitPane
 		}
 
 
-		private void setTableData(String label, Object value)
+		private void setTableDataMissing(String reason)
 		{
+			PackageProperties reasonProperties = new PackageProperties();
+			reasonProperties.set("Reason", reason);
+			
 			PackageProperties properties = new PackageProperties();
-			properties.set(label, value);
+			properties.set("No data", reasonProperties);
 			setTableData(properties);
 		}
 		
@@ -88,6 +104,7 @@ public class StatisticsPanel extends JSplitPane
 				lastActivePackage = (PackageData) value;
 				
 				setTableData(lastActivePackage.packageProperties);
+				tableHeader.setText(lastActivePackage.fullName);
 			}
 			else if (key.equals(Backend.SELECTED_PACKAGES))
 			{
@@ -102,15 +119,18 @@ public class StatisticsPanel extends JSplitPane
 					if (!array[0].isExternal)
 					{
 						setTableData(array[0].packageProperties);
+						tableHeader.setText(array[0].fullName);
 					}
 					else
 					{
-						setTableData("External package", array[0].fullName);
+						setTableDataMissing("External resource");
+						tableHeader.setText(array[0].fullName);
 					}
 				}
 				else
 				{
-					setTableData("Multiple packages selected", array.length);
+					setTableDataMissing("Multiple selected");
+					tableHeader.setText(array.length + " packages");
 				}
 			}
 			else if (key.equals(Backend.SELECTED_COMPILATION_UNITS))
@@ -121,11 +141,15 @@ public class StatisticsPanel extends JSplitPane
 				{
 					String unitName = (String) array[0][0];
 					PackageData unitPackage = (PackageData) array[0][1];
+
+					String labelText = String.format("<html><span style=\"font-size: 80%%\">%s</span>.%s</html>", unitPackage.fullName, unitName);
+					tableHeader.setText(labelText);
 					
 					if (!unitPackage.isExternal)
 					{
 						File unitFile = unitPackage.getCompilationUnitByName(unitName);
 						PackageProperties unitProperties = unitPackage.fileProperties.get(unitFile);
+						
 						
 						if (unitProperties != null)
 						{
@@ -133,17 +157,18 @@ public class StatisticsPanel extends JSplitPane
 						}
 						else
 						{
-							setTableData("No data for unit", array[0][0]);
+							setTableDataMissing("Missing file");
 						}
 					}
 					else
 					{
-						setTableData("External unit", array[0][0]);
+						setTableDataMissing("External resource");
 					}
 				}
 				else if (array.length >= 2)
 				{
-					setTableData("Multiple units selected", array.length);
+					setTableDataMissing("Multiple selected");
+					tableHeader.setText(array.length + " units");
 				}
 			}
 		}

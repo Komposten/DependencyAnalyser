@@ -1,4 +1,11 @@
 ==========
+2019-01-05
+==========
+- Added a label to StatisticsPanel to list the name of the selected unit.
+- Selecting multiple units, external units, or units with no data now displays "No data" followed by a reason.
+- Removed the StatisticsPanel table header.
+
+==========
 2019-01-04
 ==========
 - Renamed Backend.setSelectedFiles() to setSelectedCompilationUnits.
