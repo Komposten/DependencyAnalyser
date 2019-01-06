@@ -42,14 +42,25 @@ public class GraphCycleFinder
 		{
 			if (abort)
 				return;
+			
+			List<GraphNode> validSuccessors = new LinkedList<>();
+			
 			GraphNode node = nodeList.get(i);
 			
-			adjacencyLists[i] = new int[node.getSuccessorNodes().length];
-			
-			for (int j = 0; j < node.getSuccessorNodes().length; j++)
+			for (GraphNode successor : node.getSuccessorNodes())
 			{
-				int successorIndex = nodeList.indexOf(node.getSuccessorNodes()[j]);
+				if (nodeList.contains(successor))
+					validSuccessors.add(successor);
+			}
+			
+			adjacencyLists[i] = new int[validSuccessors.size()];
+			
+			int j = 0;
+			for (GraphNode successor : validSuccessors)
+			{
+				int successorIndex = nodeList.indexOf(successor);
 				adjacencyLists[i][j] = successorIndex;
+				j++;
 			}
 		}
 	}

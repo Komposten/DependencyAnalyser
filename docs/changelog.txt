@@ -2,6 +2,7 @@
 2019-01-06
 ==========
 - komposten-utils is now pulled from GitHub (using jitpack.io) to always get the latest version.
+- Fixed GraphCycleFinder no longer filtering out external successor nodes.
 
 ==========
 2019-01-03
