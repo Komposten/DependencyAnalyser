@@ -1,4 +1,10 @@
 ==========
+2019-01-06
+==========
+- UnitParser now supports abstract methods/methods declarations in interfaces (WIP).
+- UnitParser's Matchers are now given the new StringBuilder once (in nextFile()) instead of in every call to endsWith().
+
+==========
 2019-01-05
 ==========
 - Added a label to StatisticsPanel to list the name of the selected unit.
@@ -7,8 +13,6 @@
 - Changing graph tab now updates the statistics table with the last selection in that tab.
 - The graph panels now only notify Backend of selections if they are visible.
 - UnitParser now supports the "default" method modifier.
-- UnitParser now supports abstract methods/methods declarations in interfaces (WIP).
-- UnitParser's Matchers are now given the new StringBuilder once (in nextFile()) instead of in every call to endsWith().
 
 ==========
 2019-01-04
