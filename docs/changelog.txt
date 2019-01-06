@@ -8,6 +8,7 @@
 - The graph panels now only notify Backend of selections if they are visible.
 - UnitParser now supports the "default" method modifier.
 - UnitParser now supports abstract methods/methods declarations in interfaces (WIP).
+- UnitParser's Matchers are now given the new StringBuilder once (in nextFile()) instead of in every call to endsWith().
 
 ==========
 2019-01-04

@@ -162,7 +162,13 @@ public class UnitParser implements SourceParser
 		fileUnitList.add(new FileUnit(file, null));
 		unitStack.push(fileUnitList.getLast());
 		
+		methodMatcher.reset(fileContent);
 		abstractMethodMatcher.reset(fileContent);
+		constructorMatcher.reset(fileContent);
+		classMatcher.reset(fileContent);
+		anonymousClassMatcher.reset(fileContent);
+		blockMatcher.reset(fileContent);
+		statementMatcher.reset(fileContent);
 	}
 	
 	@Override
@@ -502,7 +508,7 @@ public class UnitParser implements SourceParser
 		MatchResult result;
 
 		// CLASS
-		result = endsWith(fileContent, classMatcher, searchRegionStart, searchRegionEnd);
+		result = endsWith(classMatcher, searchRegionStart, searchRegionEnd);
 		if (result != null)
 		{
 			Unit.Type type = ((parentUnit == null || parentUnit.type == Unit.Type.File) ? Unit.Type.Class : Unit.Type.InnerClass);
@@ -512,14 +518,14 @@ public class UnitParser implements SourceParser
 		if (parentUnit != null && parentUnit.type != Unit.Type.File)
 		{
 			// ANONYMOUS CLASS
-			result = endsWith(fileContent, anonymousClassMatcher, searchRegionStart, searchRegionEnd);
+			result = endsWith(anonymousClassMatcher, searchRegionStart, searchRegionEnd);
 			if (result != null)
 				return new UnitDefinition(Unit.Type.AnonymousClass, result);
 
 			// STATEMENT
 			if (!Unit.Type.isClassVariant(parentUnit.type))
 			{
-				result = endsWith(fileContent, statementMatcher, searchRegionStart, searchRegionEnd);
+				result = endsWith(statementMatcher, searchRegionStart, searchRegionEnd);
 				if (result != null && isValidStatement(result))
 					return new UnitDefinition(Unit.Type.Statement, result);
 			}
@@ -527,14 +533,14 @@ public class UnitParser implements SourceParser
 			// METHOD
 			if (Unit.Type.isClassVariant(parentUnit.type))
 			{
-				result = endsWith(fileContent, methodMatcher, searchRegionStart, searchRegionEnd);
+				result = endsWith(methodMatcher, searchRegionStart, searchRegionEnd);
 				if (result != null && isValidMethod(result))
 					return new UnitDefinition(Unit.Type.Method, result);
 
 			}
 
 			// BLOCK
-			result = endsWith(fileContent, blockMatcher, searchRegionStart, searchRegionEnd);
+			result = endsWith(blockMatcher, searchRegionStart, searchRegionEnd);
 			if (result != null)
 			{
 				Unit.Type type = (Unit.Type.isClassVariant(parentUnit.type) ? Unit.Type.Initialiser : Unit.Type.LocalBlock);
@@ -544,7 +550,7 @@ public class UnitParser implements SourceParser
 			// CONSTRUCTOR
 			if (Unit.Type.isClassVariant(parentUnit.type))
 			{
-				result = endsWith(fileContent, constructorMatcher, searchRegionStart, searchRegionEnd);
+				result = endsWith(constructorMatcher, searchRegionStart, searchRegionEnd);
 				if (result != null && isValidConstructor(result, parentUnit))
 					return new UnitDefinition(Unit.Type.Constructor, result);
 			}
@@ -565,9 +571,8 @@ public class UnitParser implements SourceParser
 	 * @return A <code>MatchResult</code> if the <code>matcher</code> found a
 	 *         match within the specified region, <code>null</code> otherwise.
 	 */
-	private MatchResult endsWith(CharSequence line, Matcher matcher, int regionStart, int regionEnd)
+	private MatchResult endsWith(Matcher matcher, int regionStart, int regionEnd)
 	{
-		matcher.reset(line);
 		matcher.region(regionStart, regionEnd);
 		
 		if (matcher.find())
