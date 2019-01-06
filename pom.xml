@@ -17,18 +17,17 @@
 
   <repositories>
     <repository>
-      <id>utility-repo</id>
-      <name>Utilities</name>
-      <url>https://github.com/Komposten/Utilities/raw/mvn-repo/</url>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
     </repository>
   </repositories>
 
 	<dependencies>
-		<dependency>
-			<groupId>komposten.utilities</groupId>
-			<artifactId>utilities</artifactId>
-			<version>20190102</version>
-		</dependency>
+    <dependency>
+      <groupId>com.github.Komposten</groupId>
+      <artifactId>Utilities</artifactId>
+      <version>master-SNAPSHOT</version>
+    </dependency>
 		<dependency>
 			<groupId>org.jgrapht</groupId>
 			<artifactId>jgrapht-core</artifactId>

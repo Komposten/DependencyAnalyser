@@ -1,4 +1,9 @@
 ==========
+2019-01-06
+==========
+- komposten-utils is now pulled from GitHub (using jitpack.io) to always get the latest version.
+
+==========
 2019-01-03
 ==========
 - Fixed CycleLayout clearing the selection when run.
