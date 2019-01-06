@@ -31,7 +31,7 @@ import komposten.utilities.data.IntPair;
 public class UnitParser implements SourceParser
 {
 	//TODO Split parsers into two groups: IndependentParser (parse data not dependent on Units) and UnitParser. UnitParser does unit matching against lines and then passes that information to a list of parsers which make use of it!
-	//CURRENT UnitParser; Does not match abstract methods/method definitions in interfaces.
+	//FIXME UnitParser; Does not match statements (i.e. if, else, while, etc.) without braces.
 	//NEXT_TASK UnitParser; PATTERN_ANONYMOUS_CLASS does not handle Class<Class2>fieldName.
 	
 	/** Matches any combination of modifiers (private, protected, public, abstract, static or final). */
@@ -57,6 +57,10 @@ public class UnitParser implements SourceParser
 			"(" + MODIFIER + "*)" 							//modifiers
 			+ "(" + RETURN_TYPE + ")"						//return type supporting arrays and (nested) type parameterisation
 			+ "\\s*(" + IDENTIFIER + ")\\s*$"); //method name
+	private static final Pattern PATTERN_ABSTRACT_METHOD = Pattern.compile(
+			"(" + MODIFIER + "*)" 							//modifiers
+			+ "(" + RETURN_TYPE + ")"						//return type supporting arrays and (nested) type parameterisation
+			+ "\\s*(" + IDENTIFIER + ")\\s*\\([^\\)]*\\)\\s*;"); //method name
 	private static final Pattern PATTERN_CONSTRUCTOR = Pattern.compile(
 			"(" + MODIFIER + "*)" 							//modifiers
 			+ "\\s*(" + IDENTIFIER + ")\\s*$"); //constructor name
@@ -81,8 +85,19 @@ public class UnitParser implements SourceParser
 	private static final Pattern PATTERN_STATEMENT = Pattern.compile(
 			"(?<=\\s|^)([a-z]+)\\s*$"
 			);
+
+	private static final boolean[] ABSTRACT_METHOD_DELIMITERS;
+	
+	static
+	{
+		ABSTRACT_METHOD_DELIMITERS = new boolean[256];
+		
+		String chars = "!%-;\\{\"&*/=^|#'+:@`}";
+		chars.chars().forEach(c -> {ABSTRACT_METHOD_DELIMITERS[c] = true; });
+	}
 	
 	private Matcher methodMatcher;
+	private Matcher abstractMethodMatcher;
 	private Matcher constructorMatcher;
 	private Matcher classMatcher;
 	private Matcher anonymousClassMatcher;
@@ -92,7 +107,9 @@ public class UnitParser implements SourceParser
 	private Settings settings;
 	
 	private StringBuilder fileContent;
+	private int lastAbstractMethodEnd;
 	private List<IntPair> bracketList;
+	private Deque<MatchResult> abstractMethodDefinitions;
 	
 	private Deque<FileUnit> fileUnitList;
 	private Stack<Unit> unitStack;
@@ -111,6 +128,7 @@ public class UnitParser implements SourceParser
 		bracketPairList = new ArrayList<>();
 		fileUnitList = new LinkedList<>();
 		unitStack = new Stack<>();
+		abstractMethodDefinitions = new LinkedList<>();
 		
 		statsMap = new HashMap<Unit.Type, UnitTypeStatistics>();
 		for (Unit.Type type : Unit.Type.values())
@@ -121,6 +139,7 @@ public class UnitParser implements SourceParser
 		}
 
 		methodMatcher = PATTERN_METHOD.matcher("");
+		abstractMethodMatcher = PATTERN_ABSTRACT_METHOD.matcher("");
 		constructorMatcher = PATTERN_CONSTRUCTOR.matcher("");
 		classMatcher = PATTERN_CLASS.matcher("");
 		anonymousClassMatcher = PATTERN_ANONYMOUS_CLASS.matcher("");
@@ -135,14 +154,17 @@ public class UnitParser implements SourceParser
 		bracketList.clear();
 		bracketPairList.clear();
 		unitStack.clear();
+		abstractMethodDefinitions.clear();
 		currentLineNumber = 0;
 		fileContent = new StringBuilder();
+		lastAbstractMethodEnd = 0;
 		
 		fileUnitList.add(new FileUnit(file, null));
 		unitStack.push(fileUnitList.getLast());
+		
+		abstractMethodMatcher.reset(fileContent);
 	}
-
-
+	
 	@Override
 	public void parseLine(String line, String strippedLine)
 	{
@@ -151,9 +173,19 @@ public class UnitParser implements SourceParser
 		int offset = fileContent.length();
 		fileContent.append(strippedLine).append("\n");
 		bracketList.addAll(findBrackets(fileContent, offset));
+		
+		parseAbstractMethods(lastAbstractMethodEnd, fileContent.length());
+		
+		int index = fileContent.length()-1;
+		for (; index > lastAbstractMethodEnd; index--)
+		{
+			if (ABSTRACT_METHOD_DELIMITERS[fileContent.charAt(index)])
+				break;
+		}
+		lastAbstractMethodEnd = index;
 	}
-	
-	
+
+
 	private List<IntPair> findBrackets(CharSequence line, int startIndex)
 	{
 		List<IntPair> brackets = new LinkedList<>();
@@ -184,6 +216,19 @@ public class UnitParser implements SourceParser
 			return false;
 		return true;
 	}
+	
+	
+	private void parseAbstractMethods(int startIndex, int endIndex)
+	{
+		abstractMethodMatcher.region(startIndex, endIndex);
+		
+		while (abstractMethodMatcher.find())
+		{
+			MatchResult match = abstractMethodMatcher.toMatchResult();
+			if (isValidMethod(match))
+				abstractMethodDefinitions.add(match);
+		}
+	}
 
 
 	@Override
@@ -194,7 +239,6 @@ public class UnitParser implements SourceParser
 		
 		createBracketPairs();
 		createUnits();
-		
 	}
 
 
@@ -287,14 +331,37 @@ public class UnitParser implements SourceParser
 		
 		boolean createdUnit = createUnit(bracketPair, parentUnit, searchRegionStart, searchRegionEnd);
 		
+		int nextBracketIndex = (bracketPair.children.isEmpty() ? bracketPair.endIndex : bracketPair.children.get(0).startIndex);
+		while (!abstractMethodDefinitions.isEmpty() &&
+				abstractMethodDefinitions.peekFirst().start() > bracketPair.startIndex &&
+				abstractMethodDefinitions.peekFirst().start() < nextBracketIndex)
+		{
+			MatchResult match = abstractMethodDefinitions.pollFirst();
+			UnitDefinition unitDefinition = new UnitDefinition(Unit.Type.Method, match);
+			createUnit(unitDefinition, parentUnit, -1, -1);
+			unitStack.pop();
+		}
+		
 		for (int i = 0; i < bracketPair.children.size(); i++)
 		{
 			BracketPair childPair = bracketPair.children.get(i);
 			
 			if (childPair.isCurly())
 				createUnitFromBracketPair(childPair, i);
+			
+			int previousBracketIndex = childPair.endIndex;
+			nextBracketIndex = (i >= bracketPair.children.size()-1 ? bracketPair.endIndex : bracketPair.children.get(i+1).startIndex);
+			
+			while (!abstractMethodDefinitions.isEmpty() &&
+					abstractMethodDefinitions.peekFirst().start() > previousBracketIndex &&
+					abstractMethodDefinitions.peekFirst().start() < nextBracketIndex)
+			{
+				MatchResult match = abstractMethodDefinitions.pollFirst();
+				UnitDefinition unitDefinition = new UnitDefinition(Unit.Type.Method, match);
+				createUnit(unitDefinition, parentUnit, -1, -1);
+				unitStack.pop();
+			}
 		}
-		
 		
 		if (createdUnit)
 		{
@@ -346,11 +413,17 @@ public class UnitParser implements SourceParser
 			int searchRegionStart, int searchRegionEnd)
 	{
 		UnitDefinition unitDef = getUnitDefinition(searchRegionStart, searchRegionEnd, parentUnit);
-		if (unitDef == null)
-		{
-			return false;
-		}
 		
+		if (unitDef != null)
+			return createUnit(unitDef, parentUnit, pair.startLine, pair.endLine);
+		else
+			return false;
+	}
+
+
+	private boolean createUnit(UnitDefinition unitDef, Unit parentUnit,
+			int startLine, int endLine)
+	{
 		Unit unit = null;
 		
 		switch (unitDef.type)
@@ -413,8 +486,8 @@ public class UnitParser implements SourceParser
 		}
 		
 		unit.type = unitDef.type;
-		unit.startLine = pair.startLine;
-		unit.endLine = pair.endLine;
+		unit.startLine = startLine;
+		unit.endLine = endLine;
 		
 		if (unit.parent != null)
 			unit.parent.children.add(unit);

@@ -7,6 +7,7 @@
 - Changing graph tab now updates the statistics table with the last selection in that tab.
 - The graph panels now only notify Backend of selections if they are visible.
 - UnitParser now supports the "default" method modifier.
+- UnitParser now supports abstract methods/methods declarations in interfaces (WIP).
 
 ==========
 2019-01-04
