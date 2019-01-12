@@ -169,6 +169,14 @@ class UnitParserTest
 			String[] types = { "Class", "Class<T>", "Class<K, V>" };
 			String name = "field";
 			
+			ClassUnit parentUnit = new ClassUnit("ParentOfAnonymous", null);
+			parentUnit.modifiers = "";
+			parentUnit.classType = Type.Class;
+			parentUnit.extendClause = "";
+			parentUnit.implementsClause = "";
+			typeUnitList.add(parentUnit);
+			typeUnitStrings.add("class ParentOfAnonymous {");
+			
 			//access modifier type name = new type
 			for (String accessLevel : access)
 			{
@@ -181,16 +189,18 @@ class UnitParserTest
 							AnonymousClassUnit unit = new AnonymousClassUnit(name, null);
 							unit.extendedType = type2;
 							typeUnitList.add(unit);
-							typeUnitStrings.add(String.format("%s %s %s %s = new %s {}", accessLevel, modifier, type, name, type2));
+							typeUnitStrings.add(String.format("%s %s %s %s = new %s () {}", accessLevel, modifier, type, name, type2));
 							
 							unit = new AnonymousClassUnit("", null);
 							unit.extendedType = type2;
 							typeUnitList.add(unit);
-							typeUnitStrings.add(String.format("new %s {}", type2));
+							typeUnitStrings.add(String.format("new %s () {}", type2));
 						}
 					}
 				}
 			}
+			
+			typeUnitStrings.add("}");
 		}
 		
 		@Test
@@ -212,16 +222,20 @@ class UnitParserTest
 			
 			FileUnit fileUnit = iterator.next();
 			
-			assertEquals(typeUnits.size(), fileUnit.children.size());
+			List<Unit> actualUnits = new ArrayList<>(typeUnits.size());
+			actualUnits.addAll(fileUnit.children);
+			actualUnits.addAll(fileUnit.children.get(fileUnit.children.size()-1).children);
+			
+			assertEquals(typeUnits.size(), actualUnits.size());
 			
 			for (int i = 0; i < typeUnits.size(); i++)
 			{
 				if (typeUnits.get(i) instanceof ClassUnit)
 				{
-					assertThat(fileUnit.children.get(i), instanceOf(ClassUnit.class));
+					assertThat(actualUnits.get(i), instanceOf(ClassUnit.class));
 	
 					ClassUnit expected = (ClassUnit) typeUnits.get(i);
-					ClassUnit actual = (ClassUnit) fileUnit.children.get(i);
+					ClassUnit actual = (ClassUnit) actualUnits.get(i);
 					
 					assertEquals(expected.modifiers, actual.modifiers);
 					assertEquals(expected.classType, actual.classType);
@@ -229,12 +243,12 @@ class UnitParserTest
 					assertEquals(expected.extendClause, actual.extendClause);
 					assertEquals(expected.implementsClause, actual.implementsClause);
 				}
-				else if (fileUnit.children.get(i) instanceof AnonymousClassUnit)
+				else if (actualUnits.get(i) instanceof AnonymousClassUnit)
 				{
-					assertThat(fileUnit.children.get(i), instanceOf(AnonymousClassUnit.class));
+					assertThat(actualUnits.get(i), instanceOf(AnonymousClassUnit.class));
 	
 					AnonymousClassUnit expected = (AnonymousClassUnit) typeUnits.get(i);
-					AnonymousClassUnit actual = (AnonymousClassUnit) fileUnit.children.get(i);
+					AnonymousClassUnit actual = (AnonymousClassUnit) actualUnits.get(i);
 					
 					assertEquals(expected.name, actual.name);
 					assertEquals(expected.extendedType, actual.extendedType);
@@ -250,6 +264,7 @@ class UnitParserTest
 		void testClassLocations()
 		{
 			/* CURRENT UnitParserTest:
+			 *  0) Fix test of anonymous classes not working as they are not defined within a class!
 			 *  1) Verify that all possible method, constructor and initialiser declarations work.
 			 *  2) Verify that local scope declarations work.
 			 *  3) Verify that statement declarations work.
