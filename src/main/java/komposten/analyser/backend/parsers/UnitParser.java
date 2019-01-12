@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -145,6 +146,12 @@ public class UnitParser implements SourceParser
 		anonymousClassMatcher = PATTERN_ANONYMOUS_CLASS.matcher("");
 		blockMatcher = PATTERN_BLOCK.matcher("");
 		statementMatcher = PATTERN_STATEMENT.matcher("");
+	}
+	
+	
+	Collection<FileUnit> getFileUnits()
+	{
+		return fileUnitList;
 	}
 
 

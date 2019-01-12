@@ -1,4 +1,9 @@
 ==========
+2019-01-12
+==========
+- Started writing UnitParserTest. It currently only tests that class declarations are identified properly.
+
+==========
 2019-01-06
 ==========
 - UnitParser now supports abstract methods/methods declarations in interfaces (WIP).
