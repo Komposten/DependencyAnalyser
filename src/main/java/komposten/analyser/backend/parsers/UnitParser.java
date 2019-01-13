@@ -351,7 +351,7 @@ public class UnitParser implements SourceParser
 		{
 			MatchResult match = abstractMethodDefinitions.pollFirst();
 			UnitDefinition unitDefinition = new UnitDefinition(Unit.Type.Method, match);
-			createUnit(unitDefinition, parentUnit, -1, -1);
+			createUnit(unitDefinition, unitStack.peek(), -1, -1);
 			unitStack.pop();
 		}
 		
@@ -371,7 +371,7 @@ public class UnitParser implements SourceParser
 			{
 				MatchResult match = abstractMethodDefinitions.pollFirst();
 				UnitDefinition unitDefinition = new UnitDefinition(Unit.Type.Method, match);
-				createUnit(unitDefinition, parentUnit, -1, -1);
+				createUnit(unitDefinition, unitStack.peek(), -1, -1);
 				unitStack.pop();
 			}
 		}

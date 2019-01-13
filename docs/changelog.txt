@@ -4,6 +4,7 @@
 - UnitParser's Unit classes now initialise their string fields with empty strings.
 - UnitParserTest now tests constructor and initialiser declarations.
 - Re-factored parts of UnitParserTest (removed duplicated code, re-named fields, etc.)
+- Fixed UnitParser placing abstract methods under the wrong parent.
 
 ==========
 2019-01-12
