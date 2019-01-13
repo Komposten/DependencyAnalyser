@@ -49,7 +49,7 @@ class UnitParserTest
 		private List<String> typeUnitStrings;
 		
 		@BeforeAll
-		private void generateTypeDefinitions()
+		private void generateDefinitions()
 		{
 			typeUnits = new ArrayList<>();
 			typeUnitStrings = new ArrayList<>();
@@ -181,12 +181,12 @@ class UnitParserTest
 					{
 						for (String type2 : types)
 						{
-							AnonymousClassUnit unit = new AnonymousClassUnit(name, null);
+							AnonymousClassUnit unit = new AnonymousClassUnit(name, parentUnit);
 							unit.extendedType = type2;
 							typeUnitList.add(unit);
 							typeUnitStrings.add(String.format("%s %s %s %s = new %s () {}", accessLevel, modifier, type, name, type2));
 							
-							unit = new AnonymousClassUnit("", null);
+							unit = new AnonymousClassUnit("", parentUnit);
 							unit.extendedType = type2;
 							typeUnitList.add(unit);
 							typeUnitStrings.add(String.format("new %s () {}", type2));
@@ -258,16 +258,6 @@ class UnitParserTest
 		@Test
 		void testClassLocations()
 		{
-			/* CURRENT UnitParserTest:
-			 *  0) Fix test of anonymous classes not working as they are not defined within a class!
-			 *  1) Verify that all possible method, constructor and initialiser declarations work.
-			 *  2) Verify that local scope declarations work.
-			 *  3) Verify that statement declarations work.
-			 *  4) Make sure units can only be defined in the appropriate places.
-			 *  		a) Make a file containing all valid unit types in all possible valid locations.
-			 *  		b) Add all unit types in all possible invalid locations.
-			 *  		c) Test that getFileUnits() only contains the valid units.
-			 */
 		}
 	}
 }
