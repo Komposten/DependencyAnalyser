@@ -1,15 +1,12 @@
 package komposten.analyser.backend.parsers;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -31,6 +28,7 @@ import komposten.analyser.tools.Settings;
 class UnitParserTest
 {
 	private static Settings settings;
+	
 
 	@BeforeAll
 	static void setupSettings() throws IOException
@@ -234,7 +232,7 @@ class UnitParserTest
 			{
 				if (units.get(i) instanceof ClassUnit)
 				{
-					assertThat(actualUnits.get(i), instanceOf(ClassUnit.class));
+					assertThat(actualUnits.get(i)).isInstanceOf(ClassUnit.class);
 	
 					ClassUnit expected = (ClassUnit) units.get(i);
 					ClassUnit actual = (ClassUnit) actualUnits.get(i);
@@ -247,7 +245,7 @@ class UnitParserTest
 				}
 				else if (actualUnits.get(i) instanceof AnonymousClassUnit)
 				{
-					assertThat(actualUnits.get(i), instanceOf(AnonymousClassUnit.class));
+					assertThat(actualUnits.get(i)).isInstanceOf(AnonymousClassUnit.class);
 	
 					AnonymousClassUnit expected = (AnonymousClassUnit) units.get(i);
 					AnonymousClassUnit actual = (AnonymousClassUnit) actualUnits.get(i);
@@ -345,7 +343,7 @@ class UnitParserTest
 			{
 				if (units.get(i) instanceof MethodUnit)
 				{
-					assertThat(actualUnits.get(i), instanceOf(MethodUnit.class));
+					assertThat(actualUnits.get(i)).isInstanceOf(MethodUnit.class);
 	
 					MethodUnit expected = (MethodUnit) units.get(i);
 					MethodUnit actual = (MethodUnit) actualUnits.get(i);
