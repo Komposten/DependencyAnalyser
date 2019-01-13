@@ -5,6 +5,7 @@
 - UnitParserTest now tests constructor and initialiser declarations.
 - Re-factored parts of UnitParserTest (removed duplicated code, re-named fields, etc.)
 - Fixed UnitParser placing abstract methods under the wrong parent.
+- UnitParserTest now tests method definitions.
 
 ==========
 2019-01-12
