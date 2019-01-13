@@ -468,7 +468,7 @@ public class UnitParser implements SourceParser
 				break;
 			case Initialiser :
 				String name = unitDef.matchGroups[1];
-				String modifiers = null;
+				String modifiers = "";
 				
 				if (name.equals("static"))
 				{
@@ -994,10 +994,10 @@ public class UnitParser implements SourceParser
 			}
 		}
 		
-		String modifiers;
+		String modifiers = "";
 		Type classType;
-		String extendClause;
-		String implementsClause;
+		String extendClause = "";
+		String implementsClause = "";
 		
 		public ClassUnit(String name, Unit parent)
 		{
@@ -1008,7 +1008,7 @@ public class UnitParser implements SourceParser
 	
 	public static class AnonymousClassUnit extends Unit
 	{
-		String extendedType;
+		String extendedType = "";
 		
 		public AnonymousClassUnit(String name, Unit parent)
 		{
@@ -1019,9 +1019,9 @@ public class UnitParser implements SourceParser
 	
 	public static class MethodUnit extends Unit
 	{
-		String modifiers;
-		String returnType;
-		String parameterClause;
+		String modifiers = "";
+		String returnType = "";
+		String parameterClause = "";
 		
 		public MethodUnit(String name, Unit parent)
 		{

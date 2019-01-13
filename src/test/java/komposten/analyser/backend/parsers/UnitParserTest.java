@@ -125,7 +125,6 @@ class UnitParserTest
 							unit.classType = type;
 							unit.modifiers = (accessLevel + " " + modifier).trim();
 							unit.extendClause = extendClause;
-							unit.implementsClause = "";
 
 							typeUnitList.add(unit);
 							typeUnitStrings.add(createStringFromClassUnit(unit));
@@ -152,7 +151,6 @@ class UnitParserTest
 						ClassUnit unit = new ClassUnit(name, null);
 						unit.classType = type;
 						unit.modifiers = (accessLevel + " " + modifier).trim();
-						unit.extendClause = "";
 						unit.implementsClause = implClause;
 
 						typeUnitList.add(unit);
@@ -170,10 +168,7 @@ class UnitParserTest
 			String name = "field";
 			
 			ClassUnit parentUnit = new ClassUnit("ParentOfAnonymous", null);
-			parentUnit.modifiers = "";
 			parentUnit.classType = Type.Class;
-			parentUnit.extendClause = "";
-			parentUnit.implementsClause = "";
 			typeUnitList.add(parentUnit);
 			typeUnitStrings.add("class ParentOfAnonymous {");
 			
