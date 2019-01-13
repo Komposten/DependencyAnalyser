@@ -2,6 +2,7 @@
 2019-01-13
 ==========
 - UnitParser's Unit classes now initialise their string fields with empty strings.
+- UnitParserTest now tests constructor and initialiser declarations.
 
 ==========
 2019-01-12

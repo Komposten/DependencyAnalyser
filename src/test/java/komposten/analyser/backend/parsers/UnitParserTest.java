@@ -22,6 +22,7 @@ import komposten.analyser.backend.parsers.UnitParser.AnonymousClassUnit;
 import komposten.analyser.backend.parsers.UnitParser.ClassUnit;
 import komposten.analyser.backend.parsers.UnitParser.ClassUnit.Type;
 import komposten.analyser.backend.parsers.UnitParser.FileUnit;
+import komposten.analyser.backend.parsers.UnitParser.MethodUnit;
 import komposten.analyser.backend.parsers.UnitParser.Unit;
 import komposten.analyser.backend.util.Constants;
 import komposten.analyser.gui.backend.AnalyserSettings;
@@ -254,10 +255,119 @@ class UnitParserTest
 				}
 			}
 		}
+	}
+	
+	@TestInstance(Lifecycle.PER_CLASS)
+	@Nested
+	class MethodUnits
+	{
+		private List<Unit> units;
+		private List<String> unitStrings;
 		
-		@Test
-		void testClassLocations()
+		@BeforeAll
+		private void generateDefinitions()
 		{
+			units = new ArrayList<>();
+			unitStrings = new ArrayList<>();
+			
+			ClassUnit parentUnit = new ClassUnit("Parent", null);
+			parentUnit.modifiers = parentUnit.extendClause = parentUnit.implementsClause = "";
+			parentUnit.classType = Type.Class;
+			unitStrings.add("class Parent {");
+			
+			generateMethodDefinitions(units, unitStrings, parentUnit);
+			generateConstructorDefinitions(units, unitStrings, parentUnit);
+			generateInitialiserDefinitions(units, unitStrings, parentUnit);
+			
+			unitStrings.add("}");
+		}
+
+		private void generateMethodDefinitions(List<Unit> units,
+				List<String> unitStrings, Unit parentUnit)
+		{
+		}
+
+		private void generateConstructorDefinitions(List<Unit> units,
+				List<String> unitStrings, Unit parentUnit)
+		{
+			String[] access = { "", "public", "protected", "private" };
+			String name = parentUnit.name;
+			
+			for (String accessLevel : access)
+			{
+				MethodUnit unit = createMethodUnit(accessLevel, "", name, "", Unit.Type.Constructor, parentUnit);
+
+				units.add(unit);
+				unitStrings.add(String.format("%s %s() {}", accessLevel, name));
+			}
+		}
+
+		private void generateInitialiserDefinitions(List<Unit> units,
+				List<String> unitStrings, Unit parentUnit)
+		{
+			MethodUnit initialiser = createMethodUnit("", "", "<initialiser>", "", Unit.Type.Initialiser, parentUnit);
+			MethodUnit staticInitialiser = createMethodUnit("static", "", "", "", Unit.Type.Initialiser, parentUnit);
+			
+			units.add(initialiser);
+			units.add(staticInitialiser);
+			
+			unitStrings.add("{ }");
+			unitStrings.add("static { }");
+		}
+		
+		private MethodUnit createMethodUnit(String modifiers, String returnType, String name, String parameterClause, Unit.Type type, Unit parent)
+		{
+			MethodUnit unit = new MethodUnit(name, parent);
+			unit.modifiers = modifiers;
+			unit.returnType = returnType;
+			unit.parameterClause = parameterClause;
+			unit.type = type;
+			return unit;
+		}
+
+		@Test
+		void testMethodRecognition()
+		{
+			UnitParser parser = new UnitParser(settings);
+			
+			parser.nextFile(new File(""));
+			
+			for (String unitString : unitStrings)
+			{
+				parser.parseLine(unitString, unitString);
+			}
+			
+			parser.postFile();
+
+			Collection<FileUnit> fileUnits = parser.getFileUnits();
+			Iterator<FileUnit> iterator = fileUnits.iterator();
+			
+			FileUnit fileUnit = iterator.next();
+			
+			List<Unit> actualUnits = new ArrayList<>(units.size());
+			actualUnits.addAll(fileUnit.children.get(0).children);
+			
+			assertEquals(units.size(), actualUnits.size());
+			
+			for (int i = 0; i < units.size(); i++)
+			{
+				if (units.get(i) instanceof MethodUnit)
+				{
+					assertThat(actualUnits.get(i), instanceOf(MethodUnit.class));
+	
+					MethodUnit expected = (MethodUnit) units.get(i);
+					MethodUnit actual = (MethodUnit) actualUnits.get(i);
+					
+					assertEquals(expected.modifiers, actual.modifiers);
+					assertEquals(expected.returnType, actual.returnType);
+					assertEquals(expected.name, actual.name);
+					assertEquals(expected.parameterClause, actual.parameterClause);
+				}
+				else
+				{
+					fail(String.format("units.get(%d) is not a MethodUnit: %s", i, units.get(i).getClass()));
+				}
+			}
 		}
 	}
 }
