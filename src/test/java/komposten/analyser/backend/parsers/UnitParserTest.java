@@ -42,26 +42,42 @@ class UnitParserTest
 		settings.set(Constants.SettingKeys.METHOD_LENGTH_THRESHOLD, "0");
 	}
 	
+	private FileUnit parseStringList(List<String> linesToParse)
+	{
+		UnitParser parser = new UnitParser(settings);
+		
+		parser.nextFile(new File(""));
+		
+		for (String unitString : linesToParse)
+		{
+			parser.parseLine(unitString, unitString);
+		}
+		
+		parser.postFile();
+
+		return parser.getFileUnits().iterator().next();
+	}
+	
 	@TestInstance(Lifecycle.PER_CLASS)
 	@Nested
 	class TypeUnits
 	{
-		private List<Unit> typeUnits;
-		private List<String> typeUnitStrings;
+		private List<Unit> units;
+		private List<String> unitStrings;
 		
 		@BeforeAll
 		private void generateDefinitions()
 		{
-			typeUnits = new ArrayList<>();
-			typeUnitStrings = new ArrayList<>();
+			units = new ArrayList<>();
+			unitStrings = new ArrayList<>();
 			
-			generateClassDefinitions(typeUnits, typeUnitStrings);
-			generateEnumDefinitions(typeUnits, typeUnitStrings);
-			generateInterfaceDefinitions(typeUnits, typeUnitStrings);
-			generateAnonymousDefinitions(typeUnits, typeUnitStrings);
+			generateClassDefinitions(units, unitStrings);
+			generateEnumDefinitions(units, unitStrings);
+			generateInterfaceDefinitions(units, unitStrings);
+			generateAnonymousDefinitions(units, unitStrings);
 		}
 
-		private void generateClassDefinitions(List<Unit> typeUnitList, List<String> typeUnitStrings)
+		private void generateClassDefinitions(List<Unit> units, List<String> unitStrings)
 		{
 			String[] access = { "", "public", "protected", "private" };
 			String[] modifiers = { "", "abstract", "final", "static", "static abstract", "static final" };
@@ -80,16 +96,64 @@ class UnitParserTest
 						{
 							for (String implClause : implement)
 							{
-								ClassUnit unit = new ClassUnit(name, null);
-								unit.classType = type;
-								unit.modifiers = (accessLevel + " " + modifier).trim();
-								unit.extendClause = extendClause;
-								unit.implementsClause = implClause;
+								String combinedMods = (accessLevel + " " + modifier).trim();
+								ClassUnit unit = createClassUnit(combinedMods, type, name, extendClause, implClause, null);
 								
-								typeUnitList.add(unit);
-								typeUnitStrings.add(createStringFromClassUnit(unit));
+								units.add(unit);
+								unitStrings.add(createStringFromClassUnit(unit));
 							}
 						}
+					}
+				}
+			}
+		}
+		
+		private void generateInterfaceDefinitions(List<Unit> units, List<String> unitStrings)
+		{
+			String[] access = { "", "public", "protected", "private" };
+			String[] modifiers = { "", "abstract", "static", "static abstract", "abstract static" };
+			Type type = Type.Interface;
+			String[] names = { "Class", "Class<T>", "Class<K, V>" };
+			String[] extend = { "", "Parent", "Parent<Other>", "Parent<Other, Other2>" };
+			
+			for (String accessLevel : access)
+			{
+				for (String modifier : modifiers)
+				{
+					for (String name : names)
+					{
+						for (String extendClause : extend)
+						{
+							String combinedMods = (accessLevel + " " + modifier).trim();
+							ClassUnit unit = createClassUnit(combinedMods, type, name, extendClause, "", null);
+
+							units.add(unit);
+							unitStrings.add(createStringFromClassUnit(unit));
+						}
+					}
+				}
+			}
+		}
+
+		private void generateEnumDefinitions(List<Unit> units, List<String> unitStrings)
+		{
+			String[] access = { "", "public", "protected", "private" };
+			String[] modifiers = { "", "static" };
+			Type type = Type.Enum;
+			String name = "AnEnum";
+			String[] implement = { "", "Parent", "Parent<Other>", "Parent<Other, Other2>", "Parent, Parent2", "Parent<Other>, Parent2<Other>" };
+			
+			for (String accessLevel : access)
+			{
+				for (String modifier : modifiers)
+				{
+					for (String implClause : implement)
+					{
+						String combinedMods = (accessLevel + " " + modifier).trim();
+						ClassUnit unit = createClassUnit(combinedMods, type, name, "", implClause, null);
+
+						units.add(unit);
+						unitStrings.add(createStringFromClassUnit(unit));
 					}
 				}
 			}
@@ -106,62 +170,7 @@ class UnitParserTest
 			return typeString;
 		}
 		
-		private void generateInterfaceDefinitions(List<Unit> typeUnitList, List<String> typeUnitStrings)
-		{
-			String[] access = { "", "public", "protected", "private" };
-			String[] modifiers = { "", "abstract", "static", "static abstract", "abstract static" };
-			Type type = Type.Interface;
-			String[] names = { "Class", "Class<T>", "Class<K, V>" };
-			String[] extend = { "", "Parent", "Parent<Other>", "Parent<Other, Other2>" };
-			
-			for (String accessLevel : access)
-			{
-				for (String modifier : modifiers)
-				{
-					for (String name : names)
-					{
-						for (String extendClause : extend)
-						{
-							ClassUnit unit = new ClassUnit(name, null);
-							unit.classType = type;
-							unit.modifiers = (accessLevel + " " + modifier).trim();
-							unit.extendClause = extendClause;
-
-							typeUnitList.add(unit);
-							typeUnitStrings.add(createStringFromClassUnit(unit));
-						}
-					}
-				}
-			}
-		}
-
-		private void generateEnumDefinitions(List<Unit> typeUnitList, List<String> typeUnitStrings)
-		{
-			String[] access = { "", "public", "protected", "private" };
-			String[] modifiers = { "", "static" };
-			Type type = Type.Enum;
-			String name = "AnEnum";
-			String[] implement = { "", "Parent", "Parent<Other>", "Parent<Other, Other2>", "Parent, Parent2", "Parent<Other>, Parent2<Other>" };
-			
-			for (String accessLevel : access)
-			{
-				for (String modifier : modifiers)
-				{
-					for (String implClause : implement)
-					{
-						ClassUnit unit = new ClassUnit(name, null);
-						unit.classType = type;
-						unit.modifiers = (accessLevel + " " + modifier).trim();
-						unit.implementsClause = implClause;
-
-						typeUnitList.add(unit);
-						typeUnitStrings.add(createStringFromClassUnit(unit));
-					}
-				}
-			}
-		}
-		
-		private void generateAnonymousDefinitions(List<Unit> typeUnitList, List<String> typeUnitStrings)
+		private void generateAnonymousDefinitions(List<Unit> units, List<String> unitStrings)
 		{
 			String[] access = { "", "public", "protected", "private" };
 			String[] modifiers = { "", "final", "static", "final static", "static final" };
@@ -170,8 +179,8 @@ class UnitParserTest
 			
 			ClassUnit parentUnit = new ClassUnit("ParentOfAnonymous", null);
 			parentUnit.classType = Type.Class;
-			typeUnitList.add(parentUnit);
-			typeUnitStrings.add("class ParentOfAnonymous {");
+			units.add(parentUnit);
+			unitStrings.add("class ParentOfAnonymous {");
 			
 			//access modifier type name = new type
 			for (String accessLevel : access)
@@ -184,53 +193,50 @@ class UnitParserTest
 						{
 							AnonymousClassUnit unit = new AnonymousClassUnit(name, parentUnit);
 							unit.extendedType = type2;
-							typeUnitList.add(unit);
-							typeUnitStrings.add(String.format("%s %s %s %s = new %s () {}", accessLevel, modifier, type, name, type2));
+							units.add(unit);
+							unitStrings.add(String.format("%s %s %s %s = new %s () {}", accessLevel, modifier, type, name, type2));
 							
 							unit = new AnonymousClassUnit("", parentUnit);
 							unit.extendedType = type2;
-							typeUnitList.add(unit);
-							typeUnitStrings.add(String.format("new %s () {}", type2));
+							units.add(unit);
+							unitStrings.add(String.format("new %s () {}", type2));
 						}
 					}
 				}
 			}
 			
-			typeUnitStrings.add("}");
+			unitStrings.add("}");
+		}
+		
+		private ClassUnit createClassUnit(String modifiers, Type type, String name, String extend, String implement, Unit parent)
+		{
+			ClassUnit unit = new ClassUnit(name, parent);
+			unit.type = Unit.Type.Class;
+			unit.modifiers = modifiers;
+			unit.classType = type;
+			unit.extendClause = extend;
+			unit.implementsClause = implement;
+			return unit;
 		}
 		
 		@Test
 		void testClassRecognition()
 		{
-			UnitParser parser = new UnitParser(settings);
+			FileUnit fileUnit = parseStringList(unitStrings);
 			
-			parser.nextFile(new File(""));
-			
-			for (String unitString : typeUnitStrings)
-			{
-				parser.parseLine(unitString, unitString);
-			}
-			
-			parser.postFile();
-
-			Collection<FileUnit> fileUnits = parser.getFileUnits();
-			Iterator<FileUnit> iterator = fileUnits.iterator();
-			
-			FileUnit fileUnit = iterator.next();
-			
-			List<Unit> actualUnits = new ArrayList<>(typeUnits.size());
+			List<Unit> actualUnits = new ArrayList<>(units.size());
 			actualUnits.addAll(fileUnit.children);
 			actualUnits.addAll(fileUnit.children.get(fileUnit.children.size()-1).children);
 			
-			assertEquals(typeUnits.size(), actualUnits.size());
+			assertEquals(units.size(), actualUnits.size());
 			
-			for (int i = 0; i < typeUnits.size(); i++)
+			for (int i = 0; i < units.size(); i++)
 			{
-				if (typeUnits.get(i) instanceof ClassUnit)
+				if (units.get(i) instanceof ClassUnit)
 				{
 					assertThat(actualUnits.get(i), instanceOf(ClassUnit.class));
 	
-					ClassUnit expected = (ClassUnit) typeUnits.get(i);
+					ClassUnit expected = (ClassUnit) units.get(i);
 					ClassUnit actual = (ClassUnit) actualUnits.get(i);
 					
 					assertEquals(expected.modifiers, actual.modifiers);
@@ -243,7 +249,7 @@ class UnitParserTest
 				{
 					assertThat(actualUnits.get(i), instanceOf(AnonymousClassUnit.class));
 	
-					AnonymousClassUnit expected = (AnonymousClassUnit) typeUnits.get(i);
+					AnonymousClassUnit expected = (AnonymousClassUnit) units.get(i);
 					AnonymousClassUnit actual = (AnonymousClassUnit) actualUnits.get(i);
 					
 					assertEquals(expected.name, actual.name);
@@ -251,7 +257,7 @@ class UnitParserTest
 				}
 				else
 				{
-					fail(String.format("typeUnits.get(%d) is neither a ClassUnit nor an AnonymousClassUnit: %s", i, typeUnits.get(i).getClass()));
+					fail(String.format("typeUnits.get(%d) is neither a ClassUnit nor an AnonymousClassUnit: %s", i, units.get(i).getClass()));
 				}
 			}
 		}
@@ -328,21 +334,7 @@ class UnitParserTest
 		@Test
 		void testMethodRecognition()
 		{
-			UnitParser parser = new UnitParser(settings);
-			
-			parser.nextFile(new File(""));
-			
-			for (String unitString : unitStrings)
-			{
-				parser.parseLine(unitString, unitString);
-			}
-			
-			parser.postFile();
-
-			Collection<FileUnit> fileUnits = parser.getFileUnits();
-			Iterator<FileUnit> iterator = fileUnits.iterator();
-			
-			FileUnit fileUnit = iterator.next();
+			FileUnit fileUnit = parseStringList(unitStrings);
 			
 			List<Unit> actualUnits = new ArrayList<>(units.size());
 			actualUnits.addAll(fileUnit.children.get(0).children);
